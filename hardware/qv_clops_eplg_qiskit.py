@@ -85,15 +85,17 @@ def main():
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
 
-        # XEB / EPLG
-        if b in counts:
-            count = counts[b]
-            e_u = e_u + ideal_probs[i] ** 2
-            m_u = m_u + ideal_probs[i] * (count / n_pow)
+        if not b in counts:
+            continue
 
-            # QV / HOG
-            if ideal_probs[i] > threshold:
-                sum_hog_counts = sum_hog_counts + count
+        # XEB / EPLG
+        count = counts[b]
+        e_u = e_u + ideal_probs[i] ** 2
+        m_u = m_u + ideal_probs[i] * (count / n_pow)
+
+        # QV / HOG
+        if ideal_probs[i] > threshold:
+            sum_hog_counts = sum_hog_counts + count
 
     hog_prob = sum_hog_counts / n_pow
     xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
