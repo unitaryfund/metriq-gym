@@ -89,7 +89,7 @@ def main():
             sum_counts = sum_counts + counts[b]
             sum_prob = sum_prob + (counts[b] / n_pow)
 
-    p_val = (1 - binom.cdf(sum_counts, n_pow, 1 / 2)) if sum_counts > 0 else 1
+    p_val = (1 - binom.cdf(sum_counts - 1, n_pow, 1 / 2)) if sum_counts > 0 else 1
 
     print({
         'qubits': n,
