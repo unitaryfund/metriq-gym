@@ -109,7 +109,7 @@ def main():
         'p-value': p_val,
         'clops': ((n * n_pow) / interval),
         'xeb': xeb,
-        'eplg': (1 - xeb) ** (1 / n)
+        'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
     })
 
     return 0
