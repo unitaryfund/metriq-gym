@@ -93,7 +93,8 @@ def main():
         'seconds': interval,
         'hog_prob': sum_prob,
         'pass': (sum_prob >= 2 / 3),
-        'p-value': p_val
+        'p-value': p_val,
+        'clops': ((n * n_pow) / interval)
     })
 
     return 0
