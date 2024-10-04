@@ -56,12 +56,9 @@ def bench_qrack(n):
     aer_sim = AerSimulator()
     circ = transpile(circ, aer_sim)
 
-    start = time.perf_counter()
-
     result = aer_sim.run(circ, shots=(1 << n)).result()
     counts = result.get_counts(circ)
-
-    interval = time.perf_counter() - start
+    interval = result.time_taken
 
     return (ideal_probs, counts, interval)
 
