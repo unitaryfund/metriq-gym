@@ -90,8 +90,9 @@ def main():
 
         # XEB / EPLG
         count = counts[b]
-        e_u = e_u + ideal_probs[i] ** 2
-        m_u = m_u + ideal_probs[i] * (count / n_pow)
+        ideal = ideal_probs[i]
+        e_u = e_u + ideal ** 2
+        m_u = m_u + ideal * (count / n_pow)
 
         # QV / HOG
         if ideal_probs[i] > threshold:
@@ -104,11 +105,11 @@ def main():
     print({
         'qubits': n,
         'seconds': interval,
+        'xeb': xeb,
         'hog_prob': hog_prob,
         'pass': (hog_prob >= 2 / 3),
         'p-value': p_val,
         'clops': ((n * n_pow) / interval),
-        'xeb': xeb,
         'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
     })
 
