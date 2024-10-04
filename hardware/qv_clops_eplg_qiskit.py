@@ -75,26 +75,36 @@ def main():
     counts = results[1]
     interval = results[2]
 
-    # We compare probabilities of (ideal) "heavy outputs."
+    # For QV, we compare probabilities of (ideal) "heavy outputs."
     # If the probability is above 2/3, the protocol certifies/passes the qubit width.
     threshold = statistics.median(ideal_probs)
-    sum_prob = 0
-    sum_counts = 0
+    sum_xeb_counts = 0
+    sum_hog_counts = 0
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
-        if (ideal_probs[i] >= threshold) and (b in counts):
-            sum_counts = sum_counts + counts[b]
-            sum_prob = sum_prob + (counts[b] / n_pow)
 
-    p_val = (1 - binom.cdf(sum_counts - 1, n_pow, 1 / 2)) if sum_counts > 0 else 1
+        # XEB / EPLG
+        if b in counts:
+            count = counts[b]
+            sum_xeb_counts = sum_xeb_counts + count
+
+            # QV / HOG
+            if ideal_probs[i] > threshold:
+                sum_hog_counts = sum_hog_counts + count
+
+    hog_prob = sum_hog_counts / n_pow
+    xeb = sum_xeb_counts / n_pow
+    p_val = (1 - binom.cdf(sum_hog_counts - 1, n_pow, 1 / 2)) if sum_hog_counts > 0 else 1
 
     print({
         'qubits': n,
         'seconds': interval,
-        'hog_prob': sum_prob,
-        'pass': (sum_prob >= 2 / 3),
+        'hog_prob': hog_prob,
+        'pass': (hog_prob >= 2 / 3),
         'p-value': p_val,
-        'clops': ((n * n_pow) / interval)
+        'clops': ((n * n_pow) / interval),
+        'xeb': xeb,
+        'eplg': (1 - xeb) ** (1 / n)
     })
 
     return 0
