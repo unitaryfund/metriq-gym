@@ -78,7 +78,9 @@ def main():
     # For QV, we compare probabilities of (ideal) "heavy outputs."
     # If the probability is above 2/3, the protocol certifies/passes the qubit width.
     threshold = statistics.median(ideal_probs)
-    sum_xeb_counts = 0
+    u_u = statistics.mean(ideal_probs)
+    e_u = 0
+    m_u = 0
     sum_hog_counts = 0
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
@@ -86,14 +88,15 @@ def main():
         # XEB / EPLG
         if b in counts:
             count = counts[b]
-            sum_xeb_counts = sum_xeb_counts + count
+            e_u = e_u + ideal_probs[i] ** 2
+            m_u = m_u + ideal_probs[i] * (count / n_pow)
 
             # QV / HOG
             if ideal_probs[i] > threshold:
                 sum_hog_counts = sum_hog_counts + count
 
     hog_prob = sum_hog_counts / n_pow
-    xeb = sum_xeb_counts / n_pow
+    xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
     p_val = (1 - binom.cdf(sum_hog_counts - 1, n_pow, 1 / 2)) if sum_hog_counts > 0 else 1
 
     print({
