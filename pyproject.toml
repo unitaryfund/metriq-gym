@@ -2,7 +2,11 @@
 name = "metriq-gym"
 version = "0.1.0"
 description = ""
-authors = ["vprusso <vincentrusso1@gmail.com>"]
+authors = [
+    "UnitaryFund",
+    "Daniel Strano <dan@unitary.fund>",
+    "Vincent Russo <vincent@unitary.fund>"
+]
 readme = "README.md"
 
 [tool.poetry.dependencies]
