@@ -1,0 +1,18 @@
+[tool.poetry]
+name = "metriq-gym"
+version = "0.1.0"
+description = ""
+authors = ["vprusso <vincentrusso1@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+scipy = "^1.14.1"
+pyqrack = "^1.30.31"
+qiskit-aer = "^0.15.1"
+qiskit-ibm-runtime = "^0.30.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
