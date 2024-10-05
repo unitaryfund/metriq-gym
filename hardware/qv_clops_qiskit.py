@@ -96,8 +96,9 @@ def calc_stats(ideal_probs, counts, interval, shots):
 
 
 def main():
-    n = 20
-    shots = 1 << n
+    n = 16
+    shots = 8
+    trials = 8
     backend = "qasm_simulator"
     if len(sys.argv) > 1:
         n = int(sys.argv[1])
@@ -106,17 +107,37 @@ def main():
     else:
         shots = 1 << n
     if len(sys.argv) > 3:
-        backend = sys.argv[3]
+        trials = int(sys.argv[3])
     if len(sys.argv) > 4:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[4], set_as_default=True)
+        backend = sys.argv[4]
+    if len(sys.argv) > 5:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[5], set_as_default=True)
 
-    results = bench_qrack(n, backend, shots)
+    result = bench_qrack(n, backend, shots)
 
-    ideal_probs = results[0]
-    counts = results[1]
-    interval = results[2]
+    ideal_probs = result[0]
+    counts = result[1]
+    interval = result[2]
 
-    print(calc_stats(ideal_probs, counts, interval, shots))
+    if trials == 1:
+        print(calc_stats(ideal_probs, counts, interval, shots))
+        return 0
+
+    result = calc_stats(ideal_probs, counts, interval, shots)
+    for trial in range(1, trials):
+        t = bench_qrack(n, backend, shots)
+        s = calc_stats(t[0], t[1],t[2], shots)
+        result['seconds'] = result['seconds'] + s['seconds']
+        result['hog_prob'] = result['hog_prob'] + s['hog_prob']
+        result['p-value'] = result['p-value'] * s['p-value']
+        result['clops'] = result['clops'] + s['clops']
+
+    result['hog_prob'] = result['hog_prob'] / trials
+    result['p-value'] = result['p-value'] ** (1 / trials)
+    result['clops'] = result['clops'] / trials
+    result['pass'] = result['hog_prob'] >= 2 / 3
+
+    print(result)
 
     return 0
 
