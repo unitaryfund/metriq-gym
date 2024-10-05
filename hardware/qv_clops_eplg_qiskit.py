@@ -49,7 +49,7 @@ def bench_qrack(n, backend):
 
     sim = QrackSimulator(n)
     sim.run_qiskit_circuit(circ, shots=0)
-    ideal_probs = [(x * (x.conjugate())).real for x in sim.out_ket()]
+    ideal_probs = sim.out_probs()
     del sim
 
     circ.measure_all()
