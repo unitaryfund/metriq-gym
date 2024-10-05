@@ -47,10 +47,12 @@ def bench_qrack(n, backend, shots):
             t = unused_bits.pop()
             coupler(circ, c, t)
 
+    start = time.perf_counter()
     sim = QrackSimulator(n)
     sim.run_qiskit_circuit(circ, shots=0)
     ideal_probs = sim.out_probs()
     del sim
+    sim_interval = time.perf_counter() - start
 
     circ.measure_all()
 
@@ -61,10 +63,10 @@ def bench_qrack(n, backend, shots):
     counts = result.get_counts(circ)
     interval = result.time_taken
 
-    return (ideal_probs, counts, interval)
+    return (ideal_probs, counts, interval, sim_interval)
 
 
-def calc_stats(ideal_probs, counts, interval, shots):
+def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
     # For QV, we compare probabilities of (ideal) "heavy outputs."
     # If the probability is above 2/3, the protocol certifies/passes the qubit width.
     n_pow = len(ideal_probs)
@@ -103,6 +105,7 @@ def calc_stats(ideal_probs, counts, interval, shots):
         'pass': hog_prob >= 2 / 3,
         'p-value': p_val,
         'clops': (n * shots) / interval,
+        'sim_clops': (n * shots) / sim_interval,
         'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
     }
 
@@ -127,8 +130,9 @@ def main():
     ideal_probs = results[0]
     counts = results[1]
     interval = results[2]
+    sim_interval = results[3]
 
-    print(calc_stats(ideal_probs, counts, interval, shots))
+    print(calc_stats(ideal_probs, counts, interval, sim_interval, shots))
 
     return 0
 

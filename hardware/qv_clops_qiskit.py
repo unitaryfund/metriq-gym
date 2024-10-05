@@ -47,10 +47,12 @@ def bench_qrack(n, backend, shots):
             t = unused_bits.pop()
             coupler(circ, c, t)
 
+    start = time.perf_counter()
     sim = QrackSimulator(n)
     sim.run_qiskit_circuit(circ, shots=0)
     ideal_probs = sim.out_probs()
     del sim
+    sim_interval = time.perf_counter() - start
 
     circ.measure_all()
 
@@ -61,10 +63,10 @@ def bench_qrack(n, backend, shots):
     counts = result.get_counts(circ)
     interval = result.time_taken
 
-    return (ideal_probs, counts, interval)
+    return (ideal_probs, counts, interval, sim_interval)
 
 
-def calc_stats(ideal_probs, counts, interval, shots):
+def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
     # For QV, we compare probabilities of (ideal) "heavy outputs."
     # If the probability is above 2/3, the protocol certifies/passes the qubit width.
     n_pow = len(ideal_probs)
@@ -88,10 +90,12 @@ def calc_stats(ideal_probs, counts, interval, shots):
     return {
         'qubits': n,
         'seconds': interval,
+        'sim_seconds': sim_interval,
         'hog_prob': hog_prob,
         'pass': hog_prob >= 2 / 3,
         'p-value': p_val,
-        'clops': (n * shots) / interval
+        'clops': (n * shots) / interval,
+        'sim_clops': (n * shots) / sim_interval
     }
 
 
@@ -118,24 +122,26 @@ def main():
     ideal_probs = result[0]
     counts = result[1]
     interval = result[2]
+    sim_interval = result[3]
 
     if trials == 1:
-        print(calc_stats(ideal_probs, counts, interval, shots))
+        print(calc_stats(ideal_probs, counts, interval, sim_interval, shots))
         return 0
 
-    result = calc_stats(ideal_probs, counts, interval, shots)
+    result = calc_stats(ideal_probs, counts, interval, sim_interval, shots)
     for trial in range(1, trials):
         t = bench_qrack(n, backend, shots)
-        s = calc_stats(t[0], t[1],t[2], shots)
+        s = calc_stats(t[0], t[1], t[2], t[3], shots)
         result['seconds'] = result['seconds'] + s['seconds']
+        result['sim_seconds'] = result['sim_seconds'] + s['sim_seconds']
         result['hog_prob'] = result['hog_prob'] + s['hog_prob']
         result['p-value'] = result['p-value'] * s['p-value']
-        result['clops'] = result['clops'] + s['clops']
 
     result['hog_prob'] = result['hog_prob'] / trials
-    result['p-value'] = result['p-value'] ** (1 / trials)
-    result['clops'] = result['clops'] / trials
     result['pass'] = result['hog_prob'] >= 2 / 3
+    result['p-value'] = result['p-value'] ** (1 / trials)
+    result['clops'] = (n * shots * trials) / result['seconds']
+    result['sim_clops'] = (n * shots * trials) / result['sim_seconds']
 
     print(result)
 
