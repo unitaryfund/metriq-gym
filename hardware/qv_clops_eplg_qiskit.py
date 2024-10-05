@@ -27,7 +27,7 @@ def coupler(circ, q1, q2):
     circ.cx(q1, q2)
 
 
-def bench_qrack(n, backend):
+def bench_qrack(n, backend, shots):
     # This is a "quantum volume" (random) circuit.
     circ = QuantumCircuit(n)
 
@@ -57,14 +57,14 @@ def bench_qrack(n, backend):
     device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
     circ = transpile(circ, device, layout_method = "noise_adaptive")
 
-    result = device.run(circ, shots=(1 << n)).result()
+    result = device.run(circ, shots=shots).result()
     counts = result.get_counts(circ)
     interval = result.time_taken
 
     return (ideal_probs, counts, interval)
 
 
-def calc_stats(ideal_probs, counts, interval):
+def calc_stats(ideal_probs, counts, interval, shots):
     # For QV, we compare probabilities of (ideal) "heavy outputs."
     # If the probability is above 2/3, the protocol certifies/passes the qubit width.
     n_pow = len(ideal_probs)
@@ -84,15 +84,15 @@ def calc_stats(ideal_probs, counts, interval):
         count = counts[b]
         ideal = ideal_probs[i]
         e_u = e_u + ideal ** 2
-        m_u = m_u + ideal * (count / n_pow)
+        m_u = m_u + ideal * (count / shots)
 
         # QV / HOG
         if ideal_probs[i] > threshold:
             sum_hog_counts = sum_hog_counts + count
 
-    hog_prob = sum_hog_counts / n_pow
+    hog_prob = sum_hog_counts / shots
     xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
-    p_val = (1 - binom.cdf(sum_hog_counts - 1, n_pow, 1 / 2)) if sum_hog_counts > 0 else 1
+    p_val = (1 - binom.cdf(sum_hog_counts - 1, shots, 1 / 2)) if sum_hog_counts > 0 else 1
 
     return {
         'qubits': n,
@@ -101,28 +101,33 @@ def calc_stats(ideal_probs, counts, interval):
         'hog_prob': hog_prob,
         'pass': (hog_prob >= 2 / 3),
         'p-value': p_val,
-        'clops': ((n * n_pow) / interval),
+        'clops': ((n * shots) / interval),
         'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
     }
 
 
 def main():
     n = 20
+    shots = 1 << n
     backend = "qasm_simulator"
     if len(sys.argv) > 1:
         n = int(sys.argv[1])
     if len(sys.argv) > 2:
-        backend = sys.argv[2]
+        shots = int(sys.argv[2])
+    else:
+        shots = 1 << n
     if len(sys.argv) > 3:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[3], set_as_default=True)
+        backend = sys.argv[3]
+    if len(sys.argv) > 4:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[4], set_as_default=True)
 
-    results = bench_qrack(n, backend)
+    results = bench_qrack(n, backend, shots)
 
     ideal_probs = results[0]
     counts = results[1]
     interval = results[2]
 
-    print(calc_stats(ideal_probs, counts, interval))
+    print(calc_stats(ideal_probs, counts, interval, shots))
 
     return 0
 
