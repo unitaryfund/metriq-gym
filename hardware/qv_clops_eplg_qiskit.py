@@ -10,9 +10,10 @@ from scipy.stats import binom
 
 from pyqrack import QrackSimulator
 
+from qiskit_aer import Aer
+from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit import QuantumCircuit
 from qiskit.compiler import transpile
-from qiskit_aer.backends import AerSimulator
 
 
 def rand_u3(circ, q):
@@ -26,7 +27,7 @@ def coupler(circ, q1, q2):
     circ.cx(q1, q2)
 
 
-def bench_qrack(n):
+def bench_qrack(n, backend):
     # This is a "quantum volume" (random) circuit.
     circ = QuantumCircuit(n)
 
@@ -53,10 +54,15 @@ def bench_qrack(n):
 
     circ.measure_all()
 
-    aer_sim = AerSimulator()
-    circ = transpile(circ, aer_sim)
+    device = None
+    if len(Aer.backends(backend)) > 0:
+        device = Aer.get_backend(backend)
+    else:
+        service = QiskitRuntimeService()
+        device = service.backend(backend)
+    circ = transpile(circ, device)
 
-    result = aer_sim.run(circ, shots=(1 << n)).result()
+    result = device.run(circ, shots=(1 << n)).result()
     counts = result.get_counts(circ)
     interval = result.time_taken
 
@@ -65,11 +71,16 @@ def bench_qrack(n):
 
 def main():
     n = 20
+    backend = "qasm_simulator"
     if len(sys.argv) > 1:
         n = int(sys.argv[1])
+    if len(sys.argv) > 2:
+        backend = sys.argv[2]
+    if len(sys.argv) > 3:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[3], set_as_default=True)
     n_pow = 1 << n
 
-    results = bench_qrack(n)
+    results = bench_qrack(n, backend)
 
     ideal_probs = results[0]
     counts = results[1]
