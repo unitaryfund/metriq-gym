@@ -64,25 +64,11 @@ def bench_qrack(n, backend):
     return (ideal_probs, counts, interval)
 
 
-def main():
-    n = 20
-    backend = "qasm_simulator"
-    if len(sys.argv) > 1:
-        n = int(sys.argv[1])
-    if len(sys.argv) > 2:
-        backend = sys.argv[2]
-    if len(sys.argv) > 3:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[3], set_as_default=True)
-    n_pow = 1 << n
-
-    results = bench_qrack(n, backend)
-
-    ideal_probs = results[0]
-    counts = results[1]
-    interval = results[2]
-
+def calc_stats(ideal_probs, counts, interval):
     # For QV, we compare probabilities of (ideal) "heavy outputs."
     # If the probability is above 2/3, the protocol certifies/passes the qubit width.
+    n_pow = len(ideal_probs)
+    n = int(round(math.log2(n_pow)))
     threshold = statistics.median(ideal_probs)
     u_u = statistics.mean(ideal_probs)
     e_u = 0
@@ -108,7 +94,7 @@ def main():
     xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
     p_val = (1 - binom.cdf(sum_hog_counts - 1, n_pow, 1 / 2)) if sum_hog_counts > 0 else 1
 
-    print({
+    return {
         'qubits': n,
         'seconds': interval,
         'xeb': xeb,
@@ -117,7 +103,26 @@ def main():
         'p-value': p_val,
         'clops': ((n * n_pow) / interval),
         'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
-    })
+    }
+
+
+def main():
+    n = 20
+    backend = "qasm_simulator"
+    if len(sys.argv) > 1:
+        n = int(sys.argv[1])
+    if len(sys.argv) > 2:
+        backend = sys.argv[2]
+    if len(sys.argv) > 3:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[3], set_as_default=True)
+
+    results = bench_qrack(n, backend)
+
+    ideal_probs = results[0]
+    counts = results[1]
+    interval = results[2]
+
+    print(calc_stats(ideal_probs, counts, interval))
 
     return 0
 
