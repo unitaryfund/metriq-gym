@@ -72,9 +72,6 @@ def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
     n_pow = len(ideal_probs)
     n = int(round(math.log2(n_pow)))
     threshold = statistics.median(ideal_probs)
-    u_u = statistics.mean(ideal_probs)
-    e_u = 0
-    m_u = 0
     sum_hog_counts = 0
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
@@ -82,37 +79,30 @@ def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
         if not b in counts:
             continue
 
-        # XEB / EPLG
-        count = counts[b]
-        ideal = ideal_probs[i]
-        e_u = e_u + ideal ** 2
-        m_u = m_u + ideal * (count / shots)
-
         # QV / HOG
-        if ideal > threshold:
-            sum_hog_counts = sum_hog_counts + count
+        if ideal_probs[i] > threshold:
+            sum_hog_counts = sum_hog_counts + counts[b]
 
     hog_prob = sum_hog_counts / shots
-    xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
     # p-value of heavy output count, if method were actually 50/50 chance of guessing
     p_val = (1 - binom.cdf(sum_hog_counts - 1, shots, 1 / 2)) if sum_hog_counts > 0 else 1
 
     return {
         'qubits': n,
         'seconds': interval,
-        'xeb': xeb,
+        'sim_seconds': sim_interval,
         'hog_prob': hog_prob,
         'pass': hog_prob >= 2 / 3,
         'p-value': p_val,
         'clops': (n * shots) / interval,
-        'sim_clops': (n * shots) / sim_interval,
-        'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
+        'sim_clops': (n * shots) / sim_interval
     }
 
 
 def main():
-    n = 20
-    shots = 1 << n
+    n = 16
+    shots = 8
+    trials = 8
     backend = "qasm_simulator"
     if len(sys.argv) > 1:
         n = int(sys.argv[1])
@@ -121,18 +111,39 @@ def main():
     else:
         shots = 1 << n
     if len(sys.argv) > 3:
-        backend = sys.argv[3]
+        trials = int(sys.argv[3])
     if len(sys.argv) > 4:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[4], set_as_default=True)
+        backend = sys.argv[4]
+    if len(sys.argv) > 5:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[5], set_as_default=True)
 
-    results = bench_qrack(n, backend, shots)
+    result = bench_qrack(n, backend, shots)
 
-    ideal_probs = results[0]
-    counts = results[1]
-    interval = results[2]
-    sim_interval = results[3]
+    ideal_probs = result[0]
+    counts = result[1]
+    interval = result[2]
+    sim_interval = result[3]
 
-    print(calc_stats(ideal_probs, counts, interval, sim_interval, shots))
+    if trials == 1:
+        print(calc_stats(ideal_probs, counts, interval, sim_interval, shots))
+        return 0
+
+    result = calc_stats(ideal_probs, counts, interval, sim_interval, shots)
+    for trial in range(1, trials):
+        t = bench_qrack(n, backend, shots)
+        s = calc_stats(t[0], t[1], t[2], t[3], shots)
+        result['seconds'] = result['seconds'] + s['seconds']
+        result['sim_seconds'] = result['sim_seconds'] + s['sim_seconds']
+        result['hog_prob'] = result['hog_prob'] + s['hog_prob']
+        result['p-value'] = result['p-value'] * s['p-value']
+
+    result['hog_prob'] = result['hog_prob'] / trials
+    result['pass'] = result['hog_prob'] >= 2 / 3
+    result['p-value'] = result['p-value'] ** (1 / trials)
+    result['clops'] = (n * shots * trials) / result['seconds']
+    result['sim_clops'] = (n * shots * trials) / result['sim_seconds']
+
+    print(result)
 
     return 0
 
