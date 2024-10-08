@@ -68,7 +68,7 @@ if __name__ == "__main__":
     args = parse_arguments()
 
     if args.token:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True)
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
 
     logging.info(f"Running quantum volume benchmark with n={args.n}, shots={args.shots}, backend={args.backend}")
 
