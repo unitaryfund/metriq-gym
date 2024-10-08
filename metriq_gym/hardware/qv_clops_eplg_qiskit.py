@@ -1,13 +1,14 @@
+"""Quantum volume + CLOPS + EPLG in Qiskit."""
 import math
 import statistics
 import logging
-import argparse
 
 from scipy.stats import binom
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 
 from metriq_gym.bench import bench_qrack
+from metriq_gym.parse import parse_arguments
 
 
 logging.basicConfig(level=logging.INFO)
@@ -72,26 +73,6 @@ def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: 
         "sim_clops": (n * shots) / sim_interval,
         "eplg": (1 - xeb) ** (1 / n) if xeb < 1 else 0
     }
-
-
-def parse_arguments() -> argparse.Namespace:
-    """Parse command-line arguments for the quantum volume benchmark.
-
-    Returns:
-        Parsed arguments as an argparse.Namespace object.
-    """
-    parser = argparse.ArgumentParser(description="Quantum volume certification")
-    parser.add_argument("-n", type=int, default=20, help="Number of qubits")
-    parser.add_argument("-s", "--shots", type=int, default=None, help="Number of shots (default is 2^n)")
-    parser.add_argument("-b", "--backend", type=str, default="qasm_simulator", help="Backend to use")
-    parser.add_argument("-t", "--token", type=str, help="IBM Quantum API token")
-
-    args = parser.parse_args()
-
-    if args.shots is None:
-        args.shots = 1 << args.n  # Default to 2^n shots
-
-    return args
 
 
 def main() -> None:
