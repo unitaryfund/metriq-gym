@@ -1,3 +1,4 @@
+"""Command-line parsing for running metriq benchmarks."""
 import argparse
 
 def parse_arguments() -> argparse.Namespace:
@@ -8,7 +9,7 @@ def parse_arguments() -> argparse.Namespace:
         Parsed arguments as an argparse.Namespace object.
     """
     parser = argparse.ArgumentParser(description="Quantum volume certification")
-    parser.add_argument("-n", type=int, default=16, help="Number of qubits")
+    parser.add_argument("-n", type=int, default=8, help="Number of qubits")
     parser.add_argument("-s", "--shots", type=int, default=None, help="Number of shots (default is 2^n)")
     parser.add_argument("-t", "--trials", type=int, default=8, help="Number of trials to run")
     parser.add_argument("-b", "--backend", type=str, default="qasm_simulator", help="Backend to use")

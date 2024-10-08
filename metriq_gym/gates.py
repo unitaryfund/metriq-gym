@@ -1,3 +1,4 @@
+"""Gate-based utility functions."""
 import math
 import random
 from qiskit import QuantumCircuit
