@@ -65,7 +65,6 @@ def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: 
 
 
 if __name__ == "__main__":
-    # Parse the arguments
     args = parse_arguments()
 
     if args.token:
@@ -76,10 +75,10 @@ if __name__ == "__main__":
     # Run the first benchmark
     result = bench_qrack(args.n, args.backend, args.shots)
 
-    ideal_probs = result[0]
-    counts = result[1]
-    interval = result[2]
-    sim_interval = result[3]
+    ideal_probs = result.ideal_probs
+    counts = result.counts
+    interval = result.interval
+    sim_interval = result.sim_interval
 
     if args.trials == 1:
         stats = calc_stats(ideal_probs, counts, interval, sim_interval, args.shots)
@@ -90,7 +89,7 @@ if __name__ == "__main__":
         result = calc_stats(ideal_probs, counts, interval, sim_interval, args.shots)
         for trial in range(1, args.trials):
             t = bench_qrack(args.n, args.backend, args.shots)
-            s = calc_stats(t[0], t[1], t[2], t[3], args.shots)
+            s = calc_stats(t.ideal_probs, t.counts, t.interval, t.sim_interval, args.shots)
             result["seconds"] += s["seconds"]
             result["sim_seconds"] += s["sim_seconds"]
             result["hog_prob"] += s["hog_prob"]

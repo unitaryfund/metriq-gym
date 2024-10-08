@@ -75,8 +75,7 @@ def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: 
     }
 
 
-def main() -> None:
-    """Main function to execute the quantum volume benchmark."""
+if __name__ == "__main__":
     args = parse_arguments()
 
     if args.token:
@@ -85,11 +84,6 @@ def main() -> None:
     logging.info(f"Running with n={args.n}, shots={args.shots}, backend={args.backend}")
 
     results = bench_qrack(args.n, args.backend, args.shots)
-    ideal_probs, counts, interval, sim_interval = results
-    stats = calc_stats(ideal_probs, counts, interval, sim_interval, args.shots)
+    stats = calc_stats(results.ideal_probs, results.counts, results.interval, results.sim_interval, args.shots)
 
     logging.info(stats)
-
-
-if __name__ == "__main__":
-    main()

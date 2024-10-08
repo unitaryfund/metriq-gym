@@ -1,5 +1,6 @@
 import time
 import random
+from dataclasses import dataclass
 
 from pyqrack import QrackSimulator
 from qiskit_aer import Aer
@@ -10,8 +11,17 @@ from qiskit.compiler import transpile
 from metriq_gym.gates import rand_u3, coupler
 
 
-def bench_qrack(n: int, backend: str, shots: int) -> tuple[dict[int, float], dict[str, int], float, float]:
-    """Run quantum volume benchmark using QrackSimulator and return the results.
+@dataclass
+class BenchQrackResult:
+    """Data structure to hold results from the bench_qrack function."""
+    ideal_probs: dict[int, float]
+    counts: dict[str, int]
+    interval: float
+    sim_interval: float
+
+
+def bench_qrack(n: int, backend: str, shots: int) -> BenchQrackResult:
+    """Run quantum volume benchmark using QrackSimulator and return structured results.
 
     Args:
         n: Number of qubits in the quantum circuit.
@@ -19,11 +29,11 @@ def bench_qrack(n: int, backend: str, shots: int) -> tuple[dict[int, float], dic
         shots: Number of measurement shots to perform on the quantum circuit.
 
     Returns:
-        A tuple containing:
-        - A dictionary mapping bitstrings to probabilities (ideal probabilities).
-        - A dictionary mapping bitstrings to the counts measured from the backend.
-        - The time taken for the backend execution (in seconds).
-        - The time taken for the simulation using Qrack (in seconds).
+        A BenchQrackResult instance containing:
+        - ideal_probs: A dictionary mapping bitstrings to probabilities.
+        - counts: A dictionary mapping bitstrings to the counts measured from the backend.
+        - interval: The time taken for the backend execution (in seconds).
+        - sim_interval: The time taken for the simulation using Qrack (in seconds).
     """
     circ = QuantumCircuit(n)
 
@@ -59,4 +69,9 @@ def bench_qrack(n: int, backend: str, shots: int) -> tuple[dict[int, float], dic
     counts = result.get_counts(circ)
     interval = result.time_taken
 
-    return ideal_probs, counts, interval, sim_interval
+    return BenchQrackResult(
+        ideal_probs=ideal_probs,
+        counts=counts,
+        interval=interval,
+        sim_interval=sim_interval
+    )
