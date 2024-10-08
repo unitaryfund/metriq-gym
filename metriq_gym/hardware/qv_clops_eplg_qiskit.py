@@ -1,74 +1,42 @@
-# Quantum volume protocol certification
-
+"""Quantum volume + CLOPS + EPLG in Qiskit."""
 import math
-import random
 import statistics
-import sys
-import time
+import logging
 
 from scipy.stats import binom
 
-from pyqrack import QrackSimulator
-
-from qiskit_aer import Aer
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit import QuantumCircuit
-from qiskit.compiler import transpile
+
+from metriq_gym.bench import bench_qrack
+from metriq_gym.parse import parse_arguments
 
 
-def rand_u3(circ, q):
-    th = random.uniform(0, 2 * math.pi)
-    ph = random.uniform(0, 2 * math.pi)
-    lm = random.uniform(0, 2 * math.pi)
-    circ.u(th, ph, lm, q)
+logging.basicConfig(level=logging.INFO)
 
 
-def coupler(circ, q1, q2):
-    circ.cx(q1, q2)
+def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: float, 
+               sim_interval: float, shots: int) -> dict[str, float]:
+    """Calculate various statistics for quantum volume benchmarking.
 
+    Args:
+        ideal_probs: A dictionary of bitstrings to ideal probabilities.
+        counts: A dictionary of bitstrings to counts measured from the backend.
+        interval: Time taken by the backend for execution (in seconds).
+        sim_interval: Time taken for Qrack simulation (in seconds).
+        shots: Number of measurement shots performed on the quantum circuit.
 
-def bench_qrack(n, backend, shots):
-    # This is a "quantum volume" (random) circuit.
-    circ = QuantumCircuit(n)
-
-    lcv_range = range(n)
-    all_bits = list(lcv_range)
-
-    for d in range(n):
-        # Single-qubit gates
-        for i in lcv_range:
-            rand_u3(circ, i)
-
-        # 2-qubit couplers
-        unused_bits = all_bits.copy()
-        random.shuffle(unused_bits)
-        while len(unused_bits) > 1:
-            c = unused_bits.pop()
-            t = unused_bits.pop()
-            coupler(circ, c, t)
-
-    start = time.perf_counter()
-    sim = QrackSimulator(n)
-    sim.run_qiskit_circuit(circ, shots=0)
-    ideal_probs = sim.out_probs()
-    del sim
-    sim_interval = time.perf_counter() - start
-
-    circ.measure_all()
-
-    device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
-    circ = transpile(circ, device, layout_method = "noise_adaptive")
-
-    result = device.run(circ, shots=shots).result()
-    counts = result.get_counts(circ)
-    interval = result.time_taken
-
-    return (ideal_probs, counts, interval, sim_interval)
-
-
-def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
-    # For QV, we compare probabilities of (ideal) "heavy outputs."
-    # If the probability is above 2/3, the protocol certifies/passes the qubit width.
+    Returns:
+        A dictionary of statistics, including:
+        - qubits: Number of qubits used in the circuit.
+        - seconds: Time taken for backend execution.
+        - xeb: Cross Entropy Benchmarking score.
+        - hog_prob: Probability of measuring heavy outputs.
+        - pass: Boolean indicating whether the heavy output probability exceeds 2/3.
+        - p-value: p-value for the heavy output count.
+        - clops: Classical logical operations per second.
+        - sim_clops: Simulation classical logical operations per second.
+        - eplg: Estimated Pauli Layer Gate (EPLG) fidelity.
+    """
     n_pow = len(ideal_probs)
     n = int(round(math.log2(n_pow)))
     threshold = statistics.median(ideal_probs)
@@ -79,63 +47,43 @@ def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
 
-        if not b in counts:
+        if b not in counts:
             continue
 
-        # XEB / EPLG
         count = counts[b]
         ideal = ideal_probs[i]
-        e_u = e_u + ideal ** 2
-        m_u = m_u + ideal * (count / shots)
+        e_u += ideal ** 2
+        m_u += ideal * (count / shots)
 
-        # QV / HOG
         if ideal > threshold:
-            sum_hog_counts = sum_hog_counts + count
+            sum_hog_counts += count
 
     hog_prob = sum_hog_counts / shots
     xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
-    # p-value of heavy output count, if method were actually 50/50 chance of guessing
     p_val = (1 - binom.cdf(sum_hog_counts - 1, shots, 1 / 2)) if sum_hog_counts > 0 else 1
 
     return {
-        'qubits': n,
-        'seconds': interval,
-        'xeb': xeb,
-        'hog_prob': hog_prob,
-        'pass': hog_prob >= 2 / 3,
-        'p-value': p_val,
-        'clops': (n * shots) / interval,
-        'sim_clops': (n * shots) / sim_interval,
-        'eplg': (1 - xeb) ** (1 / n) if xeb < 1 else 0
+        "qubits": n,
+        "seconds": interval,
+        "xeb": xeb,
+        "hog_prob": hog_prob,
+        "pass": hog_prob >= 2 / 3,
+        "p-value": p_val,
+        "clops": (n * shots) / interval,
+        "sim_clops": (n * shots) / sim_interval,
+        "eplg": (1 - xeb) ** (1 / n) if xeb < 1 else 0
     }
 
 
-def main():
-    n = 20
-    shots = 1 << n
-    backend = "qasm_simulator"
-    if len(sys.argv) > 1:
-        n = int(sys.argv[1])
-    if len(sys.argv) > 2:
-        shots = int(sys.argv[2])
-    else:
-        shots = 1 << n
-    if len(sys.argv) > 3:
-        backend = sys.argv[3]
-    if len(sys.argv) > 4:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[4], set_as_default=True)
+if __name__ == "__main__":
+    args = parse_arguments()
 
-    results = bench_qrack(n, backend, shots)
+    if args.token:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
 
-    ideal_probs = results[0]
-    counts = results[1]
-    interval = results[2]
-    sim_interval = results[3]
+    logging.info(f"Running with n={args.n}, shots={args.shots}, backend={args.backend}")
 
-    print(calc_stats(ideal_probs, counts, interval, sim_interval, shots))
+    results = bench_qrack(args.n, args.backend, args.shots)
+    stats = calc_stats(results.ideal_probs, results.counts, results.interval, results.sim_interval, args.shots)
 
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+    logging.info(stats)

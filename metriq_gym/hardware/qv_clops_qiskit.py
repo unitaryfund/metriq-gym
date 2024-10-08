@@ -1,74 +1,41 @@
-# Quantum volume protocol certification
-
+"""Quantum volume + CLOPS in Qiskit."""
 import math
-import random
 import statistics
-import sys
-import time
-
+import logging
 from scipy.stats import binom
 
-from pyqrack import QrackSimulator
-
-from qiskit_aer import Aer
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit import QuantumCircuit
-from qiskit.compiler import transpile
+
+from metriq_gym.bench import bench_qrack
+from metriq_gym.parse import parse_arguments
 
 
-def rand_u3(circ, q):
-    th = random.uniform(0, 2 * math.pi)
-    ph = random.uniform(0, 2 * math.pi)
-    lm = random.uniform(0, 2 * math.pi)
-    circ.u(th, ph, lm, q)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
-def coupler(circ, q1, q2):
-    circ.cx(q1, q2)
+def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: float, 
+               sim_interval: float, shots: int) -> dict[str, float]:
+    """
+    Calculate statistics for quantum volume benchmarking.
 
+    Args:
+        ideal_probs: A dictionary of bitstrings to ideal probabilities.
+        counts: A dictionary of bitstrings to counts measured from the backend.
+        interval: Time taken by the backend for execution (in seconds).
+        sim_interval: Time taken for Qrack simulation (in seconds).
+        shots: Number of measurement shots performed on the quantum circuit.
 
-def bench_qrack(n, backend, shots):
-    # This is a "quantum volume" (random) circuit.
-    circ = QuantumCircuit(n)
-
-    lcv_range = range(n)
-    all_bits = list(lcv_range)
-
-    for d in range(n):
-        # Single-qubit gates
-        for i in lcv_range:
-            rand_u3(circ, i)
-
-        # 2-qubit couplers
-        unused_bits = all_bits.copy()
-        random.shuffle(unused_bits)
-        while len(unused_bits) > 1:
-            c = unused_bits.pop()
-            t = unused_bits.pop()
-            coupler(circ, c, t)
-
-    start = time.perf_counter()
-    sim = QrackSimulator(n)
-    sim.run_qiskit_circuit(circ, shots=0)
-    ideal_probs = sim.out_probs()
-    del sim
-    sim_interval = time.perf_counter() - start
-
-    circ.measure_all()
-
-    device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
-    circ = transpile(circ, device, layout_method = "noise_adaptive")
-
-    result = device.run(circ, shots=shots).result()
-    counts = result.get_counts(circ)
-    interval = result.time_taken
-
-    return (ideal_probs, counts, interval, sim_interval)
-
-
-def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
-    # For QV, we compare probabilities of (ideal) "heavy outputs."
-    # If the probability is above 2/3, the protocol certifies/passes the qubit width.
+    Returns:
+        A dictionary of statistics, including:
+        - qubits: Number of qubits used in the circuit.
+        - seconds: Time taken for backend execution.
+        - sim_seconds: Time taken for simulation using Qrack.
+        - hog_prob: Probability of measuring heavy outputs.
+        - pass: Boolean indicating whether the heavy output probability exceeds 2/3.
+        - p-value: p-value for the heavy output count.
+        - clops: Classical logical operations per second.
+        - sim_clops: Simulation classical logical operations per second.
+    """
     n_pow = len(ideal_probs)
     n = int(round(math.log2(n_pow)))
     threshold = statistics.median(ideal_probs)
@@ -76,77 +43,63 @@ def calc_stats(ideal_probs, counts, interval, sim_interval, shots):
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
 
-        if not b in counts:
+        if b not in counts:
             continue
 
-        # QV / HOG
         if ideal_probs[i] > threshold:
-            sum_hog_counts = sum_hog_counts + counts[b]
+            sum_hog_counts += counts[b]
 
     hog_prob = sum_hog_counts / shots
-    # p-value of heavy output count, if method were actually 50/50 chance of guessing
     p_val = (1 - binom.cdf(sum_hog_counts - 1, shots, 1 / 2)) if sum_hog_counts > 0 else 1
 
     return {
-        'qubits': n,
-        'seconds': interval,
-        'sim_seconds': sim_interval,
-        'hog_prob': hog_prob,
-        'pass': hog_prob >= 2 / 3,
-        'p-value': p_val,
-        'clops': (n * shots) / interval,
-        'sim_clops': (n * shots) / sim_interval
+        "qubits": n,
+        "seconds": interval,
+        "sim_seconds": sim_interval,
+        "hog_prob": hog_prob,
+        "pass": hog_prob >= 2 / 3,
+        "p-value": p_val,
+        "clops": (n * shots) / interval,
+        "sim_clops": (n * shots) / sim_interval
     }
 
 
-def main():
-    n = 16
-    shots = 8
-    trials = 8
-    backend = "qasm_simulator"
-    if len(sys.argv) > 1:
-        n = int(sys.argv[1])
-    if len(sys.argv) > 2:
-        shots = int(sys.argv[2])
+if __name__ == "__main__":
+    args = parse_arguments()
+
+    if args.token:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
+
+    logging.info(f"Running quantum volume benchmark with n={args.n}, shots={args.shots}, backend={args.backend}")
+
+    # Run the first benchmark
+    result = bench_qrack(args.n, args.backend, args.shots)
+
+    ideal_probs = result.ideal_probs
+    counts = result.counts
+    interval = result.interval
+    sim_interval = result.sim_interval
+
+    if args.trials == 1:
+        stats = calc_stats(ideal_probs, counts, interval, sim_interval, args.shots)
+        logging.info(f"Single trial results: {stats}")
+        print(stats)
     else:
-        shots = 1 << n
-    if len(sys.argv) > 3:
-        trials = int(sys.argv[3])
-    if len(sys.argv) > 4:
-        backend = sys.argv[4]
-    if len(sys.argv) > 5:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=sys.argv[5], set_as_default=True)
+        # Aggregate results over multiple trials
+        result = calc_stats(ideal_probs, counts, interval, sim_interval, args.shots)
+        for trial in range(1, args.trials):
+            t = bench_qrack(args.n, args.backend, args.shots)
+            s = calc_stats(t.ideal_probs, t.counts, t.interval, t.sim_interval, args.shots)
+            result["seconds"] += s["seconds"]
+            result["sim_seconds"] += s["sim_seconds"]
+            result["hog_prob"] += s["hog_prob"]
+            result["p-value"] *= s["p-value"]
 
-    result = bench_qrack(n, backend, shots)
+        result["hog_prob"] /= args.trials
+        result["pass"] = result["hog_prob"] >= 2 / 3
+        result["p-value"] = result["p-value"] ** (1 / args.trials)
+        result["clops"] = (args.n * args.shots * args.trials) / result["seconds"]
+        result["sim_clops"] = (args.n * args.shots * args.trials) / result["sim_seconds"]
 
-    ideal_probs = result[0]
-    counts = result[1]
-    interval = result[2]
-    sim_interval = result[3]
-
-    if trials == 1:
-        print(calc_stats(ideal_probs, counts, interval, sim_interval, shots))
-        return 0
-
-    result = calc_stats(ideal_probs, counts, interval, sim_interval, shots)
-    for trial in range(1, trials):
-        t = bench_qrack(n, backend, shots)
-        s = calc_stats(t[0], t[1], t[2], t[3], shots)
-        result['seconds'] = result['seconds'] + s['seconds']
-        result['sim_seconds'] = result['sim_seconds'] + s['sim_seconds']
-        result['hog_prob'] = result['hog_prob'] + s['hog_prob']
-        result['p-value'] = result['p-value'] * s['p-value']
-
-    result['hog_prob'] = result['hog_prob'] / trials
-    result['pass'] = result['hog_prob'] >= 2 / 3
-    result['p-value'] = result['p-value'] ** (1 / trials)
-    result['clops'] = (n * shots * trials) / result['seconds']
-    result['sim_clops'] = (n * shots * trials) / result['sim_seconds']
-
-    print(result)
-
-    return 0
-
-
-if __name__ == '__main__':
-    sys.exit(main())
+        logging.info(f"Aggregated results over {args.trials} trials: {result}")
+        print(result)
