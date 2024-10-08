@@ -10,8 +10,8 @@ def parse_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description="Quantum volume certification")
     parser.add_argument("-n", type=int, default=8, help="Number of qubits")
-    parser.add_argument("-s", "--shots", type=int, default=None, help="Number of shots (default is 2^n)")
-    parser.add_argument("-t", "--trials", type=int, default=8, help="Number of trials to run")
+    parser.add_argument("-s", "--shots", type=int, default=8, help="Number of shots (default is 8)")
+    parser.add_argument("-t", "--trials", type=int, default=8, help="Number of trials to run (default is 8)")
     parser.add_argument("-b", "--backend", type=str, default="qasm_simulator", help="Backend to use")
     parser.add_argument("--token", type=str, help="IBM Quantum API token")
 
