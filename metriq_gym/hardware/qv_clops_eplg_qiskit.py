@@ -41,25 +41,25 @@ def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: 
     n = int(round(math.log2(n_pow)))
     threshold = statistics.median(ideal_probs)
     u_u = statistics.mean(ideal_probs)
-    e_u = 0
-    m_u = 0
+    numer = 0
+    denom = 0
     sum_hog_counts = 0
     for i in range(n_pow):
         b = (bin(i)[2:]).zfill(n)
 
-        if b not in counts:
-            continue
-
-        count = counts[b]
+        count = counts[b] if b in counts else 0
         ideal = ideal_probs[i]
-        e_u += ideal ** 2
-        m_u += ideal * (count / shots)
 
+        # XEB / EPLG
+        denom = denom + (ideal - u_u) ** 2
+        numer = numer + (ideal - u_u) * ((count / shots) - u_u)
+
+        # QV / HOG
         if ideal > threshold:
             sum_hog_counts += count
 
     hog_prob = sum_hog_counts / shots
-    xeb = (m_u - u_u) * (e_u - u_u) / ((e_u - u_u) ** 2)
+    xeb = numer / denom
     p_val = (1 - binom.cdf(sum_hog_counts - 1, shots, 1 / 2)) if sum_hog_counts > 0 else 1
 
     return {
