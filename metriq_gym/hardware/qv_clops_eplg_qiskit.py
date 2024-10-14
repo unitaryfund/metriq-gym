@@ -71,7 +71,7 @@ def calc_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: 
         "p-value": p_val,
         "clops": (n * shots) / interval,
         "sim_clops": (n * shots) / sim_interval,
-        "eplg": (1 - xeb) ** (1 / n) if xeb < 1 else 0
+        "eplg": (1 - (xeb ** (1 / n))) if xeb < 1 else 0
     }
 
 
