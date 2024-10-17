@@ -64,7 +64,7 @@ def bench_qrack(n: int, backend: str, shots: int) -> BenchQrackResult:
     circ.measure_all()
 
     device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
-    circ = transpile(circ, device, layout_method="noise_adaptive")
+    circ = transpile(circ, device)
 
     result = device.run(circ, shots=shots).result()
     counts = result.get_counts(circ)
