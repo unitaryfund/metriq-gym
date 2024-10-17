@@ -100,5 +100,6 @@ def main():
     logging.info(f"Aggregated results over {args.trials} trials: {stats}")
     print(stats)
 
+
 if __name__ == "__main__":
     main()
