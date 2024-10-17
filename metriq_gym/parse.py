@@ -12,7 +12,8 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument("-n", type=int, default=8, help="Number of qubits (default is 8)")
     parser.add_argument("-s", "--shots", type=int, default=8, help="Number of shots per trial (default is 8)")
     parser.add_argument("-t", "--trials", type=int, default=8, help="Number of trials (default is 8)")
-    parser.add_argument("-b", "--backend", type=str, default="qasm_simulator", help="Backend to use (default is \"qasm_simulator\"")
+    parser.add_argument("-b", "--backend", type=str, default="qasm_simulator", help="Backend to use (default is \"qasm_simulator\")")
+    parser.add_argument("-c", "--confidence_level", type=str, default=0.025, help="p-value confidence level to use (default is 0.025)")
     parser.add_argument("--token", type=str, help="IBM Quantum API token (must be supplied to run on real hardware)")
 
     args = parser.parse_args()
