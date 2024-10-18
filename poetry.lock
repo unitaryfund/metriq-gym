@@ -480,13 +480,14 @@ develop = false
 
 [package.dependencies]
 tea-client = {git = "https://github.com/unitaryfund/tea-client.git", branch = "develop"}
+tea-console = {git = "https://github.com/unitaryfund/tea-console.git", branch = "develop"}
 typer = "^0.12.5"
 
 [package.source]
 type = "git"
 url = "https://github.com/unitaryfund/metriq-client.git"
 reference = "master"
-resolved_reference = "800316670e528929bbe01b5cd5930c551e985211"
+resolved_reference = "1e09d34dedd3fd79bfcd2dffd9be60406f367c3d"
 
 [[package]]
 name = "mpmath"
@@ -580,43 +581,33 @@ files = [
 
 [[package]]
 name = "psutil"
-version = "5.8.0"
+version = "6.1.0"
 description = "Cross-platform lib for process and system monitoring in Python."
 optional = false
-python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*"
+python-versions = "!=3.0.*,!=3.1.*,!=3.2.*,!=3.3.*,!=3.4.*,!=3.5.*,>=2.7"
 files = [
-    {file = "psutil-5.8.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:0066a82f7b1b37d334e68697faba68e5ad5e858279fd6351c8ca6024e8d6ba64"},
-    {file = "psutil-5.8.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:0ae6f386d8d297177fd288be6e8d1afc05966878704dad9847719650e44fc49c"},
-    {file = "psutil-5.8.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:12d844996d6c2b1d3881cfa6fa201fd635971869a9da945cf6756105af73d2df"},
-    {file = "psutil-5.8.0-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:02b8292609b1f7fcb34173b25e48d0da8667bc85f81d7476584d889c6e0f2131"},
-    {file = "psutil-5.8.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:6ffe81843131ee0ffa02c317186ed1e759a145267d54fdef1bc4ea5f5931ab60"},
-    {file = "psutil-5.8.0-cp27-none-win32.whl", hash = "sha256:ea313bb02e5e25224e518e4352af4bf5e062755160f77e4b1767dd5ccb65f876"},
-    {file = "psutil-5.8.0-cp27-none-win_amd64.whl", hash = "sha256:5da29e394bdedd9144c7331192e20c1f79283fb03b06e6abd3a8ae45ffecee65"},
-    {file = "psutil-5.8.0-cp36-cp36m-macosx_10_9_x86_64.whl", hash = "sha256:74fb2557d1430fff18ff0d72613c5ca30c45cdbfcddd6a5773e9fc1fe9364be8"},
-    {file = "psutil-5.8.0-cp36-cp36m-manylinux2010_i686.whl", hash = "sha256:74f2d0be88db96ada78756cb3a3e1b107ce8ab79f65aa885f76d7664e56928f6"},
-    {file = "psutil-5.8.0-cp36-cp36m-manylinux2010_x86_64.whl", hash = "sha256:99de3e8739258b3c3e8669cb9757c9a861b2a25ad0955f8e53ac662d66de61ac"},
-    {file = "psutil-5.8.0-cp36-cp36m-win32.whl", hash = "sha256:36b3b6c9e2a34b7d7fbae330a85bf72c30b1c827a4366a07443fc4b6270449e2"},
-    {file = "psutil-5.8.0-cp36-cp36m-win_amd64.whl", hash = "sha256:52de075468cd394ac98c66f9ca33b2f54ae1d9bff1ef6b67a212ee8f639ec06d"},
-    {file = "psutil-5.8.0-cp37-cp37m-macosx_10_9_x86_64.whl", hash = "sha256:c6a5fd10ce6b6344e616cf01cc5b849fa8103fbb5ba507b6b2dee4c11e84c935"},
-    {file = "psutil-5.8.0-cp37-cp37m-manylinux2010_i686.whl", hash = "sha256:61f05864b42fedc0771d6d8e49c35f07efd209ade09a5afe6a5059e7bb7bf83d"},
-    {file = "psutil-5.8.0-cp37-cp37m-manylinux2010_x86_64.whl", hash = "sha256:0dd4465a039d343925cdc29023bb6960ccf4e74a65ad53e768403746a9207023"},
-    {file = "psutil-5.8.0-cp37-cp37m-win32.whl", hash = "sha256:1bff0d07e76114ec24ee32e7f7f8d0c4b0514b3fae93e3d2aaafd65d22502394"},
-    {file = "psutil-5.8.0-cp37-cp37m-win_amd64.whl", hash = "sha256:fcc01e900c1d7bee2a37e5d6e4f9194760a93597c97fee89c4ae51701de03563"},
-    {file = "psutil-5.8.0-cp38-cp38-macosx_10_9_x86_64.whl", hash = "sha256:6223d07a1ae93f86451d0198a0c361032c4c93ebd4bf6d25e2fb3edfad9571ef"},
-    {file = "psutil-5.8.0-cp38-cp38-manylinux2010_i686.whl", hash = "sha256:d225cd8319aa1d3c85bf195c4e07d17d3cd68636b8fc97e6cf198f782f99af28"},
-    {file = "psutil-5.8.0-cp38-cp38-manylinux2010_x86_64.whl", hash = "sha256:28ff7c95293ae74bf1ca1a79e8805fcde005c18a122ca983abf676ea3466362b"},
-    {file = "psutil-5.8.0-cp38-cp38-win32.whl", hash = "sha256:ce8b867423291cb65cfc6d9c4955ee9bfc1e21fe03bb50e177f2b957f1c2469d"},
-    {file = "psutil-5.8.0-cp38-cp38-win_amd64.whl", hash = "sha256:90f31c34d25b1b3ed6c40cdd34ff122b1887a825297c017e4cbd6796dd8b672d"},
-    {file = "psutil-5.8.0-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:6323d5d845c2785efb20aded4726636546b26d3b577aded22492908f7c1bdda7"},
-    {file = "psutil-5.8.0-cp39-cp39-manylinux2010_i686.whl", hash = "sha256:245b5509968ac0bd179287d91210cd3f37add77dad385ef238b275bad35fa1c4"},
-    {file = "psutil-5.8.0-cp39-cp39-manylinux2010_x86_64.whl", hash = "sha256:90d4091c2d30ddd0a03e0b97e6a33a48628469b99585e2ad6bf21f17423b112b"},
-    {file = "psutil-5.8.0-cp39-cp39-win32.whl", hash = "sha256:ea372bcc129394485824ae3e3ddabe67dc0b118d262c568b4d2602a7070afdb0"},
-    {file = "psutil-5.8.0-cp39-cp39-win_amd64.whl", hash = "sha256:f4634b033faf0d968bb9220dd1c793b897ab7f1189956e1aa9eae752527127d3"},
-    {file = "psutil-5.8.0.tar.gz", hash = "sha256:0c9ccb99ab76025f2f0bbecf341d4656e9c1351db8cc8a03ccd62e318ab4b5c6"},
+    {file = "psutil-6.1.0-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:ff34df86226c0227c52f38b919213157588a678d049688eded74c76c8ba4a5d0"},
+    {file = "psutil-6.1.0-cp27-cp27m-manylinux2010_i686.whl", hash = "sha256:c0e0c00aa18ca2d3b2b991643b799a15fc8f0563d2ebb6040f64ce8dc027b942"},
+    {file = "psutil-6.1.0-cp27-cp27m-manylinux2010_x86_64.whl", hash = "sha256:000d1d1ebd634b4efb383f4034437384e44a6d455260aaee2eca1e9c1b55f047"},
+    {file = "psutil-6.1.0-cp27-cp27mu-manylinux2010_i686.whl", hash = "sha256:5cd2bcdc75b452ba2e10f0e8ecc0b57b827dd5d7aaffbc6821b2a9a242823a76"},
+    {file = "psutil-6.1.0-cp27-cp27mu-manylinux2010_x86_64.whl", hash = "sha256:045f00a43c737f960d273a83973b2511430d61f283a44c96bf13a6e829ba8fdc"},
+    {file = "psutil-6.1.0-cp27-none-win32.whl", hash = "sha256:9118f27452b70bb1d9ab3198c1f626c2499384935aaf55388211ad982611407e"},
+    {file = "psutil-6.1.0-cp27-none-win_amd64.whl", hash = "sha256:a8506f6119cff7015678e2bce904a4da21025cc70ad283a53b099e7620061d85"},
+    {file = "psutil-6.1.0-cp36-abi3-macosx_10_9_x86_64.whl", hash = "sha256:6e2dcd475ce8b80522e51d923d10c7871e45f20918e027ab682f94f1c6351688"},
+    {file = "psutil-6.1.0-cp36-abi3-macosx_11_0_arm64.whl", hash = "sha256:0895b8414afafc526712c498bd9de2b063deaac4021a3b3c34566283464aff8e"},
+    {file = "psutil-6.1.0-cp36-abi3-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:9dcbfce5d89f1d1f2546a2090f4fcf87c7f669d1d90aacb7d7582addece9fb38"},
+    {file = "psutil-6.1.0-cp36-abi3-manylinux_2_12_x86_64.manylinux2010_x86_64.manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:498c6979f9c6637ebc3a73b3f87f9eb1ec24e1ce53a7c5173b8508981614a90b"},
+    {file = "psutil-6.1.0-cp36-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:d905186d647b16755a800e7263d43df08b790d709d575105d419f8b6ef65423a"},
+    {file = "psutil-6.1.0-cp36-cp36m-win32.whl", hash = "sha256:6d3fbbc8d23fcdcb500d2c9f94e07b1342df8ed71b948a2649b5cb060a7c94ca"},
+    {file = "psutil-6.1.0-cp36-cp36m-win_amd64.whl", hash = "sha256:1209036fbd0421afde505a4879dee3b2fd7b1e14fee81c0069807adcbbcca747"},
+    {file = "psutil-6.1.0-cp37-abi3-win32.whl", hash = "sha256:1ad45a1f5d0b608253b11508f80940985d1d0c8f6111b5cb637533a0e6ddc13e"},
+    {file = "psutil-6.1.0-cp37-abi3-win_amd64.whl", hash = "sha256:a8fb3752b491d246034fa4d279ff076501588ce8cbcdbb62c32fd7a377d996be"},
+    {file = "psutil-6.1.0.tar.gz", hash = "sha256:353815f59a7f64cdaca1c0307ee13558a0512f6db064e92fe833784f08539c7a"},
 ]
 
 [package.extras]
-test = ["enum34", "ipaddress", "mock", "pywin32", "unittest2", "wmi"]
+dev = ["black", "check-manifest", "coverage", "packaging", "pylint", "pyperf", "pypinfo", "pytest-cov", "requests", "rstcheck", "ruff", "sphinx", "sphinx_rtd_theme", "toml-sort", "twine", "virtualenv", "wheel"]
+test = ["pytest", "pytest-xdist", "setuptools"]
 
 [[package]]
 name = "pycparser"
@@ -839,13 +830,13 @@ six = ">=1.5"
 
 [[package]]
 name = "pytz"
-version = "2021.3"
+version = "2024.2"
 description = "World timezone definitions, modern and historical"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pytz-2021.3-py2.py3-none-any.whl", hash = "sha256:3672058bc3453457b622aab7a1c3bfd5ab0bdae451512f6cf25f64ed37f5b87c"},
-    {file = "pytz-2021.3.tar.gz", hash = "sha256:acad2d8b20a1af07d4e4c9d2e9285c5ed9104354062f275f3fcd88dcef4f1326"},
+    {file = "pytz-2024.2-py2.py3-none-any.whl", hash = "sha256:31c7c1817eb7fae7ca4b8c7ee50c72f93aa2dd863de768e1ef4245d426aa0725"},
+    {file = "pytz-2024.2.tar.gz", hash = "sha256:2aa355083c50a0f93fa581709deac0c9ad65cca8a9e9beac660adcbd493c798a"},
 ]
 
 [[package]]
@@ -1259,19 +1250,23 @@ dev = ["hypothesis (>=6.70.0)", "pytest (>=7.1.0)"]
 
 [[package]]
 name = "tea"
-version = "0.1.7"
-description = "Set of utility python modules."
+version = "0.1.0"
+description = ""
 optional = false
-python-versions = "*"
-files = [
-    {file = "tea-0.1.7-py3-none-any.whl", hash = "sha256:f0a49f55419338730cdc100424b43e902e29a724ce198f6fd1026e6a96e33799"},
-    {file = "tea-0.1.7.tar.gz", hash = "sha256:c3fe3e6538f155ac7c063c9eb65c88ee5ca4cb31c09648efa98a7877f1095ce9"},
-]
+python-versions = "^3.12"
+files = []
+develop = false
 
 [package.dependencies]
-psutil = ">=5.8.0,<5.9.0"
-pytz = ">=2021.3,<2022.0"
-tzlocal = ">=3.0,<4.0"
+psutil = "^6.1.0"
+pytz = "^2024.2"
+tzlocal = "^5.2"
+
+[package.source]
+type = "git"
+url = "https://github.com/unitaryfund/tea.git"
+reference = "develop"
+resolved_reference = "e410e7b83774976ead35b9c43323523fbe34d4af"
 
 [[package]]
 name = "tea-client"
@@ -1285,13 +1280,35 @@ develop = false
 [package.dependencies]
 httpx = "^0.27.2"
 pydantic = "^2.9.2"
-tea = "^0.1.7"
+tea = {git = "https://github.com/unitaryfund/tea.git", branch = "develop"}
 
 [package.source]
 type = "git"
 url = "https://github.com/unitaryfund/tea-client.git"
 reference = "develop"
-resolved_reference = "5328f978a16f37178c250a72045ebbd9d851e662"
+resolved_reference = "84c75a6e4a1522310dc1d12cf440acb4c17aa426"
+
+[[package]]
+name = "tea-console"
+version = "0.1.0"
+description = ""
+optional = false
+python-versions = "^3.12"
+files = []
+develop = false
+
+[package.dependencies]
+pytz = "^2024.2"
+rich = "^13.9.2"
+tea = {git = "https://github.com/unitaryfund/tea.git", branch = "develop"}
+typer = "^0.12.5"
+tzlocal = "^5.2"
+
+[package.source]
+type = "git"
+url = "https://github.com/unitaryfund/tea-console.git"
+reference = "develop"
+resolved_reference = "002c2570eb9462c2e21cdc147da76280dafa9afa"
 
 [[package]]
 name = "typer"
@@ -1334,20 +1351,20 @@ files = [
 
 [[package]]
 name = "tzlocal"
-version = "3.0"
+version = "5.2"
 description = "tzinfo object for the local timezone"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "tzlocal-3.0-py3-none-any.whl", hash = "sha256:c736f2540713deb5938d789ca7c3fc25391e9a20803f05b60ec64987cf086559"},
-    {file = "tzlocal-3.0.tar.gz", hash = "sha256:f4e6e36db50499e0d92f79b67361041f048e2609d166e93456b50746dc4aef12"},
+    {file = "tzlocal-5.2-py3-none-any.whl", hash = "sha256:49816ef2fe65ea8ac19d19aa7a1ae0551c834303d5014c6d5a62e4cbda8047b8"},
+    {file = "tzlocal-5.2.tar.gz", hash = "sha256:8d399205578f1a9342816409cc1e46a93ebd5755e39ea2d85334bea911bf0e6e"},
 ]
 
 [package.dependencies]
 tzdata = {version = "*", markers = "platform_system == \"Windows\""}
 
 [package.extras]
-test = ["pytest (>=4.3)", "pytest-mock (>=3.3)"]
+devenv = ["check-manifest", "pytest (>=4.3)", "pytest-cov", "pytest-mock (>=3.3)", "zest.releaser"]
 
 [[package]]
 name = "urllib3"
