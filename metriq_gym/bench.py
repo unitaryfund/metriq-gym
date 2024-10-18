@@ -1,41 +1,43 @@
 """Benchmarking utilities."""
-import time
+import json
+import math
 import random
+import statistics
+import time
 from dataclasses import dataclass
+from enum import IntEnum
+
+from scipy.stats import binom
 
 from pyqrack import QrackSimulator
 from qiskit_aer import Aer
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit import QuantumCircuit
 from qiskit.compiler import transpile
+from qiskit.providers import Job
 
 from metriq_gym.gates import rand_u3, coupler
 
 
+class BenchProvider(IntEnum):
+    IBMQ = 1
+
+
 @dataclass
-class BenchQrackResult:
-    """Data structure to hold results from the bench_qrack function."""
-    ideal_probs: dict[int, float]
-    counts: dict[str, int]
+class BenchJobResult:
+    """Data structure to hold results from the dispatch_bench_job function."""
+    id: str
+    provider: BenchProvider
+    qubits: int
+    shots: int
+    depth: int
+    ideal_probs: list[dict[int, float]]
+    counts: list[dict[str, int]]
     interval: float
     sim_interval: float
 
 
-def bench_qrack(n: int, backend: str, shots: int) -> BenchQrackResult:
-    """Run quantum volume benchmark using QrackSimulator and return structured results.
-
-    Args:
-        n: Number of qubits in the quantum circuit.
-        backend: Backend name to use for the execution (e.g., 'qasm_simulator').
-        shots: Number of measurement shots to perform on the quantum circuit.
-
-    Returns:
-        A BenchQrackResult instance containing:
-        - ideal_probs: A dictionary mapping bitstrings to probabilities.
-        - counts: A dictionary mapping bitstrings to the counts measured from the backend.
-        - interval: The time taken for the backend execution (in seconds).
-        - sim_interval: The time taken for the simulation using Qrack (in seconds).
-    """
+def rcs(n: int):
     circ = QuantumCircuit(n)
 
     lcv_range = range(n)
@@ -54,25 +56,62 @@ def bench_qrack(n: int, backend: str, shots: int) -> BenchQrackResult:
             t = unused_bits.pop()
             coupler(circ, c, t)
 
-    start = time.perf_counter()
-    sim = QrackSimulator(n)
-    sim.run_qiskit_circuit(circ, shots=0)
-    ideal_probs = sim.out_probs()
-    del sim
-    sim_interval = time.perf_counter() - start
+    return circ
 
-    circ.measure_all()
 
+def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJobResult:
+    """Run quantum volume benchmark using QrackSimulator and return structured results.
+
+    Args:
+        n: Number of qubits in the quantum circuit.
+        backend: Backend name to use for the execution (e.g., 'qasm_simulator').
+        shots: Number of measurement shots to perform on the quantum circuit.
+
+    Returns:
+        A BenchJobResult instance containing:
+        - id : Job ID string.
+        - provider: Provider ID enum.
+        - ideal_probs: A dictionary mapping bitstrings to probabilities.
+        - counts: A dictionary mapping bitstrings to the counts measured from the backend.
+        - interval: The time taken for the backend execution (in seconds).
+        - sim_interval: The time taken for the simulation using Qrack (in seconds).
+    """
     device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
-    circ = transpile(circ, device)
 
-    result = device.run(circ, shots=shots).result()
-    counts = result.get_counts(circ)
-    interval = result.time_taken
+    circs = []
+    ideal_probs = []
+    sim_interval = 0
+    for trial in range(trials):
+        circ = rcs(n)
+        sim_circ = circ.copy()
+        circ.measure_all()
+        circ = transpile(circ, device)
+        circs.append(circ)
 
-    return BenchQrackResult(
+        start = time.perf_counter()
+        sim = QrackSimulator(n)
+        sim.run_qiskit_circuit(sim_circ, shots=0)
+        ideal_probs.append(sim.out_probs())
+        del sim
+        sim_interval += time.perf_counter() - start
+
+    job = device.run(circs, shots=shots)
+    
+    partial_result = BenchJobResult(
+        id = job.job_id(),
+        provider = BenchProvider.IBMQ,
+        qubits = n,
+        shots = shots,
+        depth = n,
         ideal_probs=ideal_probs,
-        counts=counts,
-        interval=interval,
-        sim_interval=sim_interval
+        sim_interval=sim_interval,
+        counts=[],
+        interval=0,
     )
+
+    if backend == "qasm_simulator":
+        result = job.result()
+        partial_result.counts = result.get_counts()
+        partial_result.interval = result.time_taken
+
+    return partial_result
