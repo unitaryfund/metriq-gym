@@ -1,20 +1,14 @@
 """Benchmarking utilities."""
-import json
-import math
 import random
-import statistics
 import time
 from dataclasses import dataclass
 from enum import IntEnum
-
-from scipy.stats import binom
 
 from pyqrack import QrackSimulator
 from qiskit_aer import Aer
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit import QuantumCircuit
 from qiskit.compiler import transpile
-from qiskit.providers import Job
 
 from metriq_gym.gates import rand_u3, coupler
 
@@ -37,7 +31,7 @@ class BenchJobResult:
     sim_interval: float
 
 
-def rcs(n: int):
+def random_circuit_sampling(n: int):
     circ = QuantumCircuit(n)
 
     lcv_range = range(n)
@@ -81,8 +75,8 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
     circs = []
     ideal_probs = []
     sim_interval = 0
-    for trial in range(trials):
-        circ = rcs(n)
+    for _ in range(trials):
+        circ = random_circuit_sampling(n)
         sim_circ = circ.copy()
         circ.measure_all()
         circ = transpile(circ, device)

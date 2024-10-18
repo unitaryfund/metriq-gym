@@ -6,7 +6,7 @@ import statistics
 from scipy.stats import binom
 
 from qiskit_ibm_runtime import QiskitRuntimeService
-from qiskit.providers import Job
+from qiskit.providers import Job, JobStatus
 
 from metriq_gym.bench import BenchJobResult, BenchProvider
 
@@ -14,7 +14,7 @@ def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
         return QiskitRuntimeService().job(result.id)
 
-    raise ValueError(f"Cannot find provider {job.provider}.")
+    raise ValueError(f"Cannot find provider {result.provider}.")
 
 
 def get_job_result(job: Job, partial_result: BenchJobResult):
@@ -25,7 +25,7 @@ def get_job_result(job: Job, partial_result: BenchJobResult):
     return partial_result
 
 
-def poll_job_results(jobs_file: str) -> [BenchJobResult]:
+def poll_job_results(jobs_file: str) -> list[BenchJobResult]:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
 
     Args:
@@ -45,15 +45,11 @@ def poll_job_results(jobs_file: str) -> [BenchJobResult]:
             status = job.status()
             if status == JobStatus.RUNNING:
                 # Still running
-                logging.info(f"Job still in-progress: " + job.job_id())
                 lines_out.append(line)
             elif status == DONE:
                 # Success
-                logging.info(f"Job successful: " + job.job_id())
                 results.append(get_job_result(job, result))
-            else:
-                # Failure
-                logging.info(f"Job failed: " + job.job_id())
+            # else: # Failure
 
     with open(jobs_file, 'w') as file:
         file.writelines(lines_out)
