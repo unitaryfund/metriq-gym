@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import sys
 
 from dataclasses import asdict
 
@@ -20,7 +21,7 @@ def main():
     if args.token:
         QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
 
-    logging.info(f"Dispatching job with n={args.n}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}")
+    logging.info(f"Dispatching Quantum Volume job with n={args.n}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}")
 
     result = dispatch_bench_job(args.n, args.backend, args.shots, args.trials)
 
@@ -31,14 +32,13 @@ def main():
 
         return 0
 
-    logging.info(f"Dispatched {args.trials} jobs")
+    logging.info(f"Dispatched {args.trials} trials in 1 job.")
+
+    # Convert dataclass to string (JSON)
+    result_json = json.dumps(asdict(result))
 
     with open(args.jobs_file, "a") as file:
-        # Convert dataclass to string (JSON)
-        result_json = json.dumps(asdict(result))
-        # Out to file
         file.write(str(result_json) + os.linesep)
-
 
     logging.info(f"Done writing job IDs to file {args.jobs_file}.")
 
@@ -46,4 +46,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

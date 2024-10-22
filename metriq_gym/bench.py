@@ -9,6 +9,7 @@ from qiskit_aer import Aer
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit import QuantumCircuit
 from qiskit.compiler import transpile
+from qiskit.providers import Job
 
 from metriq_gym.gates import rand_u3, coupler
 
@@ -16,12 +17,18 @@ from metriq_gym.gates import rand_u3, coupler
 class BenchProvider(IntEnum):
     IBMQ = 1
 
+class BenchJobType(IntEnum):
+    QV = 1
+    CLOPS = 2
+
 
 @dataclass
 class BenchJobResult:
     """Data structure to hold results from the dispatch_bench_job function."""
     id: str
     provider: BenchProvider
+    backend: str
+    job_type: BenchJobType
     qubits: int
     shots: int
     depth: int
@@ -29,6 +36,7 @@ class BenchJobResult:
     counts: list[dict[str, int]]
     interval: float
     sim_interval: float
+    job: Job
 
 
 def random_circuit_sampling(n: int):
@@ -64,6 +72,8 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
     Returns:
         A BenchJobResult instance containing:
         - id : Job ID string.
+        - backend: Back end ID string.
+        - job_type: Type of benchmark.
         - provider: Provider ID enum.
         - ideal_probs: A dictionary mapping bitstrings to probabilities.
         - counts: A dictionary mapping bitstrings to the counts measured from the backend.
@@ -94,6 +104,8 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
     partial_result = BenchJobResult(
         id = job.job_id(),
         provider = BenchProvider.IBMQ,
+        backend = backend,
+        job_type = BenchJobType.QV,
         qubits = n,
         shots = shots,
         depth = n,
@@ -101,6 +113,7 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         sim_interval=sim_interval,
         counts=[],
         interval=0,
+        job=job
     )
 
     if backend == "qasm_simulator":

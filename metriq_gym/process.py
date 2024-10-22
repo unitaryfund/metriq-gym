@@ -8,7 +8,7 @@ from scipy.stats import binom
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.providers import Job, JobStatus
 
-from metriq_gym.bench import BenchJobResult, BenchProvider
+from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
@@ -25,7 +25,7 @@ def get_job_result(job: Job, partial_result: BenchJobResult):
     return partial_result
 
 
-def poll_job_results(jobs_file: str) -> list[BenchJobResult]:
+def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobResult]:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
 
     Args:
@@ -43,15 +43,20 @@ def poll_job_results(jobs_file: str) -> list[BenchJobResult]:
             result = BenchJobResult(**(json.loads(line)))
             job = get_job(result)
             status = job.status()
-            if status == JobStatus.RUNNING:
+            if (status == JobStatus.RUNNING) or (result.job_type != job_type):
                 # Still running
                 lines_out.append(line)
-            elif status == DONE:
+            elif status == JobStatus.DONE:
                 # Success
-                results.append(get_job_result(job, result))
-            # else: # Failure
+                result.job = job
+                if job_type == BenchJobType.QV:
+                    result = get_job_result(job, result)
+                results.append(result)
+            else:
+                # Failure
+                print(f"Job ID {job.job_id()} failed with status: {status}.")
 
-    with open(jobs_file, 'w') as file:
+    with open(jobs_file, "w") as file:
         file.writelines(lines_out)
 
     return results
@@ -128,7 +133,6 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
         stats["trials"] = len(result.counts)
 
         if stats["trials"] == 1:
-            logging.info(f"Single trial results: {stats}")
             to_ret.append(stats)
             
             continue

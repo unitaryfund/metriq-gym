@@ -19,6 +19,7 @@ import numpy as np
 from qiskit import transpile
 from qiskit.circuit import Barrier, Delay, ParameterVector, QuantumCircuit, Qubit
 from qiskit.circuit.library import IGate, RZGate, SXGate, UGate
+from qiskit.providers import Job, JobStatus
 from qiskit_ibm_runtime import QiskitRuntimeService, Session
 from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime import SamplerOptions
@@ -369,6 +370,7 @@ class clops_benchmark:
         circuit_type: str = "twirled",
         batch_size: int = None,
         pipelines: int = 1,
+        job: Job = None,
     ):
         
         """Run CLOPS benchmark through Sampler primitive
@@ -406,10 +408,10 @@ class clops_benchmark:
                                "batch_size": batch_size, "pipelines": pipelines}
         
         if circuit_type == "twirled":
-            self.job = run_twirled(backend, width, layers, shots, rep_delay, num_circuits)
+            self.job = job if job is not None else run_twirled(backend, width, layers, shots, rep_delay, num_circuits)
             self.clops = self._clops_throughput_sampler
         elif circuit_type == "parameterized":
-            self.job = run_parameterized(backend, width, layers, shots, rep_delay, num_circuits)
+            self.job = job if job is not None else run_parameterized(backend, width, layers, shots, rep_delay, num_circuits)
             self.clops = self._clops_throughput_sampler
         elif circuit_type == "instantiated":
             raise ValueError("'circuit_type' instantiated not yet supported")
