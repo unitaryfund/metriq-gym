@@ -5,6 +5,7 @@ from qiskit_ibm_runtime import QiskitRuntimeService
 
 from metriq_gym.process import poll_job_results, calc_stats
 from metriq_gym.parse import parse_arguments
+from metriq_gym.bench import BenchJobType
 
 
 logging.basicConfig(level=logging.INFO)
@@ -17,7 +18,7 @@ def main():
         QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
 
     logging.info("Polling for job results.")
-    results = poll_job_results(args.jobs_file)
+    results = poll_job_results(args.jobs_file, BenchJobType.QV)
     result_count = len(results)
     logging.info(f"Found {result_count} completed jobs.")
     if result_count == 0:

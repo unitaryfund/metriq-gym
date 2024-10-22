@@ -31,11 +31,12 @@ def main():
 
         return 0
 
-    logging.info(f"Dispatched {args.trials} jobs")
+    logging.info(f"Dispatched {args.trials} trials in 1 job.")
+
+    # Convert dataclass to string (JSON)
+    result_json = json.dumps(asdict(result))
 
     with open(args.jobs_file, "a") as file:
-        # Convert dataclass to string (JSON)
-        result_json = json.dumps(asdict(result))
         # Out to file
         file.write(str(result_json) + os.linesep)
 
