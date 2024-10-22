@@ -33,6 +33,8 @@ def main():
         logging.info(f"Aggregated results over {s['trials']} trials: {s}")
         print(s)
 
+    return 0
+
 
 if __name__ == "__main__":
     sys.exit(main())
