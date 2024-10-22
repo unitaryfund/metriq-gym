@@ -2,6 +2,7 @@
 import json
 import logging
 import os
+import sys
 
 from dataclasses import asdict
 
@@ -44,16 +45,18 @@ def main():
         interval = result.time_taken,
         sim_interval = 0
     )
-    result = json.dumps(asdict(result))
+
+    # Convert dataclass to string (JSON)
+    result_json = json.dumps(asdict(result))
+
     with open(args.jobs_file, "a") as file:
-        # Out to file
         file.write(str(result_json) + os.linesep)
 
-    logging.info(str(result_dict))
-    print(str(result_dict))
+    logging.info(str(result_json))
+    print(str(result_json))
 
     return 0
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

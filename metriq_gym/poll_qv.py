@@ -1,5 +1,6 @@
 """Poll IBM-Q cloud services for job results"""
 import logging
+import sys
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 
@@ -34,4 +35,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

@@ -46,15 +46,17 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
             if (status == JobStatus.RUNNING) or (result.job_type != job_type):
                 # Still running
                 lines_out.append(line)
-            elif status == DONE:
+            elif status == JobStatus.DONE:
                 # Success
                 result.job = job
                 if job_type == BenchJobType.QV:
                     result = get_job_result(job, result)
                 results.append(result)
-            # else: # Failure
+            else:
+                # Failure
+                print(f"Job ID {job.job_id()} failed with status: {status}.")
 
-    with open(jobs_file, 'w') as file:
+    with open(jobs_file, "w") as file:
         file.writelines(lines_out)
 
     return results
@@ -131,7 +133,6 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
         stats["trials"] = len(result.counts)
 
         if stats["trials"] == 1:
-            logging.info(f"Single trial results: {stats}")
             to_ret.append(stats)
             
             continue

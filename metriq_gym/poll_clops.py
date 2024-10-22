@@ -1,9 +1,6 @@
 """Dispatch a CLOPS job with CLI parameters to Qiskit and wait for result."""
-import json
 import logging
-import os
-
-from dataclasses import asdict
+import sys
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 
@@ -49,4 +46,4 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
