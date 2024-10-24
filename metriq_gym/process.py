@@ -26,28 +26,33 @@ def get_job_result(job: Job, partial_result: BenchJobResult):
 
 
 def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobResult]:
-    """Run quantum volume benchmark using QrackSimulator and return structured results."""
-    
+    """Run quantum volume benchmark using QrackSimulator and return structured results.
+    Args:
+        jobs_file: Name of jobs file to check.
+        job_type: The type of job (i.e. QV, CLOPS, etc.)
+    Returns:
+        An array of newly-completed BenchJobResult instances.
+    """
     results = []    
     lines_out = []
     
-    with open(jobs_file, 'r') as file:
+    with open(jobs_file, "r") as file:
         lines = file.readlines()
         for line in lines:
             result_data = json.loads(line)
             # Recreate BenchJobResult without the job field
             result = BenchJobResult(
-                id=result_data['id'],
-                provider=BenchProvider[result_data['provider']],
-                backend=result_data['backend'],
-                job_type=BenchJobType[result_data['job_type']],
-                qubits=result_data['qubits'],
-                shots=result_data['shots'],
-                depth=result_data['depth'],
-                ideal_probs=result_data['ideal_probs'],
-                counts=result_data['counts'],
-                interval=result_data['interval'],
-                sim_interval=result_data['sim_interval'],
+                id=result_data["id"],
+                provider=BenchProvider[result_data["provider"]],
+                backend=result_data["backend"],
+                job_type=BenchJobType[result_data["job_type"]],
+                qubits=result_data["qubits"],
+                shots=result_data["shots"],
+                depth=result_data["depth"],
+                ideal_probs=result_data["ideal_probs"],
+                counts=result_data["counts"],
+                interval=result_data["interval"],
+                sim_interval=result_data["sim_interval"],
             )
             
             job = get_job(result)
