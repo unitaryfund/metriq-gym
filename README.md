@@ -50,7 +50,7 @@ If you wish to specify more command line arguments and run on hardware (assuming
 that you have obtained your IBM token) you can run:
 
 ```
-python metriq_gym/hardware/qv_clops_qiskit.py -n 2 --shots 1024 --backend ibm_sherbrooke --token <IBM_TOKEN>
+python metriq_gym/poll_qv.py -n 2 --shots 1024 --backend ibm_sherbrooke --token <IBM_TOKEN>
 ```
 
 where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.

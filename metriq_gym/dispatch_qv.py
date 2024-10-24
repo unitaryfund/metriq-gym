@@ -35,7 +35,7 @@ def main():
     logging.info(f"Dispatched {args.trials} trials in 1 job.")
 
     # Convert dataclass to string (JSON)
-    result_json = json.dumps(asdict(result))
+    result_json = json.dumps(result.to_serializable())
 
     with open(args.jobs_file, "a") as file:
         file.write(str(result_json) + os.linesep)

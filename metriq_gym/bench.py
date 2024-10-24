@@ -21,7 +21,6 @@ class BenchJobType(IntEnum):
     QV = 1
     CLOPS = 2
 
-
 @dataclass
 class BenchJobResult:
     """Data structure to hold results from the dispatch_bench_job function."""
@@ -36,7 +35,23 @@ class BenchJobResult:
     counts: list[dict[str, int]]
     interval: float
     sim_interval: float
-    job: Job
+    job: Job | None = None
+
+    def to_serializable(self):
+        """Return a dictionary excluding non-serializable fields (like 'job')."""
+        return {
+            "id": self.id,
+            "provider": self.provider.name,
+            "backend": self.backend,
+            "job_type": self.job_type.name,
+            "qubits": self.qubits,
+            "shots": self.shots,
+            "depth": self.depth,
+            "ideal_probs": self.ideal_probs,
+            "counts": self.counts,
+            "interval": self.interval,
+            "sim_interval": self.sim_interval
+        }
 
 
 def random_circuit_sampling(n: int):
