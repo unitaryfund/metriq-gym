@@ -18,6 +18,8 @@ qiskit-ibm-runtime = "^0.30.0"
 qiskit = "^1.2.4"
 
 metriq-client = { git = "https://github.com/unitaryfund/metriq-client.git", branch = "master" }
+matplotlib = "^3.9.2"
+qiskit-experiments = "^0.7.0"
 
 [build-system]
 requires = ["poetry-core"]
