@@ -9,7 +9,7 @@ def parse_arguments() -> argparse.Namespace:
         Parsed arguments as an argparse.Namespace object.
     """
     parser = argparse.ArgumentParser(description="Quantum volume certification")
-    parser.add_argument("-n", type=int, default=8, help="Number of qubits (default is 8)")
+    parser.add_argument("-n", "--num_qubits", type=int, default=8, help="Number of qubits (default is 8)")
     parser.add_argument("-s", "--shots", type=int, default=8, help="Number of shots per trial (default is 8)")
     parser.add_argument("-t", "--trials", type=int, default=8, help="Number of trials (default is 8)")
     parser.add_argument("-b", "--backend", type=str, default="qasm_simulator", help="Backend to use (default is \"qasm_simulator\")")
