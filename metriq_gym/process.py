@@ -43,7 +43,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
     
     with open(jobs_file, "r") as file:
         lines = file.readlines()
-        logging.info(f"{len(lines)} job(s) dispatched.")
+        logging.info("%i job(s) dispatched.", len(lines))
         for line in lines:
             result_data = json.loads(line)
             # Recreate BenchJobResult without the job field
@@ -72,7 +72,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                     result = get_job_result(job, result)
                 results.append(result)
             else:
-                logging.warning(f"Job ID {job.job_id()} failed with status: {status}.")
+                logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
     
     # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:
