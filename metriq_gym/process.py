@@ -1,5 +1,6 @@
 """Benchmark processing and calculation utilities."""
 import json
+import logging
 import math
 import statistics
 
@@ -7,8 +8,12 @@ from scipy.stats import binom
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.providers import Job, JobStatus
+from qiskit.providers.jobstatus import JOB_FINAL_STATES
 
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
+
+
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
@@ -38,6 +43,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
     
     with open(jobs_file, "r") as file:
         lines = file.readlines()
+        logging.info(f"{len(lines)} job(s) dispatched.")
         for line in lines:
             result_data = json.loads(line)
             # Recreate BenchJobResult without the job field
@@ -58,20 +64,17 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
             job = get_job(result)
             status = job.status()
             
-            if (status == JobStatus.RUNNING) or (result.job_type != job_type):
-                # Still running
+            if (status not in JOB_FINAL_STATES) or (result.job_type != job_type):
                 lines_out.append(line)
             elif status == JobStatus.DONE:
-                # Success
                 result.job = job
                 if job_type == BenchJobType.QV:
                     result = get_job_result(job, result)
                 results.append(result)
             else:
-                # Failure
-                print(f"Job ID {job.job_id()} failed with status: {status}.")
+                logging.warning(f"Job ID {job.job_id()} failed with status: {status}.")
     
-    # Write back the jobs still running to the file
+    # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:
         file.writelines(lines_out)
     
