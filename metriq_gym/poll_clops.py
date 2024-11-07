@@ -15,10 +15,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def main():
     args = parse_arguments()
 
-    if not args.token:
-        raise ValueError("CLOPS benchmark requires an IBMQ token!")
-
-    QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
+    if args.token:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
 
     logging.info("Polling for CLOPS job results.")
     results = poll_job_results(args.jobs_file, BenchJobType.CLOPS)
@@ -30,7 +28,7 @@ def main():
     
     for result in results:
         clops = clops_benchmark(
-            QiskitRuntimeService(),
+            service=QiskitRuntimeService(),
             backend = results.backend,
             width = result.qubits,
             layers = result.qubits,
