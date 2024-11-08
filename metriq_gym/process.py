@@ -11,6 +11,12 @@ from qiskit.providers import Job, JobStatus
 from qiskit.providers.jobstatus import JOB_FINAL_STATES
 
 from pytket.backends.status import StatusEnum
+from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    QuantinuumConfigCredentialStorage,
+)
+
+from pytket.extensions.quantinuum import QuantinuumBackend
 
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
@@ -72,7 +78,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
             
             job = get_job(result)
             
-            if result.provider == BenchProvider.IBMQ
+            if result.provider == BenchProvider.IBMQ:
                 status = job.status()
                 if (status not in JOB_FINAL_STATES) or (result.job_type != job_type):
                     lines_out.append(line)

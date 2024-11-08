@@ -4,8 +4,6 @@ import logging
 import os
 import sys
 
-from qiskit_ibm_runtime import QiskitRuntimeService
-
 from metriq_gym.bench import dispatch_bench_job
 from metriq_gym.parse import parse_arguments
 from metriq_gym.process import calc_stats

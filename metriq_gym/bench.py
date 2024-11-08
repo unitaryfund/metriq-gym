@@ -11,6 +11,11 @@ from qiskit import QuantumCircuit
 from qiskit.compiler import transpile
 from qiskit.providers import Job
 
+from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    QuantinuumConfigCredentialStorage,
+)
+
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.qiskit import qiskit_to_tk
 
@@ -136,14 +141,14 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int, provider="
     if provider == "ibmq":
         job = device.run(circs, shots=shots)
     else:
-        job = device.process_circuit(circs, n_shots=shots)
+        #job = device.process_circuit(circs, n_shots=shots)
         # Try the approach below if the above doesn't work:
         # Since attempt_batching=True,
         # tket should batch these requests,
         # so long as they occur quickly and can be batched.
-        # job = []
-        # for circ in circs:
-        #    job.append(device.process_circuit(circ, n_shots=shots))
+        job = []
+        for circ in circs:
+           job.append(device.process_circuit(circ, n_shots=shots))
     
     partial_result = BenchJobResult(
         id = job.job_id() if provider == "ibmq" else job,
