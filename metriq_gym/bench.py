@@ -11,11 +11,15 @@ from qiskit import QuantumCircuit
 from qiskit.compiler import transpile
 from qiskit.providers import Job
 
+from pytket.extensions.quantinuum import QuantinuumBackend
+from pytket.extensions.qiskit import qiskit_to_tk
+
 from metriq_gym.gates import rand_u3, coupler
 
 
 class BenchProvider(IntEnum):
     IBMQ = 1
+    QUANTINUUM = 2
 
 class BenchJobType(IntEnum):
     QV = 1
@@ -76,7 +80,7 @@ def random_circuit_sampling(n: int):
     return circ
 
 
-def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJobResult:
+def dispatch_bench_job(n: int, backend: str, shots: int, trials: int, provider="ibmq") -> BenchJobResult:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
 
     Args:
@@ -95,7 +99,16 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         - interval: The time taken for the backend execution (in seconds).
         - sim_interval: The time taken for the simulation using Qrack (in seconds).
     """
-    device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
+    provider = provider.lower()
+    device = None
+    if provider == "ibmq":
+        device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
+    else:
+        device = QuantinuumBackend(
+            device_name=backend,
+            api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+            attempt_batching=True
+        )
 
     circs = []
     ideal_probs = []
@@ -104,7 +117,12 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         circ = random_circuit_sampling(n)
         sim_circ = circ.copy()
         circ.measure_all()
-        circ = transpile(circ, device)
+
+        if provider == "ibmq":
+            circ = transpile(circ, device)
+        else:
+            circ = device.get_compiled_circuit(qiskit_to_tk(circ))
+
         circs.append(circ)
 
         start = time.perf_counter()
@@ -114,11 +132,22 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         del sim
         sim_interval += time.perf_counter() - start
 
-    job = device.run(circs, shots=shots)
+    job = None
+    if provider == "ibmq":
+        job = device.run(circs, shots=shots)
+    else:
+        job = device.process_circuit(circs, n_shots=shots)
+        # Try the approach below if the above doesn't work:
+        # Since attempt_batching=True,
+        # tket should batch these requests,
+        # so long as they occur quickly and can be batched.
+        # job = []
+        # for circ in circs:
+        #    job.append(device.process_circuit(circ, n_shots=shots))
     
     partial_result = BenchJobResult(
-        id = job.job_id(),
-        provider = BenchProvider.IBMQ,
+        id = job.job_id() if provider == "ibmq" else job,
+        provider = BenchProvider.IBMQ if provider == "ibmq" else BenchProvider.QUANTINUUM,
         backend = backend,
         job_type = BenchJobType.QV,
         qubits = n,
@@ -131,7 +160,7 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         job=job
     )
 
-    if backend == "qasm_simulator":
+    if provider == "ibmq" and backend == "qasm_simulator":
         result = job.result()
         partial_result.counts = result.get_counts()
         partial_result.interval = result.time_taken

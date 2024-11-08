@@ -18,7 +18,7 @@ def main():
 
     logging.info(f"Dispatching Quantum Volume job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}")
 
-    result = dispatch_bench_job(args.num_qubits, args.backend, args.shots, args.trials)
+    result = dispatch_bench_job(args.num_qubits, args.backend, args.shots, args.trials, args.provider)
 
     if len(result.counts) > 0:
         stats = calc_stats([result], args.confidence_level)
