@@ -141,23 +141,23 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int, provider="
     if provider == "ibmq":
         job = device.run(circs, shots=shots)
     else:
-        #job = device.process_circuit(circs, n_shots=shots)
+        job = device.process_circuits(circs, n_shots=shots)
         # Try the approach below if the above doesn't work:
         # Since attempt_batching=True,
         # tket should batch these requests,
         # so long as they occur quickly and can be batched.
-        job = []
-        for circ in circs:
-           job.append(device.process_circuit(circ, n_shots=shots))
+        # job = []
+        # for circ in circs:
+        #    job.append(device.process_circuit(circ, n_shots=shots))
     
     partial_result = BenchJobResult(
-        id = job.job_id() if provider == "ibmq" else job,
-        provider = BenchProvider.IBMQ if provider == "ibmq" else BenchProvider.QUANTINUUM,
-        backend = backend,
-        job_type = BenchJobType.QV,
-        qubits = n,
-        shots = shots,
-        depth = n,
+        id=job.job_id() if provider == "ibmq" else job,
+        provider=BenchProvider.IBMQ if provider == "ibmq" else BenchProvider.QUANTINUUM,
+        backend=backend,
+        job_type=BenchJobType.QV,
+        qubits=n,
+        shots=shots,
+        depth=n,
         ideal_probs=ideal_probs,
         sim_interval=sim_interval,
         counts=[],
