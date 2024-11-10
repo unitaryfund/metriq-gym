@@ -18,8 +18,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def main():
     args = parse_arguments()
 
-    if args.token:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
+    QiskitRuntimeService.save_account(channel="ibm_quantum", token=os.environ.get("IBM_QISKIT_API_KEY"), set_as_default=True, overwrite=True)
 
     logging.info(f"Dispatching CLOPS job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}")
 

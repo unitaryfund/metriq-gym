@@ -1,4 +1,5 @@
 """Poll IBM-Q cloud services for job results"""
+import os
 import logging
 import sys
 
@@ -15,8 +16,7 @@ logging.basicConfig(level=logging.INFO)
 def main():
     args = parse_arguments()
 
-    if args.token:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
+    QiskitRuntimeService.save_account(channel="ibm_quantum", token=os.environ.get("IBM_QISKIT_API_KEY"), set_as_default=True, overwrite=True)
 
     logging.info("Polling for job results.")
     results = poll_job_results(args.jobs_file, BenchJobType.QV)
