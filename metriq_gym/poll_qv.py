@@ -4,12 +4,14 @@ import logging
 import sys
 
 from qiskit_ibm_runtime import QiskitRuntimeService
+from dotenv import load_dotenv
 
 from metriq_gym.process import poll_job_results, calc_stats
 from metriq_gym.parse import parse_arguments
 from metriq_gym.bench import BenchJobType
 
 
+load_dotenv()
 logging.basicConfig(level=logging.INFO)
 
 
