@@ -8,7 +8,6 @@ from scipy.stats import binom
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.providers import Job, JobStatus
-from qiskit.providers.jobstatus import JOB_FINAL_STATES
 
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
@@ -63,10 +62,10 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
             
             job = get_job(result)
             status = job.status()
-            
-            if (status not in JOB_FINAL_STATES) or (result.job_type != job_type):
+
+            if (result.job_type != job_type) or (not job.in_final_state()):
                 lines_out.append(line)
-            elif status == JobStatus.DONE:
+            elif status in (JobStatus.DONE, 'DONE'):
                 result.job = job
                 if job_type == BenchJobType.QV:
                     result = get_job_result(job, result)

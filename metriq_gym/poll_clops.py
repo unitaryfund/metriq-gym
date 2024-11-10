@@ -15,8 +15,8 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def main():
     args = parse_arguments()
 
-    if args.token:
-        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True)
+    if args.token and args.instance:
+        QiskitRuntimeService.save_account(channel="ibm_quantum", token=args.token, instance=args.instance, set_as_default=True, overwrite=True)
 
     logging.info("Polling for CLOPS job results.")
     results = poll_job_results(args.jobs_file, BenchJobType.CLOPS)
@@ -29,11 +29,11 @@ def main():
     for result in results:
         clops = clops_benchmark(
             service=QiskitRuntimeService(),
-            backend = results.backend,
-            width = result.qubits,
-            layers = result.qubits,
-            shots = result.shots,
-            job = result.job
+            backend_name=result.backend,
+            width=result.qubits,
+            layers=result.qubits,
+            shots=result.shots,
+            job=result.job
         )
 
         result_str = f"Measured clops of {clops.job_attributes['backend_name']} is {clops.clops()}"

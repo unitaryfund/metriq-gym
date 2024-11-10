@@ -116,6 +116,7 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
 
     job = device.run(circs, shots=shots)
     
+
     partial_result = BenchJobResult(
         id = job.job_id(),
         provider = BenchProvider.IBMQ,
