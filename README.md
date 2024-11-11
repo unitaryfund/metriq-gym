@@ -4,7 +4,8 @@ Standard benchmark script implementations for https://metriq.info
 
 ## Setup
 
-You will require Python 3.12 and [`poetry`](https://python-poetry.org/).
+You will require **Python 3.12** and [`poetry`](https://python-poetry.org/). **Note:** the
+newest Python version 3.13 is not yet supported due to the `qiskit-aer` dependency.
 
 Once you have `poetry` installed, run:
 
