@@ -55,3 +55,11 @@ python metriq_gym/poll_qv.py -n 2 --shots 1024 --backend ibm_sherbrooke --token 
 ```
 
 where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
+
+## Contributing
+
+To guarantee that both linter and formatter run before each commit, 
+please install the pre-commit hook with
+```sh
+poetry run pre-commit install
+```

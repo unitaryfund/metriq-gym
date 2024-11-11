@@ -10,7 +10,7 @@ authors = [
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "3.12"
+python = "~3.12"
 scipy = "^1.14.1"
 pyqrack = "^1.30.31"
 qiskit-aer = "^0.15.1"
@@ -20,6 +20,14 @@ qiskit = "^1.2.4"
 metriq-client = { git = "https://github.com/unitaryfund/metriq-client.git", branch = "master" }
 matplotlib = "^3.9.2"
 qiskit-experiments = "^0.7.0"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.7.3"
+pre-commit = "^4.0.1"
+
+[tool.ruff]
+exclude = ["metriq_gym/hardware"]
+line-length = 100
 
 [build-system]
 requires = ["poetry-core"]
