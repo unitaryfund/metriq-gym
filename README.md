@@ -2,6 +2,12 @@
 
 Standard benchmark script implementations for https://metriq.info
 
+## Data
+
+[Benchmark schema is defined here.](https://github.com/unitaryfund/metriq-gym/wiki/Quantum-Volume-definition)
+
+[First hardware results are here.](https://github.com/unitaryfund/metriq-gym/wiki/First-Hardware-Data)
+
 ## Setup
 
 You will require **Python 3.12** and [`poetry`](https://python-poetry.org/). **Note:** the
