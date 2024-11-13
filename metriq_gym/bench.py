@@ -1,4 +1,5 @@
 """Benchmarking utilities."""
+
 import random
 import time
 from dataclasses import dataclass
@@ -17,13 +18,16 @@ from metriq_gym.gates import rand_u3, coupler
 class BenchProvider(IntEnum):
     IBMQ = 1
 
+
 class BenchJobType(IntEnum):
     QV = 1
     CLOPS = 2
 
+
 @dataclass
 class BenchJobResult:
     """Data structure to hold results from the dispatch_bench_job function."""
+
     id: str
     provider: BenchProvider
     backend: str
@@ -35,6 +39,7 @@ class BenchJobResult:
     counts: list[dict[str, int]]
     interval: float
     sim_interval: float
+    trials: int
     job: Job | None = None
 
     def to_serializable(self):
@@ -50,7 +55,8 @@ class BenchJobResult:
             "ideal_probs": self.ideal_probs,
             "counts": self.counts,
             "interval": self.interval,
-            "sim_interval": self.sim_interval
+            "sim_interval": self.sim_interval,
+            "trials": self.trials,
         }
 
 
@@ -83,6 +89,7 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         n: Number of qubits in the quantum circuit.
         backend: Backend name to use for the execution (e.g., 'qasm_simulator').
         shots: Number of measurement shots to perform on the quantum circuit.
+        trials: Number of circuits to run.
 
     Returns:
         A BenchJobResult instance containing:
@@ -94,8 +101,13 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         - counts: A dictionary mapping bitstrings to the counts measured from the backend.
         - interval: The time taken for the backend execution (in seconds).
         - sim_interval: The time taken for the simulation using Qrack (in seconds).
+        - trials: Number of circuits run.
     """
-    device = Aer.get_backend(backend) if len(Aer.backends(backend)) > 0 else QiskitRuntimeService().backend(backend)
+    device = (
+        Aer.get_backend(backend)
+        if len(Aer.backends(backend)) > 0
+        else QiskitRuntimeService().backend(backend)
+    )
 
     circs = []
     ideal_probs = []
@@ -115,20 +127,21 @@ def dispatch_bench_job(n: int, backend: str, shots: int, trials: int) -> BenchJo
         sim_interval += time.perf_counter() - start
 
     job = device.run(circs, shots=shots)
-    
+
     partial_result = BenchJobResult(
-        id = job.job_id(),
-        provider = BenchProvider.IBMQ,
-        backend = backend,
-        job_type = BenchJobType.QV,
-        qubits = n,
-        shots = shots,
-        depth = n,
+        id=job.job_id(),
+        provider=BenchProvider.IBMQ,
+        backend=backend,
+        job_type=BenchJobType.QV,
+        qubits=n,
+        shots=shots,
+        depth=n,
         ideal_probs=ideal_probs,
         sim_interval=sim_interval,
         counts=[],
         interval=0,
-        job=job
+        trials=trials,
+        job=job,
     )
 
     if backend == "qasm_simulator":

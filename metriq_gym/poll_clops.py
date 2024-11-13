@@ -35,12 +35,14 @@ def main():
         return 0
 
     for result in results:
+        print(result.job.result())
         clops = clops_benchmark(
             service=QiskitRuntimeService(),
             backend_name=result.backend,
             width=result.qubits,
             layers=result.qubits,
             shots=result.shots,
+            num_circuits=result.trials,
             job=result.job,
         )
 

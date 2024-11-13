@@ -29,7 +29,7 @@ def main():
         )
 
     logging.info(
-        f"Dispatching CLOPS job with n={args.num_qubits}, shots={args.shots}, backend={args.backend}, jobs_file={args.jobs_file}"
+        f"Dispatching CLOPS job with n={args.num_qubits}, shots={args.shots}, backend={args.backend}, trials={args.trials}, jobs_file={args.jobs_file}"
     )
 
     clops = clops_benchmark(
@@ -37,6 +37,7 @@ def main():
         backend_name=args.backend,
         width=args.num_qubits,
         layers=args.num_qubits,
+        num_circuits=args.trials,
         shots=args.shots,
     )
 
@@ -52,6 +53,8 @@ def main():
         counts=[],
         interval=0,
         sim_interval=0,
+        trials=clops.job_attributes["num_circuits"],
+        job=clops.job,
     )
 
     # Convert dataclass to string (JSON)

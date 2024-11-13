@@ -441,9 +441,11 @@ class clops_benchmark:
             sum_size += span.size
 
         end_time_last_sub_job = spans.stop
-        end_time_first_sub_job = spans[0].stop
+        print(end_time_last_sub_job)
+        end_time_first_sub_job = spans[0].start
+        print(end_time_first_sub_job)
 
-        clops = round(((sum_size - spans[0].size) * self.job_attributes["layers"]) / 
+        clops = round((self.job_attributes["layers"]) / 
                       (end_time_last_sub_job - end_time_first_sub_job
         ).total_seconds())
 
