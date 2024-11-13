@@ -23,7 +23,7 @@ def main():
         f"Dispatching Quantum Volume job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}"
     )
 
-    result = dispatch_bench_job(args.num_qubits, args.backend, args.shots, args.trials)
+    result = dispatch_bench_job(args.num_qubits, args.backend, args.shots, args.trials, args.provider)
 
     if len(result.counts) > 0:
         stats = calc_stats([result], args.confidence_level)
@@ -34,11 +34,11 @@ def main():
 
     logging.info(f"Dispatched {args.trials} trials in 1 job.")
 
-    # Convert dataclass to string (JSON)
-    result_json = json.dumps(result.to_serializable())
+    if args.provider == "ibmq":
+        result = json.dumps(result.to_serializable())
 
     with open(args.jobs_file, "a") as file:
-        file.write(str(result_json) + os.linesep)
+        file.write(str(result) + os.linesep)
 
     logging.info(f"Done writing job IDs to file {args.jobs_file}.")
 
