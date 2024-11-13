@@ -11,17 +11,19 @@ from metriq_gym.bench import BenchJobType
 from metriq_gym.hardware.clops_benchmark import clops_benchmark
 
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def main():
     args = parse_arguments()
 
-    if args.token:
+    if args.token and args.instance:
         QiskitRuntimeService.save_account(
-            channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True
+            channel="ibm_quantum",
+            token=args.token,
+            instance=args.instance,
+            set_as_default=True,
+            overwrite=True,
         )
 
     logging.info("Polling for CLOPS job results.")
@@ -35,10 +37,11 @@ def main():
     for result in results:
         clops = clops_benchmark(
             service=QiskitRuntimeService(),
-            backend=results.backend,
+            backend_name=result.backend,
             width=result.qubits,
             layers=result.qubits,
             shots=result.shots,
+            num_circuits=result.trials,
             job=result.job,
         )
 

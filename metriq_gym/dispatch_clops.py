@@ -13,21 +13,23 @@ from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 from metriq_gym.hardware.clops_benchmark import clops_benchmark
 
 
-logging.basicConfig(
-    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
-)
+logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 
 def main():
     args = parse_arguments()
 
-    if args.token:
+    if args.token and args.instance:
         QiskitRuntimeService.save_account(
-            channel="ibm_quantum", token=args.token, set_as_default=True, overwrite=True
+            channel="ibm_quantum",
+            token=args.token,
+            instance=args.instance,
+            set_as_default=True,
+            overwrite=True,
         )
 
     logging.info(
-        f"Dispatching CLOPS job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}"
+        f"Dispatching CLOPS job with n={args.num_qubits}, shots={args.shots}, backend={args.backend}, trials={args.trials}, jobs_file={args.jobs_file}"
     )
 
     clops = clops_benchmark(
@@ -35,6 +37,7 @@ def main():
         backend_name=args.backend,
         width=args.num_qubits,
         layers=args.num_qubits,
+        num_circuits=args.trials,
         shots=args.shots,
     )
 
@@ -50,6 +53,8 @@ def main():
         counts=[],
         interval=0,
         sim_interval=0,
+        trials=clops.job_attributes["num_circuits"],
+        job=clops.job,
     )
 
     # Convert dataclass to string (JSON)
