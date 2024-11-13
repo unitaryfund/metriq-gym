@@ -10,6 +10,14 @@ from scipy.stats import binom
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.providers import Job, JobStatus
 
+from pytket.backends.status import StatusEnum
+from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    QuantinuumConfigCredentialStorage,
+)
+
+from pytket.extensions.quantinuum import QuantinuumBackend
+
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
 
@@ -20,13 +28,20 @@ def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
         return QiskitRuntimeService().job(result.id)
 
-    raise ValueError(f"Cannot find provider {result.provider}.")
+    return result.id
 
 
-def get_job_result(job: Job, partial_result: BenchJobResult):
+def get_job_result_qiskit(job: Job, partial_result: BenchJobResult):
     result = job.result()
     partial_result.counts = result.get_counts()
     partial_result.interval = result.time_taken
+
+    return partial_result
+
+
+def get_job_result_quantinuum(job, partial_result: BenchJobResult):
+    partial_result.counts = job.get_counts()
+    partial_result.interval = -9999
 
     return partial_result
 
@@ -64,17 +79,42 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
             )
 
             job = get_job(result)
-            status = job.status()
 
-            if (result.job_type != job_type) or (not job.in_final_state()):
-                lines_out.append(line)
-            elif status in (JobStatus.DONE, "DONE"):
-                result.job = job
-                if job_type == BenchJobType.QV:
-                    result = get_job_result(job, result)
-                results.append(result)
+            if result.provider == BenchProvider.IBMQ:
+                status = job.status()
+                if (result.job_type != job_type) or (not job.in_final_state()):
+                    lines_out.append(line)
+                elif status in (JobStatus.DONE, "DONE"):
+                    result.job = job
+                    if job_type == BenchJobType.QV:
+                        result = get_job_result_qiskit(job, result)
+                    results.append(result)
+                else:
+                    logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
             else:
-                logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
+                device = QuantinuumBackend(
+                    device_name=result.backend,
+                    api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+                    attempt_batching=True,
+                )
+                status = device.circuit_status(job)
+                if (
+                    status
+                    not in [
+                        StatusEnum.COMPLETED,
+                        StatusEnum.CANCELLING,
+                        StatusEnum.CANCELLED,
+                        StatusEnum.ERROR,
+                    ]
+                ) or (result.job_type != job_type):
+                    lines_out.append(line)
+                elif status == StatusEnum.COMPLETED:
+                    result.job = device.get_result(job)
+                    if job_type == BenchJobType.QV:
+                        result = get_job_result_quantinuum(job, result)
+                    results.append(result)
+                else:
+                    logging.warning("Job ID %s failed with status: %s", job, status)
 
     # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:
