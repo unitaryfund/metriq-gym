@@ -35,7 +35,6 @@ def main():
         return 0
 
     for result in results:
-        print(result.job.result())
         clops = clops_benchmark(
             service=QiskitRuntimeService(),
             backend_name=result.backend,
