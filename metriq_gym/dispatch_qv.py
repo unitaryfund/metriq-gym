@@ -1,22 +1,27 @@
 """Dispatch job with CLI parameters to Qiskit."""
+
 import json
 import logging
 import os
 import sys
 
-from qiskit_ibm_runtime import QiskitRuntimeService
 
 from metriq_gym.bench import dispatch_bench_job
 from metriq_gym.parse import parse_arguments
 from metriq_gym.process import calc_stats
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+logging.basicConfig(
+    level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
 
 def main():
     args = parse_arguments()
 
-    logging.info(f"Dispatching Quantum Volume job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}")
+    logging.info(
+        f"Dispatching Quantum Volume job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}"
+    )
 
     result = dispatch_bench_job(args.num_qubits, args.backend, args.shots, args.trials)
 
