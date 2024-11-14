@@ -116,18 +116,21 @@ def dispatch_bench_job(
     """
     provider = provider.lower()
     device = None
-    if provider == "ibmq":
-        device = (
-            Aer.get_backend(backend)
-            if len(Aer.backends(backend)) > 0
-            else QiskitRuntimeService().backend(backend)
-        )
-    else:
-        device = QuantinuumBackend(
-            device_name=backend,
-            api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
-            attempt_batching=True,
-        )
+    match provider:
+        case "ibmq":
+            device = (
+                Aer.get_backend(backend)
+                if len(Aer.backends(backend)) > 0
+                else QiskitRuntimeService().backend(backend)
+            )
+        case "quantinuum":
+            device = QuantinuumBackend(
+                device_name=backend,
+                api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+                attempt_batching=True,
+            )
+        case _:
+            raise ValueError(f"Hardware provider '{provider}' is not supported.")
 
     circs = []
     ideal_probs = []
