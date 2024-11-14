@@ -2025,13 +2025,13 @@ websocket-client = ">=1.0.1"
 
 [[package]]
 name = "qiskit-ibm-runtime"
-version = "0.30.0"
+version = "0.33.2"
 description = "IBM Quantum client for Qiskit Runtime."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "qiskit_ibm_runtime-0.30.0-py3-none-any.whl", hash = "sha256:d90f542b1f6efb2e153be7a5f5a6119cfe5772d347b555c1e41384c48c6b1695"},
-    {file = "qiskit_ibm_runtime-0.30.0.tar.gz", hash = "sha256:c2983861ba13068670cbdbcb7ffc9312d0bf0dc070c16958916a187ec28b45d9"},
+    {file = "qiskit_ibm_runtime-0.33.2-py3-none-any.whl", hash = "sha256:fe414429098f49c7caddca31203b801eca0f2b587913eb3583c5b284a6c2c271"},
+    {file = "qiskit_ibm_runtime-0.33.2.tar.gz", hash = "sha256:f75bcfee97c4a8014a7999a353b5adc70dccf4b92eafc1cf81fa05a26ea5519b"},
 ]
 
 [package.dependencies]
@@ -2044,6 +2044,9 @@ requests = ">=2.19"
 requests-ntlm = ">=1.1.0"
 urllib3 = ">=1.21.1"
 websocket-client = ">=1.5.1"
+
+[package.extras]
+visualization = ["plotly (>=5.23.0)"]
 
 [[package]]
 name = "qwasm"
@@ -2683,4 +2686,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "a784814114b0f9284b5cd125e915b315ad63842f0eb834b23a93802ac0ffb0a6"
+content-hash = "1b48f346c570e4ad4ce2a2a987c1cb6c89b710d664a257012c4204f4f86af52a"

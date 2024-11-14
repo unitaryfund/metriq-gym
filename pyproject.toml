@@ -14,7 +14,7 @@ python = "~3.12"
 scipy = "^1.14.1"
 pyqrack = "^1.30.31"
 qiskit-aer = "^0.15.1"
-qiskit-ibm-runtime = "^0.30.0"
+qiskit-ibm-runtime = "^0.33.2"
 qiskit = "^1.2.4"
 
 metriq-client = { git = "https://github.com/unitaryfund/metriq-client.git", branch = "master" }
