@@ -27,7 +27,6 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
         return QiskitRuntimeService().job(result.id)
-
     return result.id
 
 
@@ -80,7 +79,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
 
             job = get_job(result)
 
-            if result.provider == BenchProvider.IBMQ:
+            if result.provider is BenchProvider.IBMQ:
                 status = job.status()
                 if (result.job_type != job_type) or (not job.in_final_state()):
                     lines_out.append(line)
@@ -91,7 +90,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                     results.append(result)
                 else:
                     logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
-            else:
+            elif result.provider is BenchProvider.QUANTINUUM:
                 device = QuantinuumBackend(
                     device_name=result.backend,
                     api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
@@ -115,6 +114,8 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                     results.append(result)
                 else:
                     logging.warning("Job ID %s failed with status: %s", job, status)
+        else:
+            raise ValueError(f"Unable to poll results.")
 
     # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:
