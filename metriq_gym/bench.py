@@ -23,14 +23,14 @@ from pytket.extensions.qiskit import qiskit_to_tk
 from metriq_gym.gates import rand_u3, coupler
 
 
-class BenchProvider(str, IntEnum):
-    IBMQ = "IBMQ"
-    QUANTINUUM = "Quantinuum"
+class BenchProvider(IntEnum):
+    IBMQ = 0
+    QUANTINUUM = 1
 
 
-class BenchJobType(str, IntEnum):
-    QV = "QV"
-    CLOPS = "CLOPS"
+class BenchJobType(IntEnum):
+    QV = 0
+    CLOPS = 1
 
 
 @dataclass
@@ -102,7 +102,7 @@ def random_circuit_sampling(n: int) -> QuantumCircuit:
     return circ
 
 
-def transpile_circuit(provider: str, backend_name: str) -> QuantumCircuit:
+def transpile_circuit(circ: QuantumCircuit, provider: str, backend_name: str) -> QuantumCircuit:
     backend = get_backend(provider, backend_name)
     match provider:
         case "ibmq":
