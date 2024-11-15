@@ -24,6 +24,7 @@ def parse_arguments() -> argparse.Namespace:
         "-p",
         "--provider",
         type=str,
+        choices=["ibmq", "quantinuum", "ionq"],
         default="ibmq",
         help="String identifier for backend provider service",
     )

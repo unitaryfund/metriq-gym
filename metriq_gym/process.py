@@ -115,7 +115,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                 else:
                     logging.warning("Job ID %s failed with status: %s", job, status)
         else:
-            raise ValueError(f"Unable to poll results.")
+            raise ValueError("Unable to poll results.")
 
     # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:

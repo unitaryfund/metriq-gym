@@ -1,16 +1,21 @@
 """Benchmarking utilities."""
+
 from typing import Any
+import os
 import random
 import time
+import qiskit
 from dataclasses import dataclass
 from enum import IntEnum
+from dotenv import load_dotenv
 
 from pyqrack import QrackSimulator
 from qiskit_aer import Aer
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit import QuantumCircuit
-from qiskit.compiler import transpile
-from qiskit.providers import Backend, Job
+from qiskit.providers import Job
+
+from qiskit_ionq import IonQProvider
 
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends.credential_storage import (
@@ -23,9 +28,13 @@ from pytket.extensions.qiskit import qiskit_to_tk
 from metriq_gym.gates import rand_u3, coupler
 
 
+load_dotenv()
+
+
 class BenchProvider(IntEnum):
     IBMQ = 0
     QUANTINUUM = 1
+    IONQ = 2
 
 
 class BenchJobType(IntEnum):
@@ -69,7 +78,7 @@ class BenchJobResult:
         }
 
 
-def get_backend(provider: str, backend_name: str) -> QuantinuumBackend | Backend:
+def get_backend(provider: str, backend_name: str):
     match provider.lower():
         case "ibmq":
             return (
@@ -83,8 +92,13 @@ def get_backend(provider: str, backend_name: str) -> QuantinuumBackend | Backend
                 api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
                 attempt_batching=True,
             )
+        case "ionq":
+            provider = IonQProvider(os.getenv("IONQ_API_KEY"))
+            return provider.get_backend(str(backend_name), gateset="native")
         case _:
-            raise ValueError(f"Unable to retrieve backend. Hardware provider '{provider}' is not supported.")
+            raise ValueError(
+                f"Unable to retrieve backend. Hardware provider '{provider}' is not supported."
+            )
 
 
 def random_circuit_sampling(n: int) -> QuantumCircuit:
@@ -92,7 +106,7 @@ def random_circuit_sampling(n: int) -> QuantumCircuit:
     for _ in range(n):
         for i in range(n):
             rand_u3(circ, i)
-        
+
         unused_bits = list(range(n))
         random.shuffle(unused_bits)
         while len(unused_bits) > 1:
@@ -106,9 +120,11 @@ def transpile_circuit(circ: QuantumCircuit, provider: str, backend_name: str) ->
     backend = get_backend(provider, backend_name)
     match provider:
         case "ibmq":
-            circ = transpile(circ, backend)
+            circ = qiskit.compiler.transpile(circ, backend)
         case "quantinuum":
             circ = backend.get_compiled_circuit(qiskit_to_tk(circ))
+        case "ionq":
+            circ = qiskit.compiler.transpile(circ, backend)
         case _:
             raise ValueError(f"Unable to transpile circuit. Provider {provider} is not supported.")
     return circ
@@ -165,18 +181,23 @@ def dispatch_bench_job(
     provider = provider.lower()
     device = get_backend(provider, backend)
     circs, ideal_probs, sim_interval = prepare_circuits(n, trials, provider, device)
-    
+
     match provider:
         case "ibmq":
             job = device.run(circs, shots=shots)
+            provider = BenchProvider.IBMQ
         case "quantinuum":
             job = device.process_circuits(circs, n_shots=shots)
+            provider = BenchProvider.QUANTINUUM
+        case "ionq":
+            job = device.run(circs, shots=shots)
+            provider = BenchProvider.IONQ
         case _:
             raise ValueError(f"Unable to launch job. Provider {provider} unsupported.")
 
     partial_result = BenchJobResult(
         id=job.job_id() if provider == "ibmq" else job,
-        provider=BenchProvider.IBMQ if provider == "ibmq" else BenchProvider.QUANTINUUM,
+        provider=provider,
         backend=backend,
         job_type=BenchJobType.QV,
         qubits=n,
