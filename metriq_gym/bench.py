@@ -185,18 +185,21 @@ def dispatch_bench_job(
     match provider:
         case "ibmq":
             job = device.run(circs, shots=shots)
+            job_id = job.job_id()
             provider = BenchProvider.IBMQ
         case "quantinuum":
             job = device.process_circuits(circs, n_shots=shots)
+            job_id = job
             provider = BenchProvider.QUANTINUUM
         case "ionq":
             job = device.run(circs, shots=shots)
+            job_id = job._job_id
             provider = BenchProvider.IONQ
         case _:
             raise ValueError(f"Unable to launch job. Provider {provider} unsupported.")
 
     partial_result = BenchJobResult(
-        id=job.job_id() if provider == "ibmq" else job,
+        id=job_id,
         provider=provider,
         backend=backend,
         job_type=BenchJobType.QV,

@@ -10,6 +10,8 @@ from scipy.stats import binom
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.providers import Job, JobStatus
 
+from qiskit_ionq import IonQProvider
+
 from pytket.backends.status import StatusEnum
 from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
 from pytket.extensions.quantinuum.backends.credential_storage import (
@@ -27,6 +29,9 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
         return QiskitRuntimeService().job(result.id)
+    elif result.provider == BenchProvider.IONQ:
+        backend = IonQProvider().get_backend(result.backend)
+        return backend.retrieve_job(result.id)
     return result.id
 
 
@@ -61,6 +66,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
         logging.info("%i job(s) dispatched.", len(lines))
         for line in lines:
             result_data = json.loads(line)
+            print(line)
             # Recreate BenchJobResult without the job field
             result = BenchJobResult(
                 id=result_data["id"],
@@ -76,6 +82,8 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                 sim_interval=result_data["sim_interval"],
                 trials=result_data["trials"],
             )
+            print(result)
+            exit()
 
             job = get_job(result)
 
