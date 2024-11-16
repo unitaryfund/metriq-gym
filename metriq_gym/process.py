@@ -216,7 +216,7 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
     to_ret = []
     for result in results:
         # IonQ results are returned as a list of counts.
-        if results.provider is BenchProvider.IONQ:
+        if result.provider is BenchProvider.IONQ:
             counts = [int(count) for count in list(result.counts.values())]
         else:
             counts = result.counts[0]
@@ -239,7 +239,7 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
         stats["trial_p-values"] = []
         for trial in range(1, stats["trials"]):
             # IonQ results are returned as a list of counts.
-            if results.provider is BenchProvider.IONQ:
+            if result.provider is BenchProvider.IONQ:
                 counts = [int(count) for count in list(result.counts[trial].values())]
             else:
                 counts = result.counts[trial]
