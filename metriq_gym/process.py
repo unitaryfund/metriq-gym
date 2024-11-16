@@ -66,7 +66,6 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
         logging.info("%i job(s) dispatched.", len(lines))
         for line in lines:
             result_data = json.loads(line)
-            print(line)
             # Recreate BenchJobResult without the job field
             result = BenchJobResult(
                 id=result_data["id"],
@@ -82,8 +81,6 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                 sim_interval=result_data["sim_interval"],
                 trials=result_data["trials"],
             )
-            print(result)
-            exit()
 
             job = get_job(result)
 
@@ -122,8 +119,20 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                     results.append(result)
                 else:
                     logging.warning("Job ID %s failed with status: %s", job, status)
-        else:
-            raise ValueError("Unable to poll results.")
+            elif result.provider is BenchProvider.IONQ:
+                status = job.status()
+                if (result.job_type != job_type) or (not job.in_final_state()):
+                    lines_out.append(line)
+                elif status in (JobStatus.DONE, "DONE"):
+                    result.job = job
+                    if job_type == BenchJobType.QV:
+                        result = get_job_result_qiskit(job, result)
+                        print(result)
+                    results.append(result)
+                else:
+                    logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
+            else:
+                raise ValueError("Unable to poll results.")
 
     # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:
@@ -197,8 +206,8 @@ def calc_trial_stats(
         "p-value": p_val,
         "confidence_level": confidence_level,
         "confidence_pass": p_val < confidence_level,
-        "clops": (n * shots) / interval,
-        "sim_clops": (n * shots) / sim_interval,
+        "clops": (n * shots) / interval if interval > 0 else 0,
+        "sim_clops": (n * shots) / sim_interval if sim_interval > 0 else 0,
         "eplg": (1 - (xeb ** (1 / n))) if xeb < 1 else 0,
     }
 
@@ -206,9 +215,15 @@ def calc_trial_stats(
 def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
     to_ret = []
     for result in results:
+        # IonQ results are returned as a list of counts.
+        if results.provider is BenchProvider.IONQ:
+            counts = [int(count) for count in list(result.counts.values())]
+        else:
+            counts = result.counts[0]
+
         stats = calc_trial_stats(
             result.ideal_probs[0],
-            result.counts[0],
+            counts,
             result.interval,
             result.sim_interval,
             result.shots,
@@ -223,9 +238,15 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
 
         stats["trial_p-values"] = []
         for trial in range(1, stats["trials"]):
+            # IonQ results are returned as a list of counts.
+            if results.provider is BenchProvider.IONQ:
+                counts = [int(count) for count in list(result.counts[trial].values())]
+            else:
+                counts = result.counts[trial]
+
             s = calc_trial_stats(
                 result.ideal_probs[trial],
-                result.counts[trial],
+                counts,
                 result.interval,
                 result.sim_interval,
                 result.shots,
