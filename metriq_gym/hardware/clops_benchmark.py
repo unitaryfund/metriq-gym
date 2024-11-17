@@ -19,7 +19,7 @@ import numpy as np
 from qiskit import transpile
 from qiskit.circuit import Barrier, Delay, ParameterVector, QuantumCircuit, Qubit
 from qiskit.circuit.library import IGate, RZGate, SXGate, UGate
-from qiskit.providers import Job, JobStatus
+from qiskit.providers import Job
 from qiskit_ibm_runtime import QiskitRuntimeService, Session
 from qiskit_ibm_runtime import SamplerV2 as Sampler
 from qiskit_ibm_runtime import SamplerOptions

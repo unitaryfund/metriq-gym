@@ -2,9 +2,16 @@
 
 Standard benchmark script implementations for https://metriq.info
 
+## Data
+
+[Benchmark schema is defined here.](https://github.com/unitaryfund/metriq-gym/wiki/Quantum-Volume-definition)
+
+[First hardware results are here.](https://github.com/unitaryfund/metriq-gym/wiki/First-Hardware-Data)
+
 ## Setup
 
-You will require Python 3.12 and [`poetry`](https://python-poetry.org/).
+You will require **Python 3.12** and [`poetry`](https://python-poetry.org/). **Note:** the
+newest Python version 3.13 is not yet supported due to the `qiskit-aer` dependency.
 
 Once you have `poetry` installed, run:
 
@@ -67,3 +74,11 @@ python metriq_gym/poll_qv.py -n 2 --shots 1024 --backend ibm_sherbrooke --token 
 ```
 
 where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
+
+## Contributing
+
+To guarantee that both linter and formatter run before each commit, 
+please install the pre-commit hook with
+```sh
+poetry run pre-commit install
+```

@@ -1,4 +1,5 @@
 """Benchmark processing and calculation utilities."""
+
 import json
 import logging
 import math
@@ -8,24 +9,39 @@ from scipy.stats import binom
 
 from qiskit_ibm_runtime import QiskitRuntimeService
 from qiskit.providers import Job, JobStatus
-from qiskit.providers.jobstatus import JOB_FINAL_STATES
+
+from pytket.backends.status import StatusEnum
+from pytket.extensions.quantinuum.backends.api_wrappers import QuantinuumAPI
+from pytket.extensions.quantinuum.backends.credential_storage import (
+    QuantinuumConfigCredentialStorage,
+)
+
+from pytket.extensions.quantinuum import QuantinuumBackend
 
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
+
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
         return QiskitRuntimeService().job(result.id)
 
-    raise ValueError(f"Cannot find provider {result.provider}.")
+    return result.id
 
 
-def get_job_result(job: Job, partial_result: BenchJobResult):
+def get_job_result_qiskit(job: Job, partial_result: BenchJobResult):
     result = job.result()
     partial_result.counts = result.get_counts()
     partial_result.interval = result.time_taken
+
+    return partial_result
+
+
+def get_job_result_quantinuum(job, partial_result: BenchJobResult):
+    partial_result.counts = job.get_counts()
+    partial_result.interval = -9999
 
     return partial_result
 
@@ -38,9 +54,9 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
     Returns:
         An array of newly-completed BenchJobResult instances.
     """
-    results = []    
+    results = []
     lines_out = []
-    
+
     with open(jobs_file, "r") as file:
         lines = file.readlines()
         logging.info("%i job(s) dispatched.", len(lines))
@@ -59,30 +75,62 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                 counts=result_data["counts"],
                 interval=result_data["interval"],
                 sim_interval=result_data["sim_interval"],
+                trials=result_data["trials"],
             )
-            
+
             job = get_job(result)
-            status = job.status()
-            
-            if (status not in JOB_FINAL_STATES) or (result.job_type != job_type):
-                lines_out.append(line)
-            elif status == JobStatus.DONE:
-                result.job = job
-                if job_type == BenchJobType.QV:
-                    result = get_job_result(job, result)
-                results.append(result)
+
+            if result.provider == BenchProvider.IBMQ:
+                status = job.status()
+                if (result.job_type != job_type) or (not job.in_final_state()):
+                    lines_out.append(line)
+                elif status in (JobStatus.DONE, "DONE"):
+                    result.job = job
+                    if job_type == BenchJobType.QV:
+                        result = get_job_result_qiskit(job, result)
+                    results.append(result)
+                else:
+                    logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
             else:
-                logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
-    
+                device = QuantinuumBackend(
+                    device_name=result.backend,
+                    api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+                    attempt_batching=True,
+                )
+                status = device.circuit_status(job)
+                if (
+                    status
+                    not in [
+                        StatusEnum.COMPLETED,
+                        StatusEnum.CANCELLING,
+                        StatusEnum.CANCELLED,
+                        StatusEnum.ERROR,
+                    ]
+                ) or (result.job_type != job_type):
+                    lines_out.append(line)
+                elif status == StatusEnum.COMPLETED:
+                    result.job = device.get_result(job)
+                    if job_type == BenchJobType.QV:
+                        result = get_job_result_quantinuum(job, result)
+                    results.append(result)
+                else:
+                    logging.warning("Job ID %s failed with status: %s", job, status)
+
     # Write back the jobs still active to the file
     with open(jobs_file, "w") as file:
         file.writelines(lines_out)
-    
+
     return results
 
 
-def calc_trial_stats(ideal_probs: dict[int, float], counts: dict[str, int], interval: float, 
-               sim_interval: float, shots: int, confidence_level: float) -> dict[str, float]:
+def calc_trial_stats(
+    ideal_probs: dict[int, float],
+    counts: dict[str, int],
+    interval: float,
+    sim_interval: float,
+    shots: int,
+    confidence_level: float,
+) -> dict[str, float]:
     """Calculate various statistics for quantum volume benchmarking.
 
     Args:
@@ -142,24 +190,39 @@ def calc_trial_stats(ideal_probs: dict[int, float], counts: dict[str, int], inte
         "confidence_pass": p_val < confidence_level,
         "clops": (n * shots) / interval,
         "sim_clops": (n * shots) / sim_interval,
-        "eplg": (1 - (xeb ** (1 / n))) if xeb < 1 else 0
+        "eplg": (1 - (xeb ** (1 / n))) if xeb < 1 else 0,
     }
+
 
 def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
     to_ret = []
     for result in results:
-        stats = calc_trial_stats(result.ideal_probs[0], result.counts[0], result.interval, result.sim_interval, result.shots, confidence_level)
+        stats = calc_trial_stats(
+            result.ideal_probs[0],
+            result.counts[0],
+            result.interval,
+            result.sim_interval,
+            result.shots,
+            confidence_level,
+        )
         stats["trials"] = len(result.counts)
 
         if stats["trials"] == 1:
             to_ret.append(stats)
-            
+
             continue
 
         stats["trial_p-values"] = []
         for trial in range(1, stats["trials"]):
-            s = calc_trial_stats(result.ideal_probs[trial], result.counts[trial], result.interval, result.sim_interval, result.shots, confidence_level)
-            stats["hog_prob"] += + s["hog_prob"]
+            s = calc_trial_stats(
+                result.ideal_probs[trial],
+                result.counts[trial],
+                result.interval,
+                result.sim_interval,
+                result.shots,
+                confidence_level,
+            )
+            stats["hog_prob"] += +s["hog_prob"]
             stats["p-value"] *= s["p-value"]
             stats["trial_p-values"].append(s["p-value"])
             stats["pass"] &= s["pass"]
@@ -169,7 +232,7 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> dict:
         stats["p-value"] = stats["p-value"] ** (1 / stats["trials"])
         stats["clops"] = (result.depth * result.shots * stats["trials"]) / stats["seconds"]
         stats["sim_clops"] = (result.depth * result.shots * stats["trials"]) / stats["sim_seconds"]
-        
+
         to_ret.append(stats)
-    
+
     return to_ret
