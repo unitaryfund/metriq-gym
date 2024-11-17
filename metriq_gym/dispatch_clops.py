@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import sys
+from dotenv import load_dotenv
 
 
 from qiskit_ibm_runtime import QiskitRuntimeService
@@ -11,6 +12,9 @@ from qiskit_ibm_runtime import QiskitRuntimeService
 from metriq_gym.parse import parse_arguments
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 from metriq_gym.hardware.clops_benchmark import clops_benchmark
+
+
+load_dotenv()
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -22,7 +26,7 @@ def main():
     if args.token and args.instance:
         QiskitRuntimeService.save_account(
             channel="ibm_quantum",
-            token=args.token,
+            token=os.environ.get("IBM_QISKIT_API_KEY"),
             instance=args.instance,
             set_as_default=True,
             overwrite=True,
