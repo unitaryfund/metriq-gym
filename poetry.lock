@@ -1658,20 +1658,19 @@ test = ["pytest (>=7.2.0,<7.3.0)"]
 
 [[package]]
 name = "pyqrack"
-version = "1.32.21"
+version = "1.32.26"
 description = "pyqrack - Pure Python vm6502q/qrack Wrapper"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pyqrack-1.32.21-py3-none-macosx_12_0_x86_64.whl", hash = "sha256:d3849e5f1c9c3167b80b2d4c3d479c58062f97e455e67538906ced4e1443b4aa"},
-    {file = "pyqrack-1.32.21-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:a18f0b011fbd3ec6bc20ec02513cf23ea424f7b4db0adc93d4b2f807550c16ca"},
-    {file = "pyqrack-1.32.21-py3-none-macosx_14_0_arm64.whl", hash = "sha256:36f616f677238c61d8139efcf6949d98a23a2359a43cf3decd2990fdef2a2a71"},
-    {file = "pyqrack-1.32.21-py3-none-macosx_15_0_arm64.whl", hash = "sha256:8777616f642014adb34d3a1df77d465c8cb9e5fe78fdc4db46525760ff51b1f9"},
-    {file = "pyqrack-1.32.21-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:8da3aecc7d1257336d7541f057686359b076bd2558d4f12a5c1862e2fe8922bb"},
-    {file = "pyqrack-1.32.21-py3-none-manylinux_2_35_x86_64.whl", hash = "sha256:d9bc390bbc3946a4d92d3760b802e7508cca336819b212b233f6fd47de0bd84e"},
-    {file = "pyqrack-1.32.21-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:9382070708b90bd854cdfecaf7a902428cfd77255c96d709fa9187d705150bd9"},
-    {file = "pyqrack-1.32.21-py3-none-win_amd64.whl", hash = "sha256:42da8b5b08ceb67fcc931f181de1490ac28030d6949d379d7b4327bacefb9475"},
-    {file = "pyqrack-1.32.21.tar.gz", hash = "sha256:61d3707c1c6170955c32dcbe809de917d6c1cd30eeb1d5194630d8f952b8465e"},
+    {file = "pyqrack-1.32.26-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:36c2fc44626d37957da447a49daaeff342a46ff0397076db929af786c61ec04c"},
+    {file = "pyqrack-1.32.26-py3-none-macosx_14_0_arm64.whl", hash = "sha256:1d1328a37c399debf4311a0e164eb2cd05ebf5ff6d042804968370d147a4689a"},
+    {file = "pyqrack-1.32.26-py3-none-macosx_15_0_arm64.whl", hash = "sha256:42f660b1150445604b006f5895cfe800e2411365c31e77ec23fc2c9bfaac73a7"},
+    {file = "pyqrack-1.32.26-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:521b586e9247ef97d234c26f78a5683181fec58d10aaee0ec56011477e632d66"},
+    {file = "pyqrack-1.32.26-py3-none-manylinux_2_35_x86_64.whl", hash = "sha256:9fc7c5eface2051920da613c4bb3ab5581131c7681a146e5bcd4899c96509789"},
+    {file = "pyqrack-1.32.26-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:e4b5c84b2c460ae8dde84fba4d4ba37d004976b382aec50a20bc8a88122ee98a"},
+    {file = "pyqrack-1.32.26-py3-none-win_amd64.whl", hash = "sha256:5bf12b9a89326842f9783b5d75c6d8d1814631521f79908fd637a7704230823a"},
+    {file = "pyqrack-1.32.26.tar.gz", hash = "sha256:b5bd3006f2fdff512b92841505519c24a50ebdd0587cf25a479878fb2d3988b4"},
 ]
 
 [package.extras]
@@ -2702,4 +2701,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "315a1c46537f8c8f03e9eb5402df8fd331d71521615bb924ce0686f66a5264e9"
+content-hash = "ed10385456c0ebfd207d94c19147d181b8f32bea10f27d0fe5bfcae1cce153dc"
