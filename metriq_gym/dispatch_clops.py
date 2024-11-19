@@ -68,7 +68,6 @@ def main():
         file.write(str(result_json) + os.linesep)
 
     logging.info(str(result_json))
-    print(str(result_json))
 
     return 0
 
