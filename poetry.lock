@@ -1102,13 +1102,13 @@ tests = ["pytest (>=4.6)"]
 
 [[package]]
 name = "msal"
-version = "1.31.0"
+version = "1.31.1"
 description = "The Microsoft Authentication Library (MSAL) for Python library enables your app to access the Microsoft Cloud by supporting authentication of users with Microsoft Azure Active Directory accounts (AAD) and Microsoft Accounts (MSA) using industry standard OAuth2 and OpenID Connect."
 optional = false
 python-versions = ">=3.7"
 files = [
-    {file = "msal-1.31.0-py3-none-any.whl", hash = "sha256:96bc37cff82ebe4b160d5fc0f1196f6ca8b50e274ecd0ec5bf69c438514086e7"},
-    {file = "msal-1.31.0.tar.gz", hash = "sha256:2c4f189cf9cc8f00c80045f66d39b7c0f3ed45873fd3d1f2af9f22db2e12ff4b"},
+    {file = "msal-1.31.1-py3-none-any.whl", hash = "sha256:29d9882de247e96db01386496d59f29035e5e841bcac892e6d7bf4390bf6bd17"},
+    {file = "msal-1.31.1.tar.gz", hash = "sha256:11b5e6a3f802ffd3a72107203e20c4eac6ef53401961b880af2835b723d80578"},
 ]
 
 [package.dependencies]
@@ -1643,13 +1643,13 @@ windows-terminal = ["colorama (>=0.4.6)"]
 
 [[package]]
 name = "pyjwt"
-version = "2.9.0"
+version = "2.10.0"
 description = "JSON Web Token implementation in Python"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "PyJWT-2.9.0-py3-none-any.whl", hash = "sha256:3b02fb0f44517787776cf48f2ae25d8e14f300e6d7545a4315cee571a415e850"},
-    {file = "pyjwt-2.9.0.tar.gz", hash = "sha256:7e1e5b56cc735432a7369cbfa0efe50fa113ebecdc04ae6922deba8b84582d0c"},
+    {file = "PyJWT-2.10.0-py3-none-any.whl", hash = "sha256:543b77207db656de204372350926bed5a86201c4cbff159f623f79c7bb487a15"},
+    {file = "pyjwt-2.10.0.tar.gz", hash = "sha256:7628a7eb7938959ac1b26e819a1df0fd3259505627b575e4bad6d08f76db695c"},
 ]
 
 [package.dependencies]
@@ -1692,20 +1692,19 @@ test = ["pytest (>=7.2.0,<7.3.0)"]
 
 [[package]]
 name = "pyqrack"
-version = "1.32.19"
+version = "1.32.28"
 description = "pyqrack - Pure Python vm6502q/qrack Wrapper"
 optional = false
 python-versions = "*"
 files = [
-    {file = "pyqrack-1.32.19-py3-none-macosx_12_0_x86_64.whl", hash = "sha256:0deb533f1cff107eb16a33fabcdf6e69e3c158b172be416e6d76c26721be622c"},
-    {file = "pyqrack-1.32.19-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:870b98e7f79eca8e5a7ab8bd74d4500575fb7ce12fd37f16dc53fa25b4f90a5b"},
-    {file = "pyqrack-1.32.19-py3-none-macosx_14_0_arm64.whl", hash = "sha256:384be9c00e01e14471870429537fd39ba2e77b9a4df8695aef66a480abeb0e1e"},
-    {file = "pyqrack-1.32.19-py3-none-macosx_15_0_arm64.whl", hash = "sha256:b8c0cdbc44c7b76f1359d8a467513b7cf50dd2d723e8e5253e62b05c9bdbf613"},
-    {file = "pyqrack-1.32.19-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:262478d3176f1af879da2e1e52aca0eb8df6ed84e4c6969bf5e5b5547612239a"},
-    {file = "pyqrack-1.32.19-py3-none-manylinux_2_35_x86_64.whl", hash = "sha256:e9337d30a82622fd56b67c683566c9602ba2b135c92362e531045622057c8235"},
-    {file = "pyqrack-1.32.19-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:3a82ed476f1b82987723199b82e7cac07bd84649de2220b86203e513b5ac202c"},
-    {file = "pyqrack-1.32.19-py3-none-win_amd64.whl", hash = "sha256:c51a82d417c452fde4416b735de003a9852a3559df18242b46f437ac280e31d1"},
-    {file = "pyqrack-1.32.19.tar.gz", hash = "sha256:f615c72760c04cfe32b3b0779ffcb08be896e7b96841340334179d2c149dadb5"},
+    {file = "pyqrack-1.32.28-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:4f34f8a63f837582ff92a10de97121bdc66add5b57f124fc7760f87452068bfd"},
+    {file = "pyqrack-1.32.28-py3-none-macosx_14_0_arm64.whl", hash = "sha256:1f715746e2c299f7b2f86ab8e975bf30e2e9247b38aef9e0447c29e759d913a0"},
+    {file = "pyqrack-1.32.28-py3-none-macosx_15_0_arm64.whl", hash = "sha256:b679c0b6e431ca546e67b7d4cbd34a81daae42acba65de41aedef8dec2bc3966"},
+    {file = "pyqrack-1.32.28-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:1954d6552fec15e81cdefb2f43a83fee515990d3338bbbcec6406c0481a0b1bf"},
+    {file = "pyqrack-1.32.28-py3-none-manylinux_2_35_x86_64.whl", hash = "sha256:704dccdec3423e1040239d80862dd50a7d6a93a9bf55968d5b626ef55220bd74"},
+    {file = "pyqrack-1.32.28-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:2a9cf3f24a32e984343258c99c34452a9d65a9f86168c1aede71b801b177963c"},
+    {file = "pyqrack-1.32.28-py3-none-win_amd64.whl", hash = "sha256:63305fb63064bc514a4da37c88727bc681855fce59127915b4c97443e540e564"},
+    {file = "pyqrack-1.32.28.tar.gz", hash = "sha256:66c73ac8011e2629991505b6eb41f4fc2f0156146e98bf81f16596ff07b860ef"},
 ]
 
 [package.extras]
@@ -2792,4 +2791,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "02da2b2810bc010057b0fd2bc26f3db3186275012a0bf53464460dfb6adfe701"
+content-hash = "f404b86c343ba6fcaeec55c073bd2335db4c2d2bf9beace4152dd72b22d000dc"
