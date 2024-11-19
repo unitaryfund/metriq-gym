@@ -36,7 +36,6 @@ def main():
 
     if args.provider in ["ibmq", "ionq"]:
         result = json.dumps(result.to_serializable())
-    print(result)
 
     with open(args.jobs_file, "a") as file:
         file.write(str(result) + os.linesep)

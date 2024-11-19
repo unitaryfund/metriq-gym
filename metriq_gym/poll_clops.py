@@ -49,7 +49,6 @@ def main():
 
         result_str = f"Measured clops of {clops.job_attributes['backend_name']} is {clops.clops()}"
         logging.info(result_str)
-        print(result_str)
 
     return 0
 

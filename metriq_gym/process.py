@@ -127,7 +127,6 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
                     result.job = job
                     if job_type == BenchJobType.QV:
                         result = get_job_result_qiskit(job, result)
-                        print(result)
                     results.append(result)
                 else:
                     logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
