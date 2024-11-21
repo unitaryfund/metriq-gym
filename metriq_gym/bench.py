@@ -45,7 +45,7 @@ class BenchJobType(IntEnum):
 class BenchJobResult:
     """Data structure to hold results from the dispatch_bench_job function."""
 
-    id: str
+    provider_job_id: str
     provider: BenchProvider
     backend: str
     job_type: BenchJobType
@@ -62,7 +62,7 @@ class BenchJobResult:
     def to_serializable(self) -> dict[str, Any]:
         """Return a dictionary excluding non-serializable fields (like 'job')."""
         return {
-            "id": self.id,
+            "provider_job_id": self.provider_job_id,
             "provider": self.provider.name,
             "backend": self.backend,
             "job_type": self.job_type.name,
@@ -164,7 +164,7 @@ def dispatch_bench_job(
     """
     provider = provider.lower()
     device = get_backend(provider, backend)
-    circs, ideal_probs, sim_interval = prepare_circuits(n, trials, provider, device)
+    circs, ideal_probs, sim_interval = prepare_circuits(n, trials, provider, backend)
 
     match provider:
         case "ibmq":
@@ -183,7 +183,7 @@ def dispatch_bench_job(
             raise ValueError(f"Unable to launch job. Provider {provider} unsupported.")
 
     partial_result = BenchJobResult(
-        id=job_id,
+        provider_job_id=job_id,
         provider=provider,
         backend=backend,
         job_type=BenchJobType.QV,

@@ -1,12 +1,11 @@
 """Dispatch job with CLI parameters to Qiskit."""
 
-import json
 import logging
-import os
 import sys
 
 
 from metriq_gym.bench import dispatch_bench_job
+from metriq_gym.job_manager import JobManager
 from metriq_gym.parse import parse_arguments
 from metriq_gym.process import calc_stats
 
@@ -21,6 +20,8 @@ def main():
         f"Dispatching Quantum Volume job with n={args.num_qubits}, shots={args.shots}, trials={args.trials}, backend={args.backend}, confidence_level={args.confidence_level}, jobs_file={args.jobs_file}"
     )
 
+    job_manager = JobManager(args.jobs_file)
+
     result = dispatch_bench_job(
         args.num_qubits, args.backend, args.shots, args.trials, args.provider
     )
@@ -34,11 +35,7 @@ def main():
 
     logging.info(f"Dispatched {args.trials} trials in 1 job.")
 
-    if args.provider in ["ibmq", "ionq"]:
-        result = json.dumps(result.to_serializable())
-
-    with open(args.jobs_file, "a") as file:
-        file.write(str(result) + os.linesep)
+    job_manager.add_job(result.to_serializable())
 
     logging.info(f"Done writing job IDs to file {args.jobs_file}.")
 
