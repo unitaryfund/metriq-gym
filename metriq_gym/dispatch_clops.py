@@ -46,7 +46,7 @@ def main():
     )
 
     partial_result = BenchJobResult(
-        id=clops.job.job_id(),
+        provider_job_id=clops.job.job_id(),
         backend=args.backend,
         provider=BenchProvider.IBMQ,
         job_type=BenchJobType.CLOPS,

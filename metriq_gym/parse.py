@@ -1,6 +1,7 @@
 """Command-line parsing for running metriq benchmarks."""
 
 import argparse
+from metriq_gym.job_manager import DEFAULT_FILE_PATH as DEFAULT_JOBS_FILE
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -46,7 +47,7 @@ def parse_arguments() -> argparse.Namespace:
         "-j",
         "--jobs_file",
         type=str,
-        default=".metriq_gym_jobs.jsonl",
+        default=DEFAULT_JOBS_FILE,
         help="File in local directory where async jobs are recorded",
     )
     parser.add_argument(

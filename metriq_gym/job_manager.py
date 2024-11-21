@@ -1,8 +1,9 @@
 import json
+import os
 import uuid
-from typing import List, Dict, Any
+from typing import Any
 
-DEFAULT_FILE_PATH = ".metric_gym_jobs.jsonl"
+DEFAULT_FILE_PATH = ".metriq_gym_jobs.jsonl"
 
 # TODO: JobManager is not thread-safe at the moment
 
@@ -14,23 +15,21 @@ class JobManager:
 
     def _load_jobs(self):
         self.jobs = []
-        try:
-            with open(self.file_path, "r") as file:
+        if os.path.exists(self.file_path):
+            with open(self.file_path) as file:
                 for line in file:
                     try:
                         job = json.loads(line.strip())
                         self.jobs.append(job)
                     except json.JSONDecodeError:
                         continue
-        except FileNotFoundError:
-            self.jobs = []
 
     def _save_jobs(self):
         with open(self.file_path, "w") as file:
             for job in self.jobs:
                 file.write(json.dumps(job, sort_keys=True) + "\n")
 
-    def add_job(self, job: Dict[str, Any]) -> str:
+    def add_job(self, job: dict[str, Any]) -> str:
         job_id = str(uuid.uuid4())
         job["id"] = job_id
         self.jobs.append(job)
@@ -42,17 +41,17 @@ class JobManager:
         self.jobs = [job for job in self.jobs if job["id"] != job_id]
         self._save_jobs()
 
-    def update_job(self, job_id: str, updates: Dict[str, Any]):
+    def update_job(self, job_id: str, updates: dict[str, Any]):
         for job in self.jobs:
             if job["id"] == job_id:
                 job.update(updates)
                 break
         self._save_jobs()
 
-    def get_jobs(self) -> List[Dict[str, Any]]:
+    def get_jobs(self) -> list[dict[str, Any]]:
         return self.jobs
 
-    def get_job(self, job_id: str) -> Dict[str, Any]:
+    def get_job(self, job_id: str) -> dict[str, Any]:
         for job in self.jobs:
             if job["id"] == job_id:
                 return job
