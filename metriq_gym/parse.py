@@ -46,7 +46,7 @@ def parse_arguments() -> argparse.Namespace:
         "-j",
         "--jobs_file",
         type=str,
-        default=".metriq_gym_jobs.json",
+        default=".metriq_gym_jobs.jsonl",
         help="File in local directory where async jobs are recorded",
     )
     parser.add_argument(

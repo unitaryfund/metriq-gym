@@ -28,10 +28,10 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
-        return QiskitRuntimeService().job(result.id)
+        return QiskitRuntimeService().job(result.provider_job_id)
     elif result.provider == BenchProvider.IONQ:
         backend = IonQProvider().get_backend(result.backend)
-        return backend.retrieve_job(result.id)
+        return backend.retrieve_job(result.provider_job_id)
     return result.id
 
 
@@ -68,7 +68,7 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
             result_data = json.loads(line)
             # Recreate BenchJobResult without the job field
             result = BenchJobResult(
-                id=result_data["id"],
+                provider_job_id=result_data["provider_job_id"],
                 provider=BenchProvider[result_data["provider"]],
                 backend=result_data["backend"],
                 job_type=BenchJobType[result_data["job_type"]],
