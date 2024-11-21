@@ -2,7 +2,6 @@
 
 from typing import Any
 import os
-import random
 import time
 import qiskit
 from dataclasses import dataclass
@@ -25,7 +24,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 from pytket.extensions.quantinuum import QuantinuumBackend
 from pytket.extensions.qiskit import qiskit_to_tk
 
-from metriq_gym.gates import rand_u3, coupler
+from metriq_gym.circuits import qiskit_random_circuit_sampling
 
 
 load_dotenv()
@@ -101,21 +100,6 @@ def get_backend(provider: str, backend_name: str):
             )
 
 
-def random_circuit_sampling(n: int) -> QuantumCircuit:
-    circ = QuantumCircuit(n)
-    for _ in range(n):
-        for i in range(n):
-            rand_u3(circ, i)
-
-        unused_bits = list(range(n))
-        random.shuffle(unused_bits)
-        while len(unused_bits) > 1:
-            c = unused_bits.pop()
-            t = unused_bits.pop()
-            coupler(circ, c, t)
-    return circ
-
-
 def transpile_circuit(circ: QuantumCircuit, provider: str, backend_name: str) -> QuantumCircuit:
     backend = get_backend(provider, backend_name)
     match provider:
@@ -138,7 +122,7 @@ def prepare_circuits(
     sim_interval = 0
 
     for _ in range(trials):
-        circ = random_circuit_sampling(n)
+        circ = qiskit_random_circuit_sampling(n)
         sim_circ = circ.copy()
         circ.measure_all()
 
