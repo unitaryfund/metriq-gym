@@ -5,6 +5,7 @@ import random
 from qiskit import QuantumCircuit, qasm3
 from pytket.circuit import Circuit
 from pytket.extensions.qiskit import qiskit_to_tk as _qiskit_to_tk
+from pyqrack import QrackCircuit
 
 
 def qiskit_to_qasm(circ: QuantumCircuit) -> str:
@@ -32,6 +33,24 @@ def qiskit_to_tk(circ: QuantumCircuit) -> Circuit:
         circ: QuantumCircuit to translate to pytket
     """
     return _qiskit_to_tk(circ)
+
+
+def qiskit_to_qrack(circ: QuantumCircuit) -> QrackCircuit:
+    """Convert a Qiskit QuantumCircuit to a QrackCircuit
+
+    Args:
+        circ: QuantumCircuit to translate to QrackCircuit
+    """
+    return QrackCircuit.in_from_qiskit_circuit(circ)
+
+
+def qrack_to_qiskit(circ: QrackCircuit) -> QuantumCircuit:
+    """Convert a QrackCircuit to a Qiskit QuantumCircuit
+
+    Args:
+        circ: QrackCircuit to translate to QuantumCircuit
+    """
+    return circ.to_qiskit_circuit()
 
 
 def rand_u3(circ: QuantumCircuit, q: int) -> None:
