@@ -27,7 +27,7 @@ pytket-qiskit = "^0.59.0"
 qiskit-ionq = "^0.5.8"
 
 [tool.poetry.group.dev.dependencies]
-ruff = "^0.7.3"
+ruff = "^0.8.0"
 pre-commit = "^4.0.1"
 
 [tool.ruff]
