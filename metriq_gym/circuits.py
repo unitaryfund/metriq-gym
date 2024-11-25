@@ -1,7 +1,6 @@
 """Gate-based utility functions."""
 
 import math
-import os
 import random
 from qiskit import QuantumCircuit, qasm3
 from pytket.circuit import Circuit
@@ -51,11 +50,7 @@ def qrack_to_qiskit(circ: QrackCircuit) -> QuantumCircuit:
     Args:
         circ: QrackCircuit to translate to QuantumCircuit
     """
-    circ.out_to_file("_temp_qrack_circuit.mux")
-    qiskit_circuit = QrackCircuit.file_to_qiskit_circuit("_temp_qrack_circuit.mux")
-    os.remove("_temp_qrack_circuit.mux")
-
-    return qiskit_circuit
+    return circ.to_qiskit_circuit()
 
 
 def rand_u3(circ: QuantumCircuit, q: int) -> None:
