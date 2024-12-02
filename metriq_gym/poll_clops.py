@@ -1,4 +1,4 @@
-"""Dispatch a CLOPS job with CLI parameters to Qiskit and wait for result."""
+"""Poll cloud services for CLOPS job results."""
 
 import os
 import logging
@@ -7,7 +7,7 @@ import sys
 from qiskit_ibm_runtime import QiskitRuntimeService
 from dotenv import load_dotenv
 
-from metriq_gym.parse import parse_arguments
+from metriq_gym.cli import parse_arguments
 from metriq_gym.process import poll_job_results
 from metriq_gym.bench import BenchJobType
 from metriq_gym.hardware.clops_benchmark import clops_benchmark

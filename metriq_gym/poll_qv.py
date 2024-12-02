@@ -1,4 +1,4 @@
-"""Poll IBM-Q cloud services for job results"""
+"""Poll cloud services for quantum volume job results."""
 
 import os
 import logging
@@ -7,8 +7,9 @@ import sys
 from qiskit_ibm_runtime import QiskitRuntimeService
 from dotenv import load_dotenv
 
-from metriq_gym.process import poll_job_results, calc_stats
-from metriq_gym.parse import parse_arguments
+from metriq_gym.process import poll_job_results
+from metriq_gym.stats import calc_stats
+from metriq_gym.cli import parse_arguments
 from metriq_gym.bench import BenchJobType
 
 

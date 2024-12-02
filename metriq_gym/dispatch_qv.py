@@ -6,8 +6,8 @@ import sys
 
 from metriq_gym.bench import dispatch_bench_job
 from metriq_gym.job_manager import JobManager
-from metriq_gym.parse import parse_arguments
-from metriq_gym.process import calc_stats
+from metriq_gym.cli import parse_arguments
+from metriq_gym.stats import calc_stats
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
