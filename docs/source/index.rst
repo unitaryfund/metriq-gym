@@ -1,5 +1,5 @@
 Welcome to metriq-gym's documentation!
-===============================
+======================================
 
 Getting started
 ---------------
