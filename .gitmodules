@@ -1,0 +1,3 @@
+[submodule "submodules/qiskit-device-benchmarking"]
+	path = submodules/qiskit-device-benchmarking
+	url = https://github.com/qiskit-community/qiskit-device-benchmarking.git

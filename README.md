@@ -77,12 +77,38 @@ where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
 
 ## Contributing
 
+
 To guarantee that both linter and formatter run before each commit, 
 please install the pre-commit hook with
 ```sh
 poetry run pre-commit install
 ```
 
+### Cloning the repo
+When cloning the metriq-gym repository use:
+
+```sh
+git clone --recurse-submodules https://github.com/unitaryfund/metriq-gym.git
+```
+
+We have [qiskit-device-benchmarking](https://github.com/qiskit-community/qiskit-device-benchmarking) as a git submodule
+for a set of some of the IBM benchmarks. If you’ve already cloned the repository without the submodules, you can
+initialize them with:
+
+```sh
+git submodule update --init --recursive
+```
+
+Updating the submodule: To pull the latest changes from the submodule’s repository:
+
+```sh
+cd submodules/qiskit-device-benchmarking
+git pull origin main
+```
+
+Then, commit the updated submodule reference in your main repository.
+
+### Documentation
 The project uses [Sphinx](https://www.sphinx-doc.org/en/master/) to generate documentation. To build the HTML
 documentation:
 
