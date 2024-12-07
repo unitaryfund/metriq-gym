@@ -77,12 +77,14 @@ where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
 
 ## Contributing
 
+
 To guarantee that both linter and formatter run before each commit, 
 please install the pre-commit hook with
 ```sh
 poetry run pre-commit install
 ```
 
+### Cloning the repo
 When cloning the metriq-gym repository use:
 
 ```sh
@@ -105,3 +107,19 @@ git pull origin main
 ```
 
 Then, commit the updated submodule reference in your main repository.
+
+### Documentation
+The project uses [Sphinx](https://www.sphinx-doc.org/en/master/) to generate documentation. To build the HTML
+documentation:
+
+1.Navigate to the docs/ directory:
+```sh
+cd docs/
+```
+
+Run the following command to build the HTML files:
+```sh
+make html
+```
+
+Open the generated `index.html` file located in the `_build/html/` directory to view the documentation.
