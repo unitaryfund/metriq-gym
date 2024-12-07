@@ -82,3 +82,18 @@ please install the pre-commit hook with
 ```sh
 poetry run pre-commit install
 ```
+
+The project uses [Sphinx](https://www.sphinx-doc.org/en/master/) to generate documentation. To build the HTML
+documentation:
+
+1.Navigate to the docs/ directory:
+```sh
+cd docs/
+```
+
+Run the following command to build the HTML files:
+```sh
+make html
+```
+
+Open the generated `index.html` file located in the `_build/html/` directory to view the documentation.
