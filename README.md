@@ -82,3 +82,26 @@ please install the pre-commit hook with
 ```sh
 poetry run pre-commit install
 ```
+
+When cloning the metriq-gym repository use:
+
+```sh
+git clone --recurse-submodules https://github.com/unitaryfund/metriq-gym.git
+```
+
+We have [qiskit-device-benchmarking](https://github.com/qiskit-community/qiskit-device-benchmarking) as a git submodule
+for a set of some of the IBM benchmarks. If you’ve already cloned the repository without the submodules, you can
+initialize them with:
+
+```sh
+git submodule update --init --recursive
+```
+
+Updating the submodule: To pull the latest changes from the submodule’s repository:
+
+```sh
+cd submodules/qiskit-device-benchmarking
+git pull origin main
+```
+
+Then, commit the updated submodule reference in your main repository.
