@@ -77,12 +77,20 @@ where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
 
 ## Contributing
 
-To guarantee that both linter and formatter run before each commit, 
-please install the pre-commit hook with
+### Style guide
+We don't have a style guide per se, but we recommend that both linter and formatter 
+are run before each commit. In order to guarantee that, please install the pre-commit hook with
 ```sh
 poetry run pre-commit install
 ```
+immediately upon cloning the repository.
+### Tests
+The suite of unit tests can be run with
+```sh
+poetry run pytest
+``` 
 
+### Documentation
 The project uses [Sphinx](https://www.sphinx-doc.org/en/master/) to generate documentation. To build the HTML
 documentation:
 
