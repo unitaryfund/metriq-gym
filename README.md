@@ -77,12 +77,20 @@ where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
 
 ## Contributing
 
+### Style guide
+We don't have a style guide per se, but we recommend that both linter and formatter 
+are run before each commit. In order to guarantee that, please install the pre-commit hook with
 
-To guarantee that both linter and formatter run before each commit, 
-please install the pre-commit hook with
 ```sh
 poetry run pre-commit install
 ```
+immediately upon cloning the repository.
+
+### Tests
+The suite of unit tests can be run with
+```sh
+poetry run pytest
+``` 
 
 ### Cloning the repo
 When cloning the metriq-gym repository use:
