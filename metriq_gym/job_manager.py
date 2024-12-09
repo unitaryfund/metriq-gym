@@ -5,7 +5,7 @@ from typing import Any
 
 DEFAULT_FILE_PATH = ".metriq_gym_jobs.jsonl"
 
-# TODO: JobManager is not thread-safe at the moment
+# TODO: https://github.com/unitaryfund/metriq-gym/issues/51
 
 
 class JobManager:

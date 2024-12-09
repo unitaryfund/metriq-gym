@@ -13,6 +13,11 @@ def parse_arguments() -> argparse.Namespace:
     """
     parser = argparse.ArgumentParser(description="Quantum volume certification")
     parser.add_argument(
+        "input_file",
+        type=str,
+        help="Path to the file containing the benchmark parameters",
+    )
+    parser.add_argument(
         "-n", "--num_qubits", type=int, default=8, help="Number of qubits (default is 8)"
     )
     parser.add_argument(
