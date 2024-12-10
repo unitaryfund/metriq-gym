@@ -21,6 +21,11 @@ jobs:
     - name: Check out repository
       uses: actions/checkout@v4
 
+    - name: Install OpenCL (Qrack dependency)
+      run: |
+        sudo apt update
+        sudo apt install ocl-icd-opencl-dev
+
     - name: Set up Python 3.12
       uses: actions/setup-python@v3
       with:
