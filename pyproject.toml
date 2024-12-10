@@ -22,6 +22,7 @@ pytket-qiskit = "^0.60.0"
 pytket-quantinuum = "^0.41.0"
 qiskit = "^1.2.4"
 qiskit-aer = "^0.15.1"
+qiskit-device-benchmarking = { path = "submodules/qiskit-device-benchmarking" }
 qiskit-experiments = "^0.8.0"
 qiskit-ibm-runtime = "^0.34.0"
 qiskit-ionq = "^0.5.8"
