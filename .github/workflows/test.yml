@@ -35,7 +35,7 @@ jobs:
         poetry install --no-root
     - name: Lint with Ruff
       run: |
-        poetry run ruff . --fix
+        poetry run ruff check . --fix
     - name: Run tests with pytest
       run: |
         poetry run pytest
