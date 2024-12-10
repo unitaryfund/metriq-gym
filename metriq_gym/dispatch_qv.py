@@ -7,7 +7,7 @@ from metriq_gym.bench import dispatch_bench_job
 from metriq_gym.job_manager import JobManager
 from metriq_gym.cli import parse_arguments
 from metriq_gym.stats import calc_stats
-from metriq_gym.schema_validator import load_and_validate, ValidationError
+from metriq_gym.schema_validator import load_and_validate
 
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -15,12 +15,7 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 
 def main():
     args = parse_arguments()
-
-    try:
-        params = load_and_validate(args.input_file)
-    except ValidationError as e:
-        logging.error(f"JSON validation error: {e.message}")
-        return 1
+    params = load_and_validate(args.input_file)
 
     logging.info(
         f"Dispatching {params['benchmark_name']} job with n={params["num_qubits"]}, shots={params["shots"]}, trials={params["trials"]}, backend={args.backend}, confidence_level={params["confidence_level"]}, jobs_file={args.jobs_file}"

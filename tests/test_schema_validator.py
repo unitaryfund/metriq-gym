@@ -7,7 +7,7 @@ from metriq_gym.schema_validator import load_and_validate, validate_params, SCHE
 @pytest.fixture
 def mock_schema(tmpdir):
     schema_content = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
+        "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
             "benchmark_name": {"type": "string", "const": "Test Benchmark"},
@@ -46,7 +46,7 @@ def invalid_params():
 
 
 @pytest.fixture
-def valid_file_path(valid_params, tmpdir):
+def file_path_valid_job(valid_params, tmpdir):
     file_path = tmpdir.join("valid_job.json")
     with open(file_path, "w") as file:
         json.dump(valid_params, file)
@@ -54,21 +54,21 @@ def valid_file_path(valid_params, tmpdir):
 
 
 @pytest.fixture
-def invalid_file_path(invalid_params, tmpdir):
+def file_path_invalid_job(invalid_params, tmpdir):
     file_path = tmpdir.join("invalid_job.json")
     with open(file_path, "w") as file:
         json.dump(invalid_params, file)
     return str(file_path)
 
 
-def test_load_and_validate_valid(valid_file_path, valid_params, mock_schema):
-    params = load_and_validate(valid_file_path)
+def test_load_and_validate_valid(file_path_valid_job, valid_params, mock_schema):
+    params = load_and_validate(file_path_valid_job)
     assert params == valid_params
 
 
-def test_load_and_validate_invalid(invalid_file_path, mock_schema):
+def test_load_and_validate_invalid(file_path_invalid_job, mock_schema):
     with pytest.raises(ValidationError):
-        load_and_validate(invalid_file_path)
+        load_and_validate(file_path_invalid_job)
 
 
 def test_validate_params_valid(valid_params, mock_schema):
@@ -78,3 +78,8 @@ def test_validate_params_valid(valid_params, mock_schema):
 def test_validate_params_invalid(invalid_params, mock_schema):
     with pytest.raises(ValidationError):
         validate_params(invalid_params)
+
+
+def test_load_and_validate_invalid_job_path():
+    with pytest.raises(FileNotFoundError):
+        load_and_validate("invalid_job.json")
