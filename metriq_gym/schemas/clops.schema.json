@@ -1,0 +1,38 @@
+{
+    "$id": "metriq-gym/clops.schema.json",
+    "$schema": "https://json-schema.org/draft/2020-12/schema",  
+    "title": "CLOPS",
+    "type": "object",
+    "properties": {
+      "benchmark_name": {
+        "type": "string",
+        "const": "CLOPS"
+      },
+      "num_qubits": {
+        "type": "integer",
+        "minimum": 1,
+        "examples": [5]
+      },
+      "shots": {
+        "type": "integer",
+        "default": 1000,
+        "minimum": 1,
+        "examples": [1000]
+      },
+      "trials": {
+        "type": "integer",
+        "default": 100,
+        "minimum": 1,
+        "examples": [100]
+      },
+      "confidence_level": {
+        "type": "number",
+        "minimum": 0,
+        "maximum": 1,
+        "default": 0.95,
+        "examples": [0.95]
+      }
+    },
+    "required": ["benchmark_name", "num_qubits"]
+  }
+  

@@ -11,7 +11,8 @@ from qiskit_ibm_runtime import QiskitRuntimeService
 
 from metriq_gym.cli import parse_arguments
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
-from metriq_gym.hardware.clops_benchmark import clops_benchmark
+
+from qiskit_device_benchmarking.clops.clops_benchmark import clops_benchmark
 
 
 load_dotenv()
