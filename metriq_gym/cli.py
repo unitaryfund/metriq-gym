@@ -11,7 +11,7 @@ def parse_arguments() -> argparse.Namespace:
     Returns:
         Parsed arguments as an argparse.Namespace object.
     """
-    parser = argparse.ArgumentParser(description="Quantum volume certification")
+    parser = argparse.ArgumentParser(description="Metriq-Gym benchmarking CLI")
     parser.add_argument(
         "input_file",
         type=str,
