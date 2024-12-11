@@ -10,7 +10,8 @@ from dotenv import load_dotenv
 from metriq_gym.cli import parse_arguments
 from metriq_gym.process import poll_job_results
 from metriq_gym.bench import BenchJobType
-from metriq_gym.hardware.clops_benchmark import clops_benchmark
+from qiskit_device_benchmarking.clops.clops_benchmark import clops_benchmark
+
 
 load_dotenv()
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
