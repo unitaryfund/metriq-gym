@@ -77,21 +77,6 @@ where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
 
 ## Contributing
 
-### Style guide
-We don't have a style guide per se, but we recommend that both linter and formatter 
-are run before each commit. In order to guarantee that, please install the pre-commit hook with
-
-```sh
-poetry run pre-commit install
-```
-immediately upon cloning the repository.
-
-### Tests
-The suite of unit tests can be run with
-```sh
-poetry run pytest
-``` 
-
 ### Cloning the repo
 When cloning the metriq-gym repository use:
 
@@ -115,6 +100,27 @@ git pull origin main
 ```
 
 Then, commit the updated submodule reference in your main repository.
+
+### Style guide
+We don't have a style guide per se, but we recommend that both linter and formatter 
+are run before each commit. In order to guarantee that, please install the pre-commit hook with
+
+```sh
+poetry run pre-commit install
+```
+immediately upon cloning the repository.
+
+### Tests
+The suite of unit tests can be run with
+```sh
+poetry run pytest
+```
+
+### Type checking
+The project uses [mypy](https://mypy.readthedocs.io/en/stable/) for static type checking. To run mypy, use the following command:
+```sh
+poetry run mypy
+```
 
 ### Documentation
 The project uses [Sphinx](https://www.sphinx-doc.org/en/master/) to generate documentation. To build the HTML
