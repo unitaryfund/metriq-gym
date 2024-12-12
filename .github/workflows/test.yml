@@ -50,6 +50,10 @@ jobs:
       run: |
         poetry run ruff check
 
+    - name: Type checking with MyPy
+      run: |
+        poetry run mypy
+
     - name: Run tests with pytest
       run: |
         poetry run pytest
