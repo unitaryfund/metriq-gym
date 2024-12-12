@@ -29,10 +29,16 @@ qiskit-ionq = "^0.5.8"
 scipy = "^1.14.1"
 
 [tool.poetry.group.dev.dependencies]
+mypy = "^1.13.0"
 pre-commit = "^4.0.1"
 pytest = "^8.3.3"
 ruff = "^0.8.0"
 sphinx = "^8.1.3"
+
+[tool.mypy]
+files = ["metriq_gym/benchmarks"]  # Replace with your package/module name
+ignore_missing_imports = true
+strict = true
 
 [tool.ruff]
 exclude = ["submodules"]
