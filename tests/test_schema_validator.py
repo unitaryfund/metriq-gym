@@ -1,16 +1,30 @@
+from enum import Enum
 import json
+from unittest.mock import patch
 import pytest
 from jsonschema import ValidationError
 from metriq_gym.schema_validator import load_and_validate, validate_params, SCHEMA_MAPPING
 
+TEST_BENCHMARK_NAME = "Test Benchmark"
 
-@pytest.fixture
+
+class TestJobType(Enum):
+    TEST_BENCHMARK = TEST_BENCHMARK_NAME
+
+
+@pytest.fixture(autouse=True)
+def patch_job_type_enum():
+    with patch("metriq_gym.schema_validator.JobType", TestJobType):
+        yield
+
+
+@pytest.fixture(autouse=True)
 def mock_schema(tmpdir):
     schema_content = {
         "$schema": "https://json-schema.org/draft/2020-12/schema",
         "type": "object",
         "properties": {
-            "benchmark_name": {"type": "string", "const": "Test Benchmark"},
+            "benchmark_name": {"type": "string", "const": TEST_BENCHMARK_NAME},
             "num_qubits": {"type": "integer", "minimum": 1},
             "shots": {"type": "integer", "minimum": 1},
             "trials": {"type": "integer", "minimum": 1},
@@ -21,14 +35,14 @@ def mock_schema(tmpdir):
     with open(schema_file_path, "w") as schema_file:
         json.dump(schema_content, schema_file)
 
-    SCHEMA_MAPPING["Test Benchmark"] = str(schema_file_path)
+    SCHEMA_MAPPING[TestJobType.TEST_BENCHMARK] = str(schema_file_path)
     return SCHEMA_MAPPING
 
 
 @pytest.fixture
 def valid_params():
     return {
-        "benchmark_name": "Test Benchmark",
+        "benchmark_name": TEST_BENCHMARK_NAME,
         "num_qubits": 5,
         "shots": 1024,
         "trials": 10,
@@ -38,7 +52,7 @@ def valid_params():
 @pytest.fixture
 def invalid_params():
     return {
-        "benchmark_name": "Test Benchmark",
+        "benchmark_name": TestJobType.TEST_BENCHMARK.value,
         "num_qubits": 0,  # Invalid value
         "shots": 1024,
         "trials": 10,
@@ -61,7 +75,7 @@ def file_path_invalid_job(invalid_params, tmpdir):
     return str(file_path)
 
 
-def test_load_and_validate_valid(file_path_valid_job, valid_params, mock_schema):
+def test_load_and_validate_valid(file_path_valid_job, valid_params):
     params = load_and_validate(file_path_valid_job)
     assert params == valid_params
 

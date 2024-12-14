@@ -1,0 +1,7 @@
+{
+  "benchmark_name": "CLOPS",
+  "num_qubits": 5,
+  "shots": 10,
+  "trials": 10,
+  "confidence_level": 0.95
+}
