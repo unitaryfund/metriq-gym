@@ -52,7 +52,7 @@ def valid_params():
 @pytest.fixture
 def invalid_params():
     return {
-        "benchmark_name": TestJobType.TEST_BENCHMARK.value,
+        "benchmark_name": TEST_BENCHMARK_NAME,
         "num_qubits": 0,  # Invalid value
         "shots": 1024,
         "trials": 10,
