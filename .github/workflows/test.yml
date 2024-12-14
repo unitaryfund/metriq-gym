@@ -49,9 +49,6 @@ jobs:
     - name: Lint with Ruff
       run: |
         poetry run ruff check
-    
-    - name: Debug Current Directory
-      run: pwd
 
     - name: Type checking with MyPy
       run: |
