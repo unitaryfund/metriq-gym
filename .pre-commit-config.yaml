@@ -14,8 +14,6 @@ repos:
   rev: v1.13.0  
   hooks:
     - id: mypy
-      name: mypy
-      entry: ./check_mypy.sh
-      language: system
+      args: [--config-file=pyproject.toml]
       pass_filenames: false
 
