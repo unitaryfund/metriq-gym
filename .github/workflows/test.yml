@@ -52,7 +52,7 @@ jobs:
 
     - name: Type checking with MyPy
       run: |
-        poetry run mypy
+        poetry run mypy --config-file pyproject.toml
 
     - name: Run tests with pytest
       run: |
