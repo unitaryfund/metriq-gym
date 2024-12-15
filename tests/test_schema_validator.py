@@ -35,7 +35,7 @@ def mock_schema(tmpdir):
     with open(schema_file_path, "w") as schema_file:
         json.dump(schema_content, schema_file)
 
-    SCHEMA_MAPPING[TestJobType.TEST_BENCHMARK] = str(schema_file_path)
+    SCHEMA_MAPPING[TestJobType.TEST_BENCHMARK] = schema_file_path
     return SCHEMA_MAPPING
 
 
