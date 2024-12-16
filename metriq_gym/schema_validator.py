@@ -2,12 +2,15 @@ import json
 import os
 from jsonschema import validate
 
+from metriq_gym.job_type import JobType
+
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_SCHEMA_DIR = os.path.join(CURRENT_DIR, "schemas")
 
 SCHEMA_MAPPING = {
-    "Quantum Volume": "quantum_volume.schema.json",
+    JobType.QUANTUM_VOLUME: "quantum_volume.schema.json",
+    JobType.CLOPS: "clops.schema.json",
 }
 
 
@@ -23,7 +26,7 @@ def load_schema(benchmark_name: str, schema_dir: str = DEFAULT_SCHEMA_DIR) -> di
     """
     Load a JSON schema based on the benchmark name.
     """
-    schema_filename = SCHEMA_MAPPING.get(benchmark_name)
+    schema_filename = SCHEMA_MAPPING.get(JobType(benchmark_name))
     if not schema_filename:
         raise ValueError(f"Unsupported benchmark: {benchmark_name}")
 

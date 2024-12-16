@@ -1,5 +1,5 @@
-# This workflow will install Python dependencies, run tests and lint with Ruff and Poetry.
-# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+# This workflow will install Python dependencies, run tests, type checking with mypy and lint with Ruff and Poetry.
+# It can be tested locally using https://github.com/nektos/act with the command `act push --container-architecture linux/amd64 -j build`
 
 name: Python Tests
 
@@ -26,7 +26,7 @@ jobs:
     - name: Install OpenCL (Qrack dependency)
       run: |
         sudo apt update
-        sudo apt install ocl-icd-opencl-dev
+        sudo apt install -y ocl-icd-opencl-dev
 
     - name: Set up Python 3.12
       uses: actions/setup-python@v3
