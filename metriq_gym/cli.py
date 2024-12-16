@@ -27,6 +27,14 @@ def parse_arguments() -> argparse.Namespace:
         "-t", "--trials", type=int, default=8, help="Number of trials (default is 8)"
     )
     parser.add_argument(
+        "-a",
+        "--action",
+        type=str,
+        choices=["dispatch", "poll"],
+        required=True,
+        help="Action to perform: 'dispatch' or 'poll'",
+    )
+    parser.add_argument(
         "-p",
         "--provider",
         type=str,
@@ -63,7 +71,4 @@ def parse_arguments() -> argparse.Namespace:
         type=str,
         help="Name of the IBM Quantum plan instance (e.g. 'ibm-q/open/main')",
     )
-
-    args = parser.parse_args()
-
-    return args
+    return parser.parse_args()
