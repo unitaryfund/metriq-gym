@@ -2319,13 +2319,13 @@ visualization = ["plotly (>=5.23.0)"]
 
 [[package]]
 name = "qiskit-ionq"
-version = "0.5.11"
+version = "0.5.12"
 description = "Qiskit provider for IonQ backends"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "qiskit_ionq-0.5.11-py3-none-any.whl", hash = "sha256:c3fe2409eddd74a9abaa97c03c3b2790c93882b00b74229de578246b28701b8b"},
-    {file = "qiskit_ionq-0.5.11.tar.gz", hash = "sha256:b507b7e879789311e11cbc41ab71026883045e78976a2f0f1fa632b6d0b43949"},
+    {file = "qiskit_ionq-0.5.12-py3-none-any.whl", hash = "sha256:a56d831d9fcd890ce32c75ae27054e1701f79eb42d52eed7da2480adfa8697e3"},
+    {file = "qiskit_ionq-0.5.12.tar.gz", hash = "sha256:10648f302331575a93d45ce09cfb2653de2cee60f40318183f7da5b17dc5877e"},
 ]
 
 [package.dependencies]
@@ -3261,4 +3261,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "6542d1b36320ea184e78fbfb556fbc2e2180385b737bf878ca8bd6f0a6b3af3e"
+content-hash = "c69aa5774e00578486044dcfad254694b260b4801e4c76b6cfb9cc17dc9ac82a"
