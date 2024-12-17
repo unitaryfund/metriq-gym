@@ -22,7 +22,7 @@ class QuantumVolume(Benchmark):
             stats = calc_stats([result], self.params["confidence_level"])
             logging.info(f"Simulator-only job completed: {stats[0]}.")
             print(stats[0])
-            # return
+            return
 
         logging.info(f"Dispatched {self.params["trials"]} trials in 1 job.")
 

@@ -14,14 +14,19 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(
 def main():
     load_dotenv()
     args = parse_arguments()
-    params = load_and_validate(args.input_file)
     job_manager = JobManager(args.jobs_file)
 
-    handler = HANDLERS[JobType(params["benchmark_name"])](args, params, job_manager)
-
     if args.action == "dispatch":
+        params = load_and_validate(args.input_file)
+
+        handler = HANDLERS[JobType(params["benchmark_name"])](args, params, job_manager)
         handler.dispatch_handler()
     elif args.action == "poll":
+        job_id = args.job_id
+        job = job_manager.get_job(job_id)
+        job_type = job["job_type"]
+
+        handler = HANDLERS[job_type](args, None, job_manager)
         handler.poll_handler()
     else:
         logging.error("Invalid action specified. Use 'dispatch' or 'poll'.")

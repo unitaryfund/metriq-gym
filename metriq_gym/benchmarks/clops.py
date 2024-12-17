@@ -38,7 +38,7 @@ class CLOPS(Benchmark):
         self.job_manager.add_job(partial_result.to_serializable())
 
     def poll_handler(self) -> None:
-        logging.info("Polling for CLOPS job results.")
+        logging.info(f"Polling results for CLOPS job with job-id {self.args.job_id} results.")
         results = poll_job_results(self.args.jobs_file, BenchJobType.CLOPS)
         result_count = len(results)
         logging.info(f"Found {result_count} completed jobs.")
