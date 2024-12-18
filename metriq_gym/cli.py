@@ -12,7 +12,11 @@ def parse_arguments() -> argparse.Namespace:
         Parsed arguments as an argparse.Namespace object.
     """
     parser = argparse.ArgumentParser(description="Metriq-Gym benchmarking CLI")
-    parser.add_argument(
+    subparsers = parser.add_subparsers(dest="action", required=True, help="Action to perform")
+
+    # The `jobs_file` argument is common to both dispatch and poll subcommands.
+    parent_parser = argparse.ArgumentParser(add_help=False)
+    parent_parser.add_argument(
         "-j",
         "--jobs_file",
         type=str,
@@ -20,10 +24,10 @@ def parse_arguments() -> argparse.Namespace:
         help="File in local directory where async jobs are recorded",
     )
 
-    subparsers = parser.add_subparsers(dest="action", required=True, help="Action to perform")
-
     # Subparser for dispatch.
-    dispatch_parser = subparsers.add_parser("dispatch", help="Dispatch jobs")
+    dispatch_parser = subparsers.add_parser(
+        "dispatch", parents=[parent_parser], help="Dispatch jobs"
+    )
     dispatch_parser.add_argument(
         "input_file",
         type=str,
@@ -70,7 +74,7 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     # Subparser for poll.
-    poll_parser = subparsers.add_parser("poll", help="Poll jobs")
+    poll_parser = subparsers.add_parser("poll", parents=[parent_parser], help="Poll jobs")
     poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
 
     return parser.parse_args()
