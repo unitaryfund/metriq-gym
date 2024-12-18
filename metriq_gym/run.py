@@ -26,7 +26,7 @@ def main():
         job = job_manager.get_job(job_id)
         job_type = job["job_type"]
 
-        handler = HANDLERS[job_type](args, None, job_manager)
+        handler = HANDLERS[JobType(job_type)](args, None, job_manager)
         handler.poll_handler()
     else:
         logging.error("Invalid action specified. Use 'dispatch' or 'poll'.")
