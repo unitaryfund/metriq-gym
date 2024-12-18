@@ -12,6 +12,14 @@ def parse_arguments() -> argparse.Namespace:
         Parsed arguments as an argparse.Namespace object.
     """
     parser = argparse.ArgumentParser(description="Metriq-Gym benchmarking CLI")
+    parser.add_argument(
+        "-j",
+        "--jobs_file",
+        type=str,
+        default=DEFAULT_JOBS_FILE,
+        help="File in local directory where async jobs are recorded",
+    )
+
     subparsers = parser.add_subparsers(dest="action", required=True, help="Action to perform")
 
     # Subparser for dispatch.
@@ -53,13 +61,6 @@ def parse_arguments() -> argparse.Namespace:
         help="p-value confidence level to use (default is 0.025)",
     )
     dispatch_parser.add_argument(
-        "-j",
-        "--jobs_file",
-        type=str,
-        default=DEFAULT_JOBS_FILE,
-        help="File in local directory where async jobs are recorded",
-    )
-    dispatch_parser.add_argument(
         "--token", type=str, help="IBM Quantum API token (must be supplied to run on real hardware)"
     )
     dispatch_parser.add_argument(
@@ -70,13 +71,6 @@ def parse_arguments() -> argparse.Namespace:
 
     # Subparser for poll.
     poll_parser = subparsers.add_parser("poll", help="Poll jobs")
-    poll_parser.add_argument(
-        "-j",
-        "--jobs_file",
-        type=str,
-        default=DEFAULT_JOBS_FILE,
-        help="File in local directory where async jobs are recorded",
-    )
     poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
 
     return parser.parse_args()
