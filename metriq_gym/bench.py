@@ -52,6 +52,7 @@ class BenchJobResult:
     qubits: int
     shots: int
     depth: int
+    confidence_level: float
     ideal_probs: list[dict[int, float]]
     counts: list[dict[str, int]]
     interval: float

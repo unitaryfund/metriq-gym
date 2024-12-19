@@ -46,11 +46,11 @@ def get_job_result_quantinuum(job, partial_result: BenchJobResult):
     return partial_result
 
 
-def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobResult]:
+def poll_job_results(jobs_file: str, job_id: str) -> list[BenchJobResult]:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
     Args:
         jobs_file: Name of jobs file to check.
-        job_type: The type of job (i.e. QV, CLOPS, etc.)
+        job_id: The metriq-gym Id of job.
     Returns:
         An array of newly-completed BenchJobResult instances.
     """
@@ -62,74 +62,80 @@ def poll_job_results(jobs_file: str, job_type: BenchJobType) -> list[BenchJobRes
         logging.info("%i job(s) dispatched.", len(lines))
         for line in lines:
             result_data = json.loads(line)
-            # Recreate BenchJobResult without the job field
-            result = BenchJobResult(
-                provider_job_id=result_data["provider_job_id"],
-                provider=BenchProvider[result_data["provider"]],
-                backend=result_data["backend"],
-                job_type=BenchJobType[result_data["job_type"]],
-                qubits=result_data["qubits"],
-                shots=result_data["shots"],
-                depth=result_data["depth"],
-                ideal_probs=result_data["ideal_probs"],
-                counts=result_data["counts"],
-                interval=result_data["interval"],
-                sim_interval=result_data["sim_interval"],
-                trials=result_data["trials"],
-            )
-
-            job = get_job(result)
-
-            if result.provider is BenchProvider.IBMQ:
-                status = job.status()
-                if (result.job_type != job_type) or (not job.in_final_state()):
-                    lines_out.append(line)
-                elif status in (JobStatus.DONE, "DONE"):
-                    result.job = job
-                    if job_type == BenchJobType.QV:
-                        result = get_job_result_qiskit(job, result)
-                    results.append(result)
-                else:
-                    logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
-            elif result.provider is BenchProvider.QUANTINUUM:
-                device = QuantinuumBackend(
-                    device_name=result.backend,
-                    api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
-                    attempt_batching=True,
+            if result_data["id"] == job_id:
+                # Recreate BenchJobResult without the job field
+                result = BenchJobResult(
+                    provider_job_id=result_data["provider_job_id"],
+                    provider=BenchProvider[result_data["provider"]],
+                    backend=result_data["backend"],
+                    job_type=BenchJobType[result_data["job_type"]],
+                    confidence_level=result_data["confidence_level"],
+                    qubits=result_data["qubits"],
+                    shots=result_data["shots"],
+                    depth=result_data["depth"],
+                    ideal_probs=result_data["ideal_probs"],
+                    counts=result_data["counts"],
+                    interval=result_data["interval"],
+                    sim_interval=result_data["sim_interval"],
+                    trials=result_data["trials"],
                 )
-                status = device.circuit_status(job)
-                if (
-                    status
-                    not in [
+
+                job = get_job(result)
+
+                # IBMQ:
+                if result.provider is BenchProvider.IBMQ:
+                    status = job.status()
+                    if not job.in_final_state():
+                        lines_out.append(line)
+                    elif status in (JobStatus.DONE, "DONE"):
+                        result.job = job
+                        if result.job_type == BenchJobType.QV:
+                            result = get_job_result_qiskit(job, result)
+                        results.append(result)
+                    else:
+                        logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
+
+                # Quantinuum:
+                elif result.provider is BenchProvider.QUANTINUUM:
+                    device = QuantinuumBackend(
+                        device_name=result.backend,
+                        api_handler=QuantinuumAPI(token_store=QuantinuumConfigCredentialStorage()),
+                        attempt_batching=True,
+                    )
+                    status = device.circuit_status(job)
+                    if status not in [
                         StatusEnum.COMPLETED,
                         StatusEnum.CANCELLING,
                         StatusEnum.CANCELLED,
                         StatusEnum.ERROR,
-                    ]
-                ) or (result.job_type != job_type):
-                    lines_out.append(line)
-                elif status == StatusEnum.COMPLETED:
-                    result.job = device.get_result(job)
-                    if job_type == BenchJobType.QV:
-                        result = get_job_result_quantinuum(job, result)
-                    results.append(result)
-                else:
-                    logging.warning("Job ID %s failed with status: %s", job, status)
-            elif result.provider is BenchProvider.IONQ:
-                status = job.status()
-                if (result.job_type != job_type) or (not job.in_final_state()):
-                    lines_out.append(line)
-                elif status in (JobStatus.DONE, "DONE"):
-                    result.job = job
-                    if job_type == BenchJobType.QV:
-                        result = get_job_result_qiskit(job, result)
-                    results.append(result)
-                else:
-                    logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
-            else:
-                raise ValueError("Unable to poll results.")
+                    ]:
+                        lines_out.append(line)
+                    elif status == StatusEnum.COMPLETED:
+                        result.job = device.get_result(job)
+                        if result.job_type == BenchJobType.QV:
+                            result = get_job_result_quantinuum(job, result)
+                        results.append(result)
+                    else:
+                        logging.warning("Job ID %s failed with status: %s", job, status)
 
-    # Write back the jobs still active to the file
+                # IonQ:
+                elif result.provider is BenchProvider.IONQ:
+                    status = job.status()
+                    if not job.in_final_state():
+                        lines_out.append(line)
+                    elif status in (JobStatus.DONE, "DONE"):
+                        result.job = job
+                        if result.job_type == BenchJobType.QV:
+                            result = get_job_result_qiskit(job, result)
+                        results.append(result)
+                    else:
+                        logging.warning("Job ID %s failed with status: %s", job.job_id(), status)
+
+                # Provider not supported.
+                else:
+                    raise ValueError("Unable to poll results.")
+
+    # Write back the jobs still active to the file.
     with open(jobs_file, "w") as file:
         file.writelines(lines_out)
 
