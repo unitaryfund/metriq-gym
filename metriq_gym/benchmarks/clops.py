@@ -1,6 +1,8 @@
+import logging
 from qiskit_ibm_runtime import QiskitRuntimeService
 
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
+from metriq_gym.process import poll_job_results
 
 from qiskit_device_benchmarking.clops.clops_benchmark import clops_benchmark
 from metriq_gym.benchmarks.benchmark import Benchmark
@@ -34,3 +36,13 @@ class CLOPS(Benchmark):
         )
 
         self.job_manager.add_job(partial_result.to_serializable())
+
+    def poll_handler(self) -> None:
+        logging.info(f"Polling results for CLOPS job with job-id {self.args.job_id} results.")
+        results = poll_job_results(self.args.jobs_file, self.args.job_id)
+        result_count = len(results)
+        logging.info(f"Found {result_count} completed jobs.")
+        if result_count == 0:
+            logging.info("No new results: done.")
+
+        print(results)
