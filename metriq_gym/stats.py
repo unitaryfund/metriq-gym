@@ -143,6 +143,7 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> list[A
         A list of `AggregateStats` objects, each containing aggregated statistics for a result.
     """
     aggregate_stats = []
+    print(results)
 
     for result in results:
         trial_stats = []

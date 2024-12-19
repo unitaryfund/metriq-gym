@@ -69,6 +69,7 @@ def poll_job_results(jobs_file: str, job_id: str) -> list[BenchJobResult]:
                     provider=BenchProvider[result_data["provider"]],
                     backend=result_data["backend"],
                     job_type=BenchJobType[result_data["job_type"]],
+                    confidence_level=result_data["confidence_level"],
                     qubits=result_data["qubits"],
                     shots=result_data["shots"],
                     depth=result_data["depth"],
