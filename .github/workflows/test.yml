@@ -14,7 +14,6 @@ permissions:
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
 
     steps:
@@ -46,6 +45,17 @@ jobs:
       run: |
         poetry install --no-root
 
+    - name: Set PYTHONPATH
+      run: |
+        echo "PYTHONPATH=${GITHUB_WORKSPACE}" >> $GITHUB_ENV
+
+    - name: Verify Environment
+      run: |
+        echo "Python Version:"
+        python --version
+        echo "Installed Packages:"
+        poetry show
+
     - name: Lint with Ruff
       run: |
         poetry run ruff check
@@ -55,5 +65,7 @@ jobs:
         poetry run mypy
 
     - name: Run tests with pytest
+      env:
+        PYTHONPATH: ${{ github.workspace }}
       run: |
-        poetry run pytest
+        poetry run pytest --tb=short -v
