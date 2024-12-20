@@ -132,17 +132,17 @@ def calc_trial_stats(
     )
 
 
-def calc_stats(results: list[BenchJobResult], confidence_level: float) -> list[AggregateStats]:
+def calc_stats(results: list[BenchJobResult]) -> list[AggregateStats]:
     """Calculate aggregate statistics over multiple trials.
 
     Args:
         results: A list of results from benchmarking, where each result contains trial data.
-        confidence_level: Specified confidence level for the benchmarking.
 
     Returns:
         A list of `AggregateStats` objects, each containing aggregated statistics for a result.
     """
     aggregate_stats = []
+    print(results)
 
     for result in results:
         trial_stats = []
@@ -161,7 +161,7 @@ def calc_stats(results: list[BenchJobResult], confidence_level: float) -> list[A
                 interval=result.interval,
                 sim_interval=result.sim_interval,
                 shots=result.shots,
-                confidence_level=confidence_level,
+                confidence_level=result.confidence_level,
             )
             trial_stats.append(trial_stat)
 

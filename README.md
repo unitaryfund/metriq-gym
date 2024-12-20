@@ -33,47 +33,26 @@ The `.env.example` file illustrates how to specify the API keys once you have ac
 
 ### Example
 
-To run on hardware, you will also require an IBM token. To obtain this, please
+To run on IBM hardware, you will also require an IBM token. To obtain this, please
 visit the [IBM Quantum Platform](https://quantum.ibm.com/).
 
-Otherwise, if you are running on a simulator, once you have invoked the `poetry
-shell` command as described above, run:
+Once you have invoked the `poetry shell` command as described above, you can dispatch a job by specifying the parameters of the job you wish to launch in a configuration file. The following dispatches a job on the ibm-strasbourg device for quantum volume.
 
 ```
-python metriq_gym/dispatch_qv.py
+python metriq_gym/run.py dispatch metriq_gym/schemas/examples/quantum_volume.example.json --backend ibm_strasbourg --provider ibmq
 ```
-for Quantum Volume benchmarks or
-```
-python metriq_gym/dispatch_clops.py
-```
-for CLOPS.
 
-Doing so will yield output similar to the following (if running on a simulator):
+Refer to the `schemas/` director for example schema files for other supported benchmarks.
 
-```
-2024-10-08 14:38:43,117 - INFO - Aggregated results over 8 trials: {'qubits': 16, 'seconds': 0.7648332118988037, 'sim_seconds': 1.2858296614140272, 'hog_prob': 0.4239501953125, 'pass': False, 'p-value': np.float64(0.0), 'clops': 10967891.913550833, 'sim_clops': 6523887.457048584}
-{'qubits': 16, 'seconds': 0.7648332118988037, 'sim_seconds': 1.2858296614140272, 'hog_prob': 0.4239501953125, 'pass': False, 'p-value': np.float64(0.0), 'clops': 10967891.913550833, 'sim_clops': 6523887.457048584}
-```
 
 If running on quantum cloud hardware, the job will be added to a polling queue. The status of the queue can be checked with
-```
-python metriq_gym/poll_qv.py
-```
-or
-```
-python metriq_gym/poll_clops.py
-```
-at which point, any completed jobs results will be printed.
-
-
-If you wish to specify more command line arguments and run on hardware (assuming
-that you have obtained your IBM token) you can run:
 
 ```
-python metriq_gym/poll_qv.py -n 2 --shots 1024 --backend ibm_sherbrooke --token <IBM_TOKEN>
+python metriq_gym/run.py poll --job_id <METRIQ_GYM_JOB_ID>
 ```
 
-where `<IBM_TOKEN>` is the token obtain from the IBM jobs platform.
+where `<METRIQ_GYM_JOB_ID>` is the assigned job ID of the job that was dispatched as provided by `metriq-gym`. 
+
 
 ## Contributing
 

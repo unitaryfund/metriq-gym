@@ -52,6 +52,7 @@ class BenchJobResult:
     qubits: int
     shots: int
     depth: int
+    confidence_level: float
     ideal_probs: list[dict[int, float]]
     counts: list[dict[str, int]]
     interval: float
@@ -66,6 +67,7 @@ class BenchJobResult:
             "provider": self.provider.name,
             "backend": self.backend,
             "job_type": self.job_type.name,
+            "confidence_level": self.confidence_level,
             "qubits": self.qubits,
             "shots": self.shots,
             "depth": self.depth,
@@ -140,7 +142,7 @@ def prepare_circuits(
 
 
 def dispatch_bench_job(
-    n: int, backend: str, shots: int, trials: int, provider="ibmq"
+    n: int, backend: str, shots: int, trials: int, confidence_level: int, provider="ibmq"
 ) -> BenchJobResult:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
 
@@ -190,6 +192,7 @@ def dispatch_bench_job(
         qubits=n,
         shots=shots,
         depth=n,
+        confidence_level=confidence_level,
         ideal_probs=ideal_probs,
         sim_interval=sim_interval,
         counts=[],
