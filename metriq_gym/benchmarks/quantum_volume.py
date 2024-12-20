@@ -18,7 +18,7 @@ class QuantumVolume(Benchmark):
         )
 
         if len(result.counts) > 0:
-            stats = calc_stats([result], self.params["confidence_level"])
+            stats = calc_stats([result])
             logging.info(f"Simulator-only job completed: {stats[0]}.")
             print(stats[0])
             return
@@ -37,9 +37,7 @@ class QuantumVolume(Benchmark):
         if result_count == 0:
             logging.info("No new results: done.")
 
-        job = self.job_manager.get_job(self.args.job_id)
-
-        stats = calc_stats(results, job["confidence_level"])
+        stats = calc_stats(results)
         logging.info(f"Processed {len(stats)} new results.")
 
         for s in stats:

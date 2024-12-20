@@ -67,6 +67,7 @@ class BenchJobResult:
             "provider": self.provider.name,
             "backend": self.backend,
             "job_type": self.job_type.name,
+            "confidence_level": self.confidence_level,
             "qubits": self.qubits,
             "shots": self.shots,
             "depth": self.depth,

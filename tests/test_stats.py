@@ -8,6 +8,7 @@ def test_calc_trial_stats():
     ideal_probs = {0: 0.8, 1: 0.2}
     counts = {"0": 80, "1": 20}
     interval = 10.0
+    confidence_level = 0.25
     sim_interval = 5.0
     shots = 100
     confidence_level = 0.05
@@ -42,6 +43,7 @@ def test_calc_stats_single_trial():
         qubits=1,
         shots=100,
         depth=10,
+        confidence_level=0.05,
         ideal_probs=[{0: 0.8, 1: 0.2}],
         counts=[{"0": 80, "1": 20}],
         interval=10.0,
@@ -49,7 +51,7 @@ def test_calc_stats_single_trial():
         trials=1,
     )
 
-    stats = calc_stats(results=[result], confidence_level=0.05)
+    stats = calc_stats(results=[result])
 
     assert len(stats) == 1
     aggregate = stats[0]
@@ -73,6 +75,7 @@ def test_calc_stats_provider_logic():
         depth=15,
         ideal_probs=[{0: 0.7, 1: 0.3}],
         counts=[{"0": 140, "1": 60}],
+        confidence_level=0.05,
         interval=20.0,
         sim_interval=10.0,
         trials=1,
@@ -88,12 +91,13 @@ def test_calc_stats_provider_logic():
         depth=15,
         ideal_probs=[{0: 0.7, 1: 0.3}],
         counts=[{"0": 140, "1": 60}],
+        confidence_level=0.05,
         interval=20.0,
         sim_interval=10.0,
         trials=1,
     )
 
-    stats = calc_stats(results=[ibmq_result, ionq_result], confidence_level=0.05)
+    stats = calc_stats(results=[ibmq_result, ionq_result])
 
     assert len(stats) == 2
     assert stats[0].provider == BenchProvider.IBMQ
@@ -123,11 +127,12 @@ def test_calc_stats_multiple_trials():
             {"0": 60, "1": 40},
         ],
         interval=15.0,
+        confidence_level=0.05,
         sim_interval=7.5,
         trials=2,
     )
 
-    stats = calc_stats(results=[result], confidence_level=0.05)
+    stats = calc_stats(results=[result])
 
     assert len(stats) == 1
     aggregate = stats[0]
