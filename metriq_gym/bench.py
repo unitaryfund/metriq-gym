@@ -142,7 +142,7 @@ def prepare_circuits(
 
 
 def dispatch_bench_job(
-    n: int, backend: str, shots: int, trials: int, provider="ibmq"
+    n: int, backend: str, shots: int, trials: int, confidence_level: int, provider="ibmq"
 ) -> BenchJobResult:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
 
@@ -192,6 +192,7 @@ def dispatch_bench_job(
         qubits=n,
         shots=shots,
         depth=n,
+        confidence_level=confidence_level,
         ideal_probs=ideal_probs,
         sim_interval=sim_interval,
         counts=[],

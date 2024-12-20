@@ -14,6 +14,7 @@ class QuantumVolume(Benchmark):
             self.args.backend,
             self.params["shots"],
             self.params["trials"],
+            self.params["confidence_level"],
             self.args.provider,
         )
 
