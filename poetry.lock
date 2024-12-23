@@ -2027,12 +2027,12 @@ qiskit-ibm-runtime = ">=0.30.0"
 
 [[package]]
 name = "pytket-quantinuum"
-version = "0.41.0"
+version = "0.42.0"
 description = "Extension for pytket, providing access to Quantinuum backends"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pytket_quantinuum-0.41.0-py3-none-any.whl", hash = "sha256:632fb515a7a5ce197a521a72d2a6553151b9c2cf42611af2b5c3ab3a245393ea"},
+    {file = "pytket_quantinuum-0.42.0-py3-none-any.whl", hash = "sha256:45f124475f212659cd7e9b5382a383240d12df5efb961afdd48760134f9a7884"},
 ]
 
 [package.dependencies]
@@ -2040,7 +2040,7 @@ msal = ">=1.18,<2.0"
 nest_asyncio = ">=1.2"
 numpy = ">=1.26.4"
 pyjwt = ">=2.4,<3.0"
-pytket = ">=1.35.0"
+pytket = ">=1.37.0"
 pytket-qir = ">=0.17,<0.18"
 requests = ">=2.32.2"
 types-requests = "*"
@@ -2048,7 +2048,7 @@ websockets = ">=13.1"
 
 [package.extras]
 calendar = ["matplotlib (>=3.8.3,<3.10.0)", "pandas (>=2.2.1,<2.3.0)"]
-pecos = ["pytket-pecos (>=0.1.31,<0.2.0)"]
+pecos = ["pytket-pecos (>=0.1.32,<0.2.0)"]
 
 [[package]]
 name = "pytz"
@@ -3261,4 +3261,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "7efe79604300e8164e967c59ffdfe4ddf66db3ed2d0df3dc6df24f43157a7356"
+content-hash = "7406558d71cd9923ab3402b7cce86cf79520007b224b94b6045f42d469731696"
