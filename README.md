@@ -55,14 +55,14 @@ where `<METRIQ_GYM_JOB_ID>` is the assigned job ID of the job that was dispatche
 
 ### Listing jobs
 
-You can view all the jobs that have been dispatched by using the `--list-jobs` action. This will read the `jobs_file`
+You can view all the jobs that have been dispatched by using the `list-jobs` action. This will read the `jobs_file`
 and display information about each job, including its ID, backend, job type, provider, qubits, and shots.
 
 ```sh
 python metriq_gym/run.py list-jobs
 ```
 
-The `--list-jobs` command also supports filtering jobs based on specific criteria:
+The `list-jobs` command also supports filtering jobs based on specific criteria:
 
 ```sh
 python metriq_gym/run.py list-jobs --filter provider --value IBMQ
