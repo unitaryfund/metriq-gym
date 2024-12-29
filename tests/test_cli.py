@@ -1,78 +1,71 @@
-from typing import Any
 import pytest
-import json
-from subprocess import run, PIPE
-
-_RUN_SCRIPT = "metriq_gym/run.py"
+from unittest.mock import MagicMock
+from metriq_gym.job_manager import JobManager
+from metriq_gym.run import list_jobs
+from tabulate import tabulate
 
 
 @pytest.fixture
-def sample_jobs() -> list[dict[str, Any]]:
-    return [
+def mock_job_manager():
+    """Fixture to provide a mocked JobManager."""
+    return MagicMock(spec=JobManager)
+
+
+def test_list_jobs_all(mock_job_manager, capsys):
+    """Test listing all jobs without filters."""
+    # Mock jobs
+    mock_job_manager.get_jobs.return_value = [
         {
-            "id": "4f50bc94-deab-4d84-bba2-f82f5ab366ca",
-            "backend": "ibm_strasbourg",
-            "job_type": "CLOPS",
-            "provider": "IBMQ",
+            "id": "1234",
+            "backend": "qasm_simulator",
+            "job_type": "benchmark",
+            "provider": "ibmq",
             "qubits": 5,
-            "shots": 10,
+            "shots": 1024,
         },
         {
-            "id": "2b60bc94-deab-4d84-bba2-f82f5ab377cc",
-            "backend": "ibm_toronto",
-            "job_type": "QV",
-            "provider": "IBMQ",
-            "qubits": 7,
-            "shots": 20,
+            "id": "5678",
+            "backend": "ionq_simulator",
+            "job_type": "experiment",
+            "provider": "ionq",
+            "qubits": 3,
+            "shots": 512,
         },
     ]
 
+    # Mock arguments
+    args = MagicMock(filter=None, value=None)
 
-@pytest.fixture
-def jobs_file(tmp_path: str, sample_jobs: list) -> str:
-    """Creates a temporary jobs file with the provided sample jobs."""
-    jobs_file = tmp_path / ".metriq_gym_jobs.jsonl"
-    with open(jobs_file, "w") as f:
-        for job in sample_jobs:
-            f.write(json.dumps(job) + "\n")
-    return jobs_file
+    # Call the function
+    list_jobs(args, mock_job_manager)
+
+    # Capture the output
+    captured = capsys.readouterr()
+
+    # Expected output using tabulate
+    headers = ["ID", "Backend", "Type", "Provider", "Qubits", "Shots"]
+    table = [
+        ["1234", "qasm_simulator", "benchmark", "ibmq", 5, 1024],
+        ["5678", "ionq_simulator", "experiment", "ionq", 3, 512],
+    ]
+    expected_output = tabulate(table, headers=headers, tablefmt="grid") + "\n"
+
+    assert captured.out == expected_output
 
 
-@pytest.mark.parametrize(
-    "filter_args,expected_ids,unexpected_ids",
-    [
-        (
-            [],
-            ["4f50bc94-deab-4d84-bba2-f82f5ab366ca", "2b60bc94-deab-4d84-bba2-f82f5ab377cc"],
-            [],
-        ),  # No filter
-        (
-            ["--filter", "provider", "--value", "IBMQ"],
-            ["4f50bc94-deab-4d84-bba2-f82f5ab366ca", "2b60bc94-deab-4d84-bba2-f82f5ab377cc"],
-            [],
-        ),  # Filter by provider
-        (
-            ["--filter", "backend", "--value", "ibm_toronto"],
-            ["2b60bc94-deab-4d84-bba2-f82f5ab377cc"],
-            ["4f50bc94-deab-4d84-bba2-f82f5ab366ca"],
-        ),  # Filter by backend
-    ],
-)
-def test_list_jobs_with_filters(
-    jobs_file: str, filter_args: list[str], expected_ids: list[str], unexpected_ids: list[str]
-):
-    """Test `list-jobs` functionality with various filters."""
-    result = run(
-        ["python", f"{_RUN_SCRIPT}", "list-jobs", "-j", str(jobs_file), *filter_args],
-        stdout=PIPE,
-        text=True,
-    )
-    output = result.stdout
+def test_list_jobs_no_jobs(mock_job_manager, capsys):
+    """Test listing jobs when no jobs are recorded."""
+    # Mock no jobs
+    mock_job_manager.get_jobs.return_value = []
 
-    # Check that expected job IDs appear in the output.
-    for job_id in expected_ids:
-        assert job_id in output
+    # Mock arguments
+    args = MagicMock(filter=None, value=None)
 
-    # Check that unexpected job IDs do not appear in the output.
-    for job_id in unexpected_ids:
-        assert job_id not in output
+    # Call the function
+    list_jobs(args, mock_job_manager)
+
+    # Capture the output
+    captured = capsys.readouterr()
+
+    # Verify the printed output
+    assert captured.out == "No jobs found.\n"

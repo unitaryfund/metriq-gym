@@ -1,7 +1,7 @@
 import argparse
 import sys
-import json
 import logging
+from tabulate import tabulate
 from dotenv import load_dotenv
 
 from metriq_gym.benchmarks.handlers import HANDLERS
@@ -17,7 +17,7 @@ def main() -> int:
     """Main entry point for the CLI."""
     load_dotenv()
     args = parse_arguments()
-    job_manager = JobManager(args.jobs_file)
+    job_manager = JobManager()
 
     if args.action == "dispatch":
         params = load_and_validate(args.input_file)
@@ -34,7 +34,7 @@ def main() -> int:
         handler.poll_handler()
 
     elif args.action == "list-jobs":
-        list_jobs(args)
+        list_jobs(args, job_manager)
 
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")
@@ -43,24 +43,17 @@ def main() -> int:
     return 0
 
 
-def list_jobs(args: argparse.Namespace) -> int:
-    """List jobs recorded in the jobs file.
+def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
+    """List jobs recorded in the job manager.
 
     Args:
         args: Parsed arguments.
+        job_manager: Job manager instance.
     Returns:
         Return code.
     """
-    # Read jobs from the file.
-    try:
-        with open(args.jobs_file, "r") as f:
-            jobs = [json.loads(line) for line in f]
-    except FileNotFoundError:
-        logging.error(f"Jobs file not found: {args.jobs_file}")
-        return 1
-    except json.JSONDecodeError:
-        logging.error(f"Error reading jobs from file: {args.jobs_file}")
-        return 1
+    # Retrieve all jobs from JobManager.
+    jobs = job_manager.get_jobs()
 
     # Apply filters if specified.
     if args.filter and args.value:
@@ -71,13 +64,23 @@ def list_jobs(args: argparse.Namespace) -> int:
         print("No jobs found.")
         return 0
 
-    print(f"{"ID":<36} {"Backend":<20} {"Type":<10} {"Provider":<10} {"Qubits":<6} {"Shots":<6}")
-    print("-" * 90)
-    for job in jobs:
-        print(
-            f"{job.get("id", ""):<36} {job.get("backend", ""):<20} {job.get("job_type", ""):<10} "
-            f"{job.get("provider", ""):<10} {job.get("qubits", ""):<6} {job.get("shots", ""):<6}"
-        )
+    # Prepare data for tabulation.
+    headers = ["ID", "Backend", "Type", "Provider", "Qubits", "Shots"]
+    table = [
+        [
+            job.get("id", ""),
+            job.get("backend", ""),
+            job.get("job_type", ""),
+            job.get("provider", ""),
+            job.get("qubits", ""),
+            job.get("shots", ""),
+        ]
+        for job in jobs
+    ]
+
+    # Print the table.
+    print(tabulate(table, headers=headers, tablefmt="grid"))
+    return 0
 
 
 if __name__ == "__main__":

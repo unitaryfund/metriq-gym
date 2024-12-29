@@ -41,7 +41,7 @@ class CLOPS(Benchmark):
 
     def poll_handler(self) -> None:
         logging.info("Polling for CLOPS job results.")
-        results = poll_job_results(self.args.jobs_file, self.args.job_id)
+        results = poll_job_results(self.args.job_id)
         result_count = len(results)
         logging.info(f"Found {result_count} completed jobs.")
         if result_count == 0:

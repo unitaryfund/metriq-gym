@@ -16,6 +16,7 @@ from pytket.extensions.quantinuum.backends.credential_storage import (
 
 from pytket.extensions.quantinuum import QuantinuumBackend
 
+from metriq_gym.job_manager import JobManager
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
 
@@ -46,16 +47,17 @@ def get_job_result_quantinuum(job, partial_result: BenchJobResult):
     return partial_result
 
 
-def poll_job_results(jobs_file: str, job_id: str) -> list[BenchJobResult]:
+def poll_job_results(job_id: str) -> list[BenchJobResult]:
     """Run quantum volume benchmark using QrackSimulator and return structured results.
     Args:
-        jobs_file: Name of jobs file to check.
-        job_id: The metriq-gym Id of job.
+        job_id: The metriq-gym ID of job.
     Returns:
         An array of newly-completed BenchJobResult instances.
     """
     results = []
     lines_out = []
+    job_manager = JobManager()
+    jobs_file = job_manager.jobs_file
 
     with open(jobs_file, "r") as file:
         lines = file.readlines()

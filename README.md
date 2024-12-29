@@ -74,16 +74,6 @@ To filter jobs by a backend (e.g., `ibm_toronto`):
 python metriq_gym/run.py list-jobs --filter backend --value ibm_toronto
 ```
 
-By default, the jobs are read from the `.metriq_gym_jobs.jsonl` file in the local directory. Use the `--jobs_file`
-argument to specify a custom file path if needed.
-
-```sh
-python metriq_gym/run.py list-jobs --jobs_file custom_jobs_file.jsonl
-```
-
-The output will be displayed in a table format with details of each job.
-
-
 ## Contributing
 
 ### Cloning the repo

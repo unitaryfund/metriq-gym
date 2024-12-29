@@ -1,7 +1,6 @@
 """Command-line parsing for running metriq benchmarks."""
 
 import argparse
-from metriq_gym.job_manager import DEFAULT_FILE_PATH as DEFAULT_JOBS_FILE
 
 
 def parse_arguments() -> argparse.Namespace:
@@ -14,20 +13,8 @@ def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Metriq-Gym benchmarking CLI")
     subparsers = parser.add_subparsers(dest="action", required=True, help="Action to perform")
 
-    # The `jobs_file` argument is common to both dispatch and poll subcommands.
-    parent_parser = argparse.ArgumentParser(add_help=False)
-    parent_parser.add_argument(
-        "-j",
-        "--jobs_file",
-        type=str,
-        default=DEFAULT_JOBS_FILE,
-        help="File in local directory where async jobs are recorded",
-    )
-
     # Subparser for dispatch.
-    dispatch_parser = subparsers.add_parser(
-        "dispatch", parents=[parent_parser], help="Dispatch jobs"
-    )
+    dispatch_parser = subparsers.add_parser("dispatch", help="Dispatch jobs")
     dispatch_parser.add_argument(
         "input_file",
         type=str,
@@ -74,13 +61,11 @@ def parse_arguments() -> argparse.Namespace:
     )
 
     # Subparser for poll.
-    poll_parser = subparsers.add_parser("poll", parents=[parent_parser], help="Poll jobs")
+    poll_parser = subparsers.add_parser("poll", help="Poll jobs")
     poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
 
     # Subparser for list-jobs.
-    list_jobs_parser = subparsers.add_parser(
-        "list-jobs", parents=[parent_parser], help="List dispatched jobs"
-    )
+    list_jobs_parser = subparsers.add_parser("list-jobs", help="List dispatched jobs")
     list_jobs_parser.add_argument(
         "--filter",
         type=str,
