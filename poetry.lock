@@ -1971,18 +1971,18 @@ pytket = ">=1.34.0"
 
 [[package]]
 name = "pytket-qiskit"
-version = "0.60.0"
+version = "0.62.0"
 description = "Extension for pytket, providing translation to and from the Qiskit framework"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pytket_qiskit-0.60.0-py3-none-any.whl", hash = "sha256:64f19a7deb33eaf85cf01c38244d973bc409c747b0a82d258bda3f82df6d38b3"},
+    {file = "pytket_qiskit-0.62.0-py3-none-any.whl", hash = "sha256:19cecd312566d7a2d15c5815fb04ad16ce2cff9d4d8b49f40b1b2b59feb95442"},
 ]
 
 [package.dependencies]
 numpy = ">=1.26.4"
-pytket = ">=1.35.0"
-qiskit = ">=1.2.4"
+pytket = ">=1.37.0"
+qiskit = ">=1.3.1,<1.4.0"
 qiskit-aer = ">=0.15.1"
 qiskit-ibm-runtime = ">=0.30.0"
 
@@ -3236,4 +3236,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "9235470dbe599931f342b15e94e00308ec4a8168d4013f90a09f261ae8921014"
+content-hash = "54c082ce2523ccd3785f10f06c3c84ec19f6855f25051900e4ff06964107ae9b"
