@@ -13,6 +13,17 @@ Standard benchmark script implementations for https://metriq.info
 You will require **Python 3.12** and [`poetry`](https://python-poetry.org/). **Note:** the
 newest Python version 3.13 is not yet supported due to the `qiskit-aer` dependency.
 
+### Cloning the repo
+When cloning the metriq-gym repository use:
+
+```sh
+git clone --recurse-submodules https://github.com/unitaryfund/metriq-gym.git
+```
+
+This allows you to fetch [qiskit-device-benchmarking](https://github.com/qiskit-community/qiskit-device-benchmarking) as a git submodule
+for a set of some of the IBM benchmarks.
+
+### Installation
 Once you have `poetry` installed, run:
 
 ```sh
