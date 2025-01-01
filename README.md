@@ -13,6 +13,17 @@ Standard benchmark script implementations for https://metriq.info
 You will require **Python 3.12** and [`poetry`](https://python-poetry.org/). **Note:** the
 newest Python version 3.13 is not yet supported due to the `qiskit-aer` dependency.
 
+### Cloning the repo
+When cloning the metriq-gym repository use:
+
+```sh
+git clone --recurse-submodules https://github.com/unitaryfund/metriq-gym.git
+```
+
+This allows you to fetch [qiskit-device-benchmarking](https://github.com/qiskit-community/qiskit-device-benchmarking) as a git submodule
+for a set of some of the IBM benchmarks.
+
+### Installation
 Once you have `poetry` installed, run:
 
 ```sh
@@ -56,22 +67,10 @@ where `<METRIQ_GYM_JOB_ID>` is the assigned job ID of the job that was dispatche
 
 ## Contributing
 
-### Cloning the repo
-When cloning the metriq-gym repository use:
+First, follow the SETUP instructions above.
 
-```sh
-git clone --recurse-submodules https://github.com/unitaryfund/metriq-gym.git
-```
-
-We have [qiskit-device-benchmarking](https://github.com/qiskit-community/qiskit-device-benchmarking) as a git submodule
-for a set of some of the IBM benchmarks. If you’ve already cloned the repository without the submodules, you can
-initialize them with:
-
-```sh
-git submodule update --init --recursive
-```
-
-Updating the submodule: To pull the latest changes from the submodule’s repository:
+### Updating the submodule
+To pull the latest changes from the submodule’s repository:
 
 ```sh
 cd submodules/qiskit-device-benchmarking
