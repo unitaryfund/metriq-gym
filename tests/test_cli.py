@@ -43,10 +43,10 @@ def test_list_jobs_all(mock_job_manager, capsys):
     captured = capsys.readouterr()
 
     # Expected output using tabulate
-    headers = ["ID", "Backend", "Type", "Provider", "Qubits", "Shots"]
+    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
     table = [
-        ["1234", "qasm_simulator", "benchmark", "ibmq", 5, 1024],
-        ["5678", "ionq_simulator", "experiment", "ionq", 3, 512],
+        ["1234", "qasm_simulator", "benchmark", "ibmq", "qubits: 5, shots: 1024"],
+        ["5678", "ionq_simulator", "experiment", "ionq", "qubits: 3, shots: 512"],
     ]
     expected_output = tabulate(table, headers=headers, tablefmt="grid") + "\n"
 

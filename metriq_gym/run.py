@@ -65,15 +65,18 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         return 0
 
     # Prepare data for tabulation.
-    headers = ["ID", "Backend", "Type", "Provider", "Qubits", "Shots"]
+    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
     table = [
         [
             job.get("id", ""),
             job.get("backend", ""),
             job.get("job_type", ""),
             job.get("provider", ""),
-            job.get("qubits", ""),
-            job.get("shots", ""),
+            ", ".join(
+                f"{key}: {job[key]}"
+                for key in ["qubits", "shots"]
+                if key in job and job[key] is not None
+            ),
         ]
         for job in jobs
     ]
