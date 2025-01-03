@@ -64,6 +64,26 @@ python metriq_gym/run.py poll --job_id <METRIQ_GYM_JOB_ID>
 
 where `<METRIQ_GYM_JOB_ID>` is the assigned job ID of the job that was dispatched as provided by `metriq-gym`. 
 
+### Listing jobs
+
+You can view all the jobs that have been dispatched by using the `list-jobs` action. This will read the `jobs_file`
+and display information about each job, including its ID, backend, job type, provider, qubits, and shots.
+
+```sh
+python metriq_gym/run.py list-jobs
+```
+
+The `list-jobs` command also supports filtering jobs based on specific criteria:
+
+```sh
+python metriq_gym/run.py list-jobs --filter provider --value IBMQ
+```
+
+To filter jobs by a backend (e.g., `ibm_toronto`):
+
+```sh
+python metriq_gym/run.py list-jobs --filter backend --value ibm_toronto
+```
 
 ## Contributing
 
