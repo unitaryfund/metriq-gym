@@ -28,7 +28,7 @@ class QuantumVolume(Benchmark):
 
         self.job_manager.add_job(result.to_serializable())
 
-        logging.info(f"Done writing job IDs to file {self.job_manager.jobs_file}.")
+        logging.info("Dispatched job saved.")
 
     def poll_handler(self) -> None:
         logging.info("Polling for job results.")
