@@ -20,9 +20,6 @@ from metriq_gym.job_manager import JobManager
 from metriq_gym.bench import BenchJobResult, BenchJobType, BenchProvider
 
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
-
 def get_job(result: BenchJobResult) -> Job:
     if result.provider == BenchProvider.IBMQ:
         return QiskitRuntimeService().job(result.provider_job_id)

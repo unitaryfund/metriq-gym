@@ -10,11 +10,11 @@ from metriq_gym.cli import parse_arguments
 from metriq_gym.job_type import JobType
 from metriq_gym.schema_validator import load_and_validate
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
 
 def main() -> int:
     """Main entry point for the CLI."""
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
     load_dotenv()
     args = parse_arguments()
     job_manager = JobManager()
