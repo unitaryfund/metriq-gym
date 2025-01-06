@@ -2200,13 +2200,13 @@ url = "submodules/qiskit-device-benchmarking"
 
 [[package]]
 name = "qiskit-experiments"
-version = "0.8.0"
+version = "0.8.1"
 description = "Software for developing quantum computing programs"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "qiskit-experiments-0.8.0.tar.gz", hash = "sha256:57123b5c1be7666169fad14dca1ca6da0ea0297be870f4d57a1718f245899a64"},
-    {file = "qiskit_experiments-0.8.0-py3-none-any.whl", hash = "sha256:460b81276d70580c602934ed73f6ba8eeb1a96f2f1388148766d895249c880e5"},
+    {file = "qiskit-experiments-0.8.1.tar.gz", hash = "sha256:0b1f4bf844947e58757f0bd3f0dcfccab90634480fd676d0a30851707350f20e"},
+    {file = "qiskit_experiments-0.8.1-py3-none-any.whl", hash = "sha256:3cbd49cf2fe10d986fb78b56ac330fc1dffbfd339859219f72cf98c3dafe2ff9"},
 ]
 
 [package.dependencies]
@@ -3234,4 +3234,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "54c082ce2523ccd3785f10f06c3c84ec19f6855f25051900e4ff06964107ae9b"
+content-hash = "38e9845a34b9f4c2fb17197ad23db1165031d8497cf2506e876e6f9e23a84f4a"
