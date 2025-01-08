@@ -1,17 +1,21 @@
 import argparse
 from typing import Any
 
-from metriq_gym.job_manager import JobManager
+from metriq_gym.providers.backend import Backend
+from metriq_gym.providers.provider import Provider
 
 
 class Benchmark:
-    def __init__(self, args: argparse.Namespace, params: dict[str, Any], job_manager: JobManager):
+    def __init__(
+        self,
+        args: argparse.Namespace,
+        params: dict[str, Any],
+    ):
         self.args = args
         self.params = params
-        self.job_manager = job_manager
 
-    def dispatch_handler(self) -> None:
+    def dispatch_handler(self, provider: Provider, backend: Backend) -> dict[str, Any]:
         raise NotImplementedError
 
-    def poll_handler(self) -> None:
+    def poll_handler(self, provider: Provider, backend: Backend, job: dict[str, Any]) -> None:
         raise NotImplementedError

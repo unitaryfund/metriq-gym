@@ -1,16 +1,26 @@
-import argparse
 import sys
 import logging
-from tabulate import tabulate
 from dotenv import load_dotenv
-
-from metriq_gym.benchmarks.handlers import HANDLERS
+from metriq_gym.benchmarks import HANDLERS
+from metriq_gym.benchmarks.benchmark import Benchmark
+from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager
-from metriq_gym.cli import parse_arguments
-from metriq_gym.job_type import JobType
+from metriq_gym.providers import PROVIDERS
+from metriq_gym.providers.provider import ProviderType
 from metriq_gym.schema_validator import load_and_validate
+from metriq_gym.job_type import JobType
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
+
+def setup_provider_and_backend(provider_name: str, backend_name: str) -> tuple:
+    provider = PROVIDERS[ProviderType(provider_name)]
+    backend = provider.get_backend(backend_name)
+    return provider, backend
+
+
+def setup_handler(args, params, job_type) -> type[Benchmark]:
+    return HANDLERS[JobType(job_type)](args, params)
 
 
 def main() -> int:
@@ -20,18 +30,25 @@ def main() -> int:
     job_manager = JobManager()
 
     if args.action == "dispatch":
+        provider_name, backend_name = args.provider, args.backend
+        provider, backend = setup_provider_and_backend(provider_name, backend_name)
         params = load_and_validate(args.input_file)
-
-        handler = HANDLERS[JobType(params["benchmark_name"])](args, params, job_manager)
-        handler.dispatch_handler()
-
+        handler = setup_handler(args, params, params["benchmark_name"])
+        partial_result = handler.dispatch_handler(provider, backend)
+        job_manager.add_job(
+            {
+                "provider": provider_name,
+                "backend": backend_name,
+                **params,
+                "data": {**partial_result},
+            }
+        )
     elif args.action == "poll":
         job_id = args.job_id
         job = job_manager.get_job(job_id)
-        job_type = job["job_type"]
-
-        handler = HANDLERS[JobType(job_type)](args, None, job_manager)
-        handler.poll_handler()
+        provider, backend = setup_provider_and_backend(job["provider"], job["backend"])
+        handler = setup_handler(args, None, job["benchmark_name"])
+        handler.poll_handler(provider, backend, job["data"])
 
     elif args.action == "list-jobs":
         list_jobs(args, job_manager)
@@ -40,49 +57,6 @@ def main() -> int:
         logging.error("Invalid action specified. Run with --help for usage information.")
         return 1
 
-    return 0
-
-
-def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
-    """List jobs recorded in the job manager.
-
-    Args:
-        args: Parsed arguments.
-        job_manager: Job manager instance.
-    Returns:
-        Return code.
-    """
-    # Retrieve all jobs from JobManager.
-    jobs = job_manager.get_jobs()
-
-    # Apply filters if specified.
-    if args.filter and args.value:
-        jobs = [job for job in jobs if str(job.get(args.filter, "")).lower() == args.value.lower()]
-
-    # Display jobs in a tabular format.
-    if not jobs:
-        print("No jobs found.")
-        return 0
-
-    # Prepare data for tabulation.
-    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
-    table = [
-        [
-            job.get("id", ""),
-            job.get("backend", ""),
-            job.get("job_type", ""),
-            job.get("provider", ""),
-            ", ".join(
-                f"{key}: {job[key]}"
-                for key in ["qubits", "shots"]
-                if key in job and job[key] is not None
-            ),
-        ]
-        for job in jobs
-    ]
-
-    # Print the table.
-    print(tabulate(table, headers=headers, tablefmt="grid"))
     return 0
 
 
