@@ -12,6 +12,9 @@ class ProviderJob:
     def job_id(self) -> str:
         raise NotImplementedError
 
+    def in_final_state(self) -> bool:
+        raise NotImplementedError
+
 
 class Backend:
     def __init__(self, backend_name: str):

@@ -5,7 +5,6 @@ from typing import Any
 class ProviderType(StrEnum):
     IBMQ = "ibmq"
     IONQ = "ionq"
-    QUANTINUUM = "quantinuum"
 
     @classmethod
     def list(cls):

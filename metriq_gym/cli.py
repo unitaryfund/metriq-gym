@@ -30,11 +30,11 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         return 0
 
     # Prepare data for tabulation.
-    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
+    headers = ["ID", "Device", "Type", "Provider", "Misc"]
     table = [
         [
             job.get("id", ""),
-            job.get("backend", ""),
+            job.get("device", ""),
             job.get("benchmark_name", ""),
             job.get("provider", ""),
             ", ".join(

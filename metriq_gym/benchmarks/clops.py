@@ -9,7 +9,9 @@ from metriq_gym.stats import calc_stats
 
 
 class CLOPS(Benchmark):
-    def poll_handler(self, provider: Provider, backend: Backend, job: dict[str, Any]) -> None:
+    def poll_handler(
+        self, provider: Provider, backend: Backend, job: dict[str, Any], provider_job_id: str
+    ) -> None:
         logging.info("Polling for CLOPS job results.")
         results = poll_job_results(self.args.job_id)
         result_count = len(results)

@@ -9,14 +9,14 @@ from metriq_gym.providers import PROVIDERS
 from metriq_gym.providers.provider import ProviderType
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
+from qbraid.runtime.provider import QuantumProvider
+from qbraid.runtime import QuantumDevice
 
-logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
-
-def setup_provider_and_backend(provider_name: str, backend_name: str) -> tuple:
-    provider = PROVIDERS[ProviderType(provider_name)]
-    backend = provider.get_backend(backend_name)
-    return provider, backend
+def setup_provider_and_device(provider_name: str, backend_name: str) -> tuple:
+    provider: QuantumProvider = PROVIDERS[ProviderType(provider_name)]
+    device: QuantumDevice = provider().get_device(backend_name)
+    return provider, device
 
 
 def setup_handler(args, params, job_type) -> type[Benchmark]:
@@ -31,24 +31,25 @@ def main() -> int:
 
     if args.action == "dispatch":
         provider_name, backend_name = args.provider, args.backend
-        provider, backend = setup_provider_and_backend(provider_name, backend_name)
+        provider, device = setup_provider_and_device(provider_name, backend_name)
         params = load_and_validate(args.input_file)
         handler = setup_handler(args, params, params["benchmark_name"])
-        partial_result = handler.dispatch_handler(provider, backend)
+        partial_result, provider_job_id = handler.dispatch_handler(provider, device)
         job_manager.add_job(
             {
                 "provider": provider_name,
-                "backend": backend_name,
+                "device": backend_name,
                 **params,
                 "data": {**partial_result},
+                "provider_job_id": provider_job_id,
             }
         )
     elif args.action == "poll":
         job_id = args.job_id
         job = job_manager.get_job(job_id)
-        provider, backend = setup_provider_and_backend(job["provider"], job["backend"])
+        provider, device = setup_provider_and_device(job["provider"], job["device"])
         handler = setup_handler(args, None, job["benchmark_name"])
-        handler.poll_handler(provider, backend, job["data"])
+        handler.poll_handler(provider, device, job["data"], job["provider_job_id"])
 
     elif args.action == "list-jobs":
         list_jobs(args, job_manager)

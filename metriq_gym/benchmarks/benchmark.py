@@ -1,8 +1,7 @@
 import argparse
 from typing import Any
 
-from metriq_gym.providers.backend import Backend
-from metriq_gym.providers.provider import Provider
+from qbraid import QuantumDevice, QuantumProvider
 
 
 class Benchmark:
@@ -14,8 +13,16 @@ class Benchmark:
         self.args = args
         self.params = params
 
-    def dispatch_handler(self, provider: Provider, backend: Backend) -> dict[str, Any]:
+    def dispatch_handler(
+        self, provider: QuantumProvider, device: QuantumDevice
+    ) -> tuple[dict[str, Any], str]:
         raise NotImplementedError
 
-    def poll_handler(self, provider: Provider, backend: Backend, job: dict[str, Any]) -> None:
+    def poll_handler(
+        self,
+        provider: QuantumProvider,
+        device: QuantumDevice,
+        job: dict[str, Any],
+        provider_job_id: str,
+    ) -> None:
         raise NotImplementedError

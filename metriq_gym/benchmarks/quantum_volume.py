@@ -1,6 +1,8 @@
 import logging
 import time
 from dataclasses import dataclass
+from qbraid import JobStatus, QuantumDevice, QuantumJob, QuantumProvider
+from qbraid.runtime.ibm import QiskitJob
 from scipy.stats import binom
 import math
 import statistics
@@ -11,8 +13,6 @@ from pyqrack import QrackSimulator
 from qiskit import QuantumCircuit
 
 from metriq_gym.circuits import qiskit_random_circuit_sampling
-from metriq_gym.providers.backend import Backend, ProviderJob
-from metriq_gym.providers.provider import Provider
 
 from metriq_gym.benchmarks.benchmark import Benchmark
 
@@ -25,10 +25,8 @@ class QuantumVolumeJobResult:
     shots: int
     depth: int
     confidence_level: float
-    ideal_probs: list[float]
+    ideal_probs: list[list[float]]
     counts: list[dict[str, int]]
-    interval: float
-    sim_interval: float
     trials: int
 
     def to_serializable(self) -> dict[str, Any]:
@@ -40,15 +38,13 @@ class QuantumVolumeJobResult:
             "depth": self.depth,
             "ideal_probs": self.ideal_probs,
             "counts": self.counts,
-            "interval": self.interval,
-            "sim_interval": self.sim_interval,
             "trials": self.trials,
         }
 
 
 def prepare_qv_circuits(
-    backend: Backend, n: int, trials: int
-) -> tuple[list[QuantumCircuit], list[float], float]:
+    device: QuantumDevice, n: int, trials: int
+) -> tuple[list[QuantumCircuit], list[list[float]], float]:
     circuits = []
     ideal_probs = []
     sim_interval = 0.0
@@ -57,10 +53,7 @@ def prepare_qv_circuits(
         circuit = qiskit_random_circuit_sampling(n)
         sim_circuit = circuit.copy()
         circuit.measure_all()
-
-        transpiled_circuit = backend.transpile_circuit(circuit)
-        circuits.append(transpiled_circuit)
-
+        circuits.append(circuit)
         start = time.perf_counter()
         sim = QrackSimulator(n)
         sim.run_qiskit_circuit(sim_circuit, shots=0)
@@ -78,31 +71,23 @@ class TrialStats:
     Attributes:
         qubits: Number of qubits used in the circuit.
         shots: Number of measurement shots performed on the quantum circuit.
-        seconds: Time taken by the backend for execution.
         xeb: Cross Entropy Benchmarking score.
-        sim_seconds: Time taken for Qrack simulation.
         hog_prob: Probability of measuring heavy outputs.
         hog_pass: Boolean indicating whether the heavy output probability exceeds 2/3.
         p_value: p-value for the heavy output count.
         confidence_level: Confidence level for benchmarking.
         confidence_pass: Boolean indicating if the p-value is below the confidence level.
-        clops: Classical logical operations per second.
-        sim_clops: Simulation classical logical operations per second.
         eplg: Estimated Pauli Layer Gate (EPLG) fidelity.
     """
 
     qubits: int
     shots: int
-    seconds: float
     xeb: float
-    sim_seconds: float
     hog_prob: float
     hog_pass: bool
     p_value: float
     confidence_level: float
     confidence_pass: bool
-    clops: float
-    sim_clops: float
     eplg: float
 
 
@@ -116,8 +101,6 @@ class AggregateStats:
         trial_p_values: List of p-values for each trial.
         hog_prob: Average probability of measuring heavy outputs across trials.
         p_value: Combined p-value for all trials.
-        clops: Classical logical operations per second for all trials.
-        sim_clops: Simulation classical logical operations per second for all trials.
         hog_pass: Boolean indicating whether all trials exceeded the heavy output probability threshold.
         confidence_pass: Boolean indicating if all trials passed the confidence level.
     """
@@ -126,8 +109,6 @@ class AggregateStats:
     trial_p_values: list[float]
     hog_prob: float
     p_value: float
-    clops: float
-    sim_clops: float
     hog_pass: bool
     confidence_pass: bool
 
@@ -135,8 +116,6 @@ class AggregateStats:
 def calc_trial_stats(
     ideal_probs: list[float],
     counts: dict[str, int],
-    interval: float,
-    sim_interval: float,
     shots: int,
     confidence_level: float,
 ) -> TrialStats:
@@ -145,8 +124,6 @@ def calc_trial_stats(
     Args:
         ideal_probs: A dictionary of bitstrings to ideal probabilities.
         counts: A dictionary of bitstrings to counts measured from the backend.
-        interval: Time taken by the backend for execution (in seconds).
-        sim_interval: Time taken for Qrack simulation (in seconds).
         shots: Number of measurement shots performed on the quantum circuit.
         confidence_level: Specified confidence level for the benchmarking.
 
@@ -181,16 +158,12 @@ def calc_trial_stats(
     return TrialStats(
         qubits=n,
         shots=shots,
-        seconds=interval,
         xeb=xeb,
-        sim_seconds=sim_interval,
         hog_prob=hog_prob,
         hog_pass=hog_prob >= 2 / 3,
         p_value=p_val,
         confidence_level=confidence_level,
         confidence_pass=p_val < confidence_level,
-        clops=(n * shots) / interval if interval > 0 else 0,
-        sim_clops=(n * shots) / sim_interval if sim_interval > 0 else 0,
         eplg=(1 - (xeb ** (1 / n))) if xeb < 1 else 0,
     )
 
@@ -212,10 +185,8 @@ def calc_stats(result: QuantumVolumeJobResult) -> AggregateStats:
         counts = result.counts[trial]
 
         trial_stat = calc_trial_stats(
-            ideal_probs=result.ideal_probs,
+            ideal_probs=result.ideal_probs[trial],
             counts=counts,
-            interval=result.interval,
-            sim_interval=result.sim_interval,
             shots=result.shots,
             confidence_level=result.confidence_level,
         )
@@ -224,8 +195,6 @@ def calc_stats(result: QuantumVolumeJobResult) -> AggregateStats:
     # Aggregate the trial statistics.
     hog_prob = sum(stat.hog_prob for stat in trial_stats) / len(trial_stats)
     p_value = math.prod(stat.p_value for stat in trial_stats) ** (1 / len(trial_stats))
-    clops = (result.depth * result.shots * len(trial_stats)) / result.interval
-    sim_clops = (result.depth * result.shots * len(trial_stats)) / result.sim_interval
 
     # Construct the AggregateStats object.
     return AggregateStats(
@@ -233,38 +202,48 @@ def calc_stats(result: QuantumVolumeJobResult) -> AggregateStats:
         trial_p_values=[stat.p_value for stat in trial_stats],
         hog_prob=hog_prob,
         p_value=p_value,
-        clops=clops,
-        sim_clops=sim_clops,
         hog_pass=all(stat.hog_pass for stat in trial_stats),
         confidence_pass=all(stat.confidence_pass for stat in trial_stats),
     )
 
 
 class QuantumVolume(Benchmark):
-    def dispatch_handler(self, provider: Provider, backend: Backend) -> dict[str, Any]:
+    def dispatch_handler(
+        self, provider: QuantumProvider, device: QuantumDevice
+    ) -> tuple[dict[str, Any], str]:
         num_qubits = self.params["num_qubits"]
         shots = self.params["shots"]
         trials = self.params["trials"]
         confidence_level = self.params["confidence_level"]
-        circuits, ideal_probs, sim_interval = prepare_qv_circuits(backend, num_qubits, trials)
-        provider_job: ProviderJob = backend.run(circuits, shots=shots)
-        result = provider_job.result()
+        circuits, ideal_probs, sim_interval = prepare_qv_circuits(device, num_qubits, trials)
+        quantum_job: QuantumJob = device.run(circuits, shots=shots)
+        counts = []
+        if quantum_job.status() == JobStatus.COMPLETED:
+            logging.info("Job is in final state.")
+            result = quantum_job.result()
+            counts = result.get_counts()
         partial_result = QuantumVolumeJobResult(
             qubits=num_qubits,
             shots=shots,
             depth=num_qubits,
             confidence_level=confidence_level,
             ideal_probs=ideal_probs,
-            sim_interval=sim_interval,
-            counts=result.get_counts(),
-            interval=result.time_taken,
+            counts=counts,
             trials=self.params["trials"],
         )
-        return partial_result.to_serializable()
+        return partial_result.to_serializable(), quantum_job.id()
 
-    def poll_handler(self, provider: Provider, backend: Backend, job) -> None:
-        logging.info("Polling for job results.")
+    def poll_handler(
+        self, provider: QuantumProvider, device: QuantumDevice, job, provider_job_id: str
+    ) -> None:
+        print("Polling for job results.")
         result = QuantumVolumeJobResult(**job)
-        # provider_job: ProviderJob = backend.get_job(job["provider_job_id"])
-        stats = calc_stats(result)
-        print(stats)
+        quantum_job = QiskitJob(
+            provider_job_id
+        )  # TODO: find a qBraid way to get a job from device, provider, provider_job_id
+        if quantum_job.status() == JobStatus.COMPLETED:
+            print("Job is in final state.")
+            result.counts = quantum_job.result().data.get_counts()
+            stats = calc_stats(result)
+            if stats.confidence_pass:
+                print(f"Quantum Volume benchmark for {result.qubits} qubits passed.")

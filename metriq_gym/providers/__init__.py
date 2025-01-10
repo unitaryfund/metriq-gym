@@ -1,11 +1,8 @@
-from metriq_gym.providers.ibmq import IBMQProvider
-from metriq_gym.providers.ionq import IonQProvider
+from qbraid.runtime import QiskitRuntimeProvider
+from qbraid.runtime import IonQProvider
 from metriq_gym.providers.provider import ProviderType
-from metriq_gym.providers.quantinuum import QuantinuumProvider
 
 PROVIDERS = {
-    ProviderType.IBMQ: IBMQProvider,
+    ProviderType.IBMQ: QiskitRuntimeProvider,
     ProviderType.IONQ: IonQProvider,
-    ProviderType.QUANTINUUM: QuantinuumProvider,
-    # ProviderType.AWS: AWSProvider,
 }
