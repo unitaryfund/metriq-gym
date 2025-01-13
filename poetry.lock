@@ -669,18 +669,18 @@ zstd = ["zstandard (>=0.18.0)"]
 
 [[package]]
 name = "ibm-cloud-sdk-core"
-version = "3.22.0"
+version = "3.22.1"
 description = "Core library used by SDKs for IBM Cloud Services"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "ibm_cloud_sdk_core-3.22.0-py3-none-any.whl", hash = "sha256:a86e9006d98f32510d47d4751d8ba04b64514e3c94b851511fd55d7b094c87b1"},
-    {file = "ibm_cloud_sdk_core-3.22.0.tar.gz", hash = "sha256:0aa5abc972b7d70ee4c39e3ad69c82c9717be847e5672928b416b8ea7d57a297"},
+    {file = "ibm_cloud_sdk_core-3.22.1-py3-none-any.whl", hash = "sha256:d2195d34705b24c7e3a59ad51f01a974defc5bee3576570d9a0e219139550dd4"},
+    {file = "ibm_cloud_sdk_core-3.22.1.tar.gz", hash = "sha256:096dd22c146848a87053f8f2bfbd5dfdf089eefe81ee1c448ca22c4304751dfd"},
 ]
 
 [package.dependencies]
 PyJWT = ">=2.8.0,<3.0.0"
-python-dateutil = ">=2.8.2,<3.0.0"
+python_dateutil = ">=2.8.2,<3.0.0"
 requests = ">=2.31.0,<3.0.0"
 urllib3 = ">=2.1.0,<3.0.0"
 
