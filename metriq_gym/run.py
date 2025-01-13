@@ -1,8 +1,9 @@
+from dataclasses import asdict
 import sys
 import logging
 from dotenv import load_dotenv
 from metriq_gym.benchmarks import HANDLERS
-from metriq_gym.benchmarks.benchmark import Benchmark
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkJobData
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager
 from metriq_gym.provider import PROVIDERS, ProviderType
@@ -32,13 +33,15 @@ def main() -> int:
         provider, device = setup_provider_and_device(provider_name, backend_name)
         params = load_and_validate(args.input_file)
         handler = setup_handler(args, params, params["benchmark_name"])
-        partial_result, provider_job_id = handler.dispatch_handler(provider, device)
+        job_data: BenchmarkJobData
+        provider_job_id: str
+        job_data, provider_job_id = handler.dispatch_handler(provider, device)
         job_manager.add_job(
             {
                 "provider": provider_name,
                 "device": backend_name,
                 **params,
-                "data": {**partial_result},
+                "data": {asdict(job_data)},
                 "provider_job_id": provider_job_id,
             }
         )

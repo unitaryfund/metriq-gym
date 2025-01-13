@@ -1,7 +1,13 @@
 import argparse
+from dataclasses import dataclass
 from typing import Any
 
 from qbraid import QuantumDevice, QuantumProvider
+
+
+@dataclass
+class BenchmarkJobData:
+    pass
 
 
 class Benchmark:
@@ -15,7 +21,7 @@ class Benchmark:
 
     def dispatch_handler(
         self, provider: QuantumProvider, device: QuantumDevice
-    ) -> tuple[dict[str, Any], str]:
+    ) -> tuple[BenchmarkJobData, str]:
         raise NotImplementedError
 
     def poll_handler(

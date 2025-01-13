@@ -2150,7 +2150,11 @@ numpy = ">=1.17"
 openqasm3 = {version = ">=0.4.0", extras = ["parser"]}
 pydantic = ">2.0.0"
 pyqasm = ">=0.1.0"
-qbraid-core = ">=0.1.25"
+qbraid-core = [
+    {version = ">=0.1.25"},
+    {version = ">=0.1.29", extras = ["runner"], optional = true, markers = "extra == \"qir\""},
+]
+qbraid-qir = {version = ">=0.2.0,<=0.2.3", optional = true, markers = "extra == \"qir\""}
 rustworkx = ">=0.15.0"
 typing-extensions = ">=4.0.0"
 
@@ -2185,7 +2189,9 @@ files = [
 ]
 
 [package.dependencies]
+numpy = {version = "*", optional = true, markers = "extra == \"runner\""}
 packaging = "*"
+psutil = {version = "*", optional = true, markers = "extra == \"runner\""}
 requests = "*"
 urllib3 = "*"
 
@@ -2194,6 +2200,28 @@ docs = ["docutils (<0.22)", "sphinx (>=7.2.6,<8.2.0)", "sphinx-autodoc-typehints
 environments = ["ipython", "jupyter_client (>=7.1.0)", "pydantic (>2.0.0)", "pyyaml (>6.0.0)"]
 runner = ["numpy", "psutil"]
 test = ["pytest", "pytest-asyncio", "pytest-cov"]
+
+[[package]]
+name = "qbraid-qir"
+version = "0.2.3"
+description = "qBraid-SDK extension providing support for QIR conversions."
+optional = false
+python-versions = ">=3.9"
+files = [
+    {file = "qbraid_qir-0.2.3-py3-none-any.whl", hash = "sha256:ddd7ceb1b498519f49a892a43e485e39b225829b10dcc3185b738aac5c621d7a"},
+    {file = "qbraid_qir-0.2.3.tar.gz", hash = "sha256:2993057a648de30c0dab23a329d0cd0e3ee6a676f01c2b62dbccd0b8967573a3"},
+]
+
+[package.dependencies]
+numpy = "*"
+pyqir = ">=0.10.0,<0.11.0"
+
+[package.extras]
+cirq = ["cirq-core (>=1.3.0,<1.5.0)"]
+docs = ["docutils (<0.22)", "sphinx (>=7.3.7,<8.1.0)", "sphinx-autodoc-typehints (>=1.24,<2.5)", "sphinx-copybutton", "sphinx-rtd-theme (>=2.0.0,<2.1.0)"]
+lint = ["black[jupyter]", "isort", "pylint", "qbraid-cli (>=0.8.3)"]
+qasm3 = ["openqasm3[parser] (>=0.4.0,<1.1.0)"]
+test = ["autoqasm (>=0.1.0)", "pytest", "pytest-cov", "qbraid (>=0.7.1,<0.8.0)"]
 
 [[package]]
 name = "qiskit"
@@ -3369,4 +3397,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "1b351893e057f923c91ff89586e8b8faf55802add50b40ac80122f501c085db0"
+content-hash = "1a5539abc0d2a8e13780adb477b1bc6a40096770446ee10390eab306dd8ca102"

@@ -1,5 +1,6 @@
 from enum import StrEnum
 
+from qbraid import QbraidProvider
 from qbraid.runtime import QiskitRuntimeProvider
 from qbraid.runtime import IonQProvider
 
@@ -7,6 +8,7 @@ from qbraid.runtime import IonQProvider
 class ProviderType(StrEnum):
     IBMQ = "ibmq"
     IONQ = "ionq"
+    QBRAID = "qbraid"
 
     @classmethod
     def list(cls):
@@ -16,4 +18,5 @@ class ProviderType(StrEnum):
 PROVIDERS = {
     ProviderType.IBMQ: QiskitRuntimeProvider,
     ProviderType.IONQ: IonQProvider,
+    ProviderType.QBRAID: QbraidProvider,
 }

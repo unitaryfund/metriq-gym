@@ -6,20 +6,17 @@ from scipy.stats import binom
 import math
 import statistics
 
-from typing import Any
 
 from pyqrack import QrackSimulator
 from qiskit import QuantumCircuit
 
 from metriq_gym.circuits import qiskit_random_circuit_sampling
 
-from metriq_gym.benchmarks.benchmark import Benchmark
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkJobData
 
 
 @dataclass
-class QuantumVolumeJobResult:
-    """Data structure to hold results from the dispatch_bench_job function."""
-
+class QuantumVolumeJobData(BenchmarkJobData):
     qubits: int
     shots: int
     depth: int
@@ -27,18 +24,6 @@ class QuantumVolumeJobResult:
     ideal_probs: list[list[float]]
     counts: list[dict[str, int]]
     trials: int
-
-    def to_serializable(self) -> dict[str, Any]:
-        """Return a dictionary excluding non-serializable fields (like 'job')."""
-        return {
-            "confidence_level": self.confidence_level,
-            "qubits": self.qubits,
-            "shots": self.shots,
-            "depth": self.depth,
-            "ideal_probs": self.ideal_probs,
-            "counts": self.counts,
-            "trials": self.trials,
-        }
 
 
 def prepare_qv_circuits(
@@ -164,7 +149,7 @@ def calc_trial_stats(
     )
 
 
-def calc_stats(result: QuantumVolumeJobResult) -> AggregateStats:
+def calc_stats(result: QuantumVolumeJobData) -> AggregateStats:
     """Calculate aggregate statistics over multiple trials.
 
     Args:
@@ -206,12 +191,13 @@ def calc_stats(result: QuantumVolumeJobResult) -> AggregateStats:
 class QuantumVolume(Benchmark):
     def dispatch_handler(
         self, provider: QuantumProvider, device: QuantumDevice
-    ) -> tuple[dict[str, Any], str]:
+    ) -> tuple[QuantumVolumeJobData, str]:
         num_qubits = self.params["num_qubits"]
         shots = self.params["shots"]
         trials = self.params["trials"]
         confidence_level = self.params["confidence_level"]
         circuits, ideal_probs = prepare_qv_circuits(device, num_qubits, trials)
+        print(type)
         quantum_job: QuantumJob = device.run(circuits, shots=shots)
         counts = []
         if quantum_job.status() == JobStatus.COMPLETED:
@@ -219,22 +205,22 @@ class QuantumVolume(Benchmark):
             logging.info("Job is in final state.")
             result = quantum_job.result()
             counts = result.get_counts()
-        partial_result = QuantumVolumeJobResult(
+        partial_result = QuantumVolumeJobData(
             qubits=num_qubits,
             shots=shots,
             depth=num_qubits,
             confidence_level=confidence_level,
             ideal_probs=ideal_probs,
             counts=counts,
-            trials=self.params["trials"],
+            trials=trials,
         )
-        return partial_result.to_serializable(), quantum_job.id
+        return partial_result, quantum_job.id
 
     def poll_handler(
         self, provider: QuantumProvider, device: QuantumDevice, job, provider_job_id: str
     ) -> None:
         print("Polling for job results.")
-        result = QuantumVolumeJobResult(**job)
+        result = QuantumVolumeJobData(**job)
         quantum_job = QiskitJob(
             provider_job_id
         )  # TODO: find a qBraid way to get a job from device, provider, provider_job_id
