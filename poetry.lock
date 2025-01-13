@@ -690,17 +690,17 @@ publish = ["build", "twine"]
 
 [[package]]
 name = "ibm-platform-services"
-version = "0.59.0"
+version = "0.59.1"
 description = "Python client library for IBM Cloud Platform Services"
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "ibm_platform_services-0.59.0-py3-none-any.whl", hash = "sha256:2deba369f03843a0b628c03065b791f0738cd7a570b51836cb68ac7629ae545d"},
-    {file = "ibm_platform_services-0.59.0.tar.gz", hash = "sha256:4d63bfa25d9bf995ea75ed449ce26ce4d21c8e2385e04f6da864bdc97c4e62a0"},
+    {file = "ibm_platform_services-0.59.1-py3-none-any.whl", hash = "sha256:bc9a324c387d2ed5d544f5cab597f50ab55a4426f7c1b40a51162a46f9f62962"},
+    {file = "ibm_platform_services-0.59.1.tar.gz", hash = "sha256:5d0f5a64ddb0cc2dfbeb89da0df611faa9b2494a091f8bba5e8f44a497e7c0c3"},
 ]
 
 [package.dependencies]
-ibm-cloud-sdk-core = ">=3.22.0,<4.0.0"
+ibm_cloud_sdk_core = ">=3.22.0,<4.0.0"
 
 [package.extras]
 dev = ["black (>=24.0.0,<25.0.0)", "coverage (>=7.3.2,<8.0.0)", "pylint (>=3.0.0,<4.0.0)", "pytest (>=7.4.2,<8.0.0)", "pytest-cov (>=4.1.0,<5.0.0)", "responses (>=0.23.3,<1.0.0)"]
