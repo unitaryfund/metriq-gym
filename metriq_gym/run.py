@@ -5,12 +5,10 @@ from metriq_gym.benchmarks import HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager
-from metriq_gym.providers import PROVIDERS
-from metriq_gym.providers.provider import ProviderType
+from metriq_gym.provider import PROVIDERS, ProviderType
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
-from qbraid.runtime.provider import QuantumProvider
-from qbraid.runtime import QuantumDevice
+from qbraid.runtime import QuantumDevice, QuantumProvider
 
 
 def setup_provider_and_device(provider_name: str, backend_name: str) -> tuple:

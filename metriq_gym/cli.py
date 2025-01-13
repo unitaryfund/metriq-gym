@@ -5,7 +5,7 @@ import argparse
 from tabulate import tabulate
 
 from metriq_gym.job_manager import JobManager
-from metriq_gym.providers.provider import ProviderType
+from metriq_gym.provider import ProviderType
 
 
 def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:

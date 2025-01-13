@@ -1,5 +1,4 @@
 import logging
-import time
 from dataclasses import dataclass
 from qbraid import JobStatus, QuantumDevice, QuantumJob, QuantumProvider
 from qbraid.runtime.ibm import QiskitJob
@@ -44,24 +43,21 @@ class QuantumVolumeJobResult:
 
 def prepare_qv_circuits(
     device: QuantumDevice, n: int, trials: int
-) -> tuple[list[QuantumCircuit], list[list[float]], float]:
+) -> tuple[list[QuantumCircuit], list[list[float]]]:
     circuits = []
     ideal_probs = []
-    sim_interval = 0.0
 
     for _ in range(trials):
         circuit = qiskit_random_circuit_sampling(n)
         sim_circuit = circuit.copy()
         circuit.measure_all()
         circuits.append(circuit)
-        start = time.perf_counter()
         sim = QrackSimulator(n)
         sim.run_qiskit_circuit(sim_circuit, shots=0)
         ideal_probs.append(sim.out_probs())
         del sim
-        sim_interval += time.perf_counter() - start
 
-    return circuits, ideal_probs, sim_interval
+    return circuits, ideal_probs
 
 
 @dataclass
@@ -215,10 +211,11 @@ class QuantumVolume(Benchmark):
         shots = self.params["shots"]
         trials = self.params["trials"]
         confidence_level = self.params["confidence_level"]
-        circuits, ideal_probs, sim_interval = prepare_qv_circuits(device, num_qubits, trials)
+        circuits, ideal_probs = prepare_qv_circuits(device, num_qubits, trials)
         quantum_job: QuantumJob = device.run(circuits, shots=shots)
         counts = []
         if quantum_job.status() == JobStatus.COMPLETED:
+            # Case where the job is completed synchronously, e.g., in a simulator.
             logging.info("Job is in final state.")
             result = quantum_job.result()
             counts = result.get_counts()
@@ -231,7 +228,7 @@ class QuantumVolume(Benchmark):
             counts=counts,
             trials=self.params["trials"],
         )
-        return partial_result.to_serializable(), quantum_job.id()
+        return partial_result.to_serializable(), quantum_job.id
 
     def poll_handler(
         self, provider: QuantumProvider, device: QuantumDevice, job, provider_job_id: str

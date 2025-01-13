@@ -2411,6 +2411,21 @@ requests = ">=2.24.0"
 test = ["pytest", "pytest-cov (==2.10.1)", "qiskit (>=1.0.0)", "requests-mock (>=1.8.0)"]
 
 [[package]]
+name = "qiskit-qasm3-import"
+version = "0.5.1"
+description = "Importer for parsing OpenQASM 3 strings into Qiskit circuits"
+optional = false
+python-versions = "*"
+files = [
+    {file = "qiskit_qasm3_import-0.5.1-py3-none-any.whl", hash = "sha256:ba6cc1ce3b142c069be07e945816a4bc1458fafe950df4f0eb15ae97d5275102"},
+    {file = "qiskit_qasm3_import-0.5.1.tar.gz", hash = "sha256:334fff0080667fe9cb39e807b0875a2658b01d33b4c964a8816411b30938c107"},
+]
+
+[package.dependencies]
+openqasm3 = {version = ">=0.4,<2.0", extras = ["parser"]}
+qiskit = ">=0.37.0"
+
+[[package]]
 name = "qwasm"
 version = "1.0.1"
 description = "WebAssembly decoder & disassembler"
@@ -3354,4 +3369,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "dd33d2c9e9ace1c37ce85cc07c4f444b00686b27371c814b35f63cc0eb29a6a2"
+content-hash = "1b351893e057f923c91ff89586e8b8faf55802add50b40ac80122f501c085db0"

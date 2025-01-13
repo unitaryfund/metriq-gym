@@ -4,7 +4,7 @@ from typing import Any
 from metriq_gym.process import poll_job_results
 from metriq_gym.benchmarks.benchmark import Benchmark
 from metriq_gym.providers.backend import Backend
-from metriq_gym.providers.provider import Provider
+from metriq_gym.provider import Provider
 from metriq_gym.stats import calc_stats
 
 
