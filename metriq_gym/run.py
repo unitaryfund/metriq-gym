@@ -39,15 +39,14 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     provider_name, backend_name = args.provider, args.backend
     device = setup_device(provider_name, backend_name)
     params = load_and_validate(args.input_file)
-    job_type = JobType(params["benchmark_name"])
+    job_type = JobType(params.benchmark_name)
     handler: Benchmark = setup_handler(args, params, job_type)
     job_data: BenchmarkData = handler.dispatch_handler(device)
-    print(job_data)
     job_manager.add_job(
         {
             "provider": provider_name,
             "device": backend_name,
-            **params,
+            **params.model_dump(),
             "data": asdict(job_data),
         }
     )
@@ -60,7 +59,9 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     job_class = setup_job_class(metriq_job["provider"])
     device = setup_device(metriq_job["provider"], metriq_job["device"])
     handler = setup_handler(args, None, job_type)
-    result_data: ResultData = job_class(job_id=job_data.provider_job_id, device=device).result()
+    result_data: ResultData = (
+        job_class(job_id=job_data.provider_job_id, device=device).result().data
+    )
     handler.poll_handler(job_data, result_data)
 
 

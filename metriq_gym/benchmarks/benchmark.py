@@ -1,7 +1,7 @@
 import argparse
 from dataclasses import dataclass
-from typing import Any
 
+from pydantic import BaseModel
 from qbraid import QuantumDevice, ResultData
 
 
@@ -14,10 +14,10 @@ class Benchmark:
     def __init__(
         self,
         args: argparse.Namespace,
-        params: dict[str, Any],
+        params: BaseModel,
     ):
         self.args = args
-        self.params = params
+        self.params: BaseModel = params
 
     def dispatch_handler(self, device: QuantumDevice) -> BenchmarkData:
         raise NotImplementedError

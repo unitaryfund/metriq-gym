@@ -13,3 +13,7 @@ BENCHMARK_DATA_CLASSES: dict[JobType, type[BenchmarkData]] = {
     JobType.QUANTUM_VOLUME: QuantumVolumeData,
     # JobType.CLOPS: CLOPSJobData,
 }
+SCHEMA_MAPPING = {
+    JobType.QUANTUM_VOLUME: "quantum_volume.schema.json",
+    JobType.CLOPS: "clops.schema.json",
+}

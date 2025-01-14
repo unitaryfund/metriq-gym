@@ -3,7 +3,8 @@ import json
 from unittest.mock import patch
 import pytest
 from jsonschema import ValidationError
-from metriq_gym.schema_validator import load_and_validate, validate_params, SCHEMA_MAPPING
+from metriq_gym.benchmarks import SCHEMA_MAPPING
+from metriq_gym.schema_validator import load_and_validate, validate_params
 
 TEST_BENCHMARK_NAME = "Test Benchmark"
 
