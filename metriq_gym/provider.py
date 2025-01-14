@@ -1,11 +1,9 @@
-from enum import StrEnum
-
-from qbraid import QbraidProvider
-from qbraid.runtime import QiskitRuntimeProvider
-from qbraid.runtime import IonQProvider
+from qbraid import QbraidJob, QbraidProvider
+from qbraid.runtime import QiskitRuntimeProvider, IonQProvider, QiskitJob, IonQJob
+from enum import Enum
 
 
-class ProviderType(StrEnum):
+class ProviderType(Enum):
     IBMQ = "ibmq"
     IONQ = "ionq"
     QBRAID = "qbraid"
@@ -15,8 +13,17 @@ class ProviderType(StrEnum):
         return [provider.value for provider in cls]
 
 
-PROVIDERS = {
-    ProviderType.IBMQ: QiskitRuntimeProvider,
-    ProviderType.IONQ: IonQProvider,
-    ProviderType.QBRAID: QbraidProvider,
+QBRAID_PROVIDERS = {
+    ProviderType.IBMQ: {
+        "provider": QiskitRuntimeProvider,
+        "job_class": QiskitJob,
+    },
+    ProviderType.IONQ: {
+        "provider": IonQProvider,
+        "job_class": IonQJob,
+    },
+    ProviderType.QBRAID: {
+        "provider": QbraidProvider,
+        "job_class": QbraidJob,
+    },
 }
