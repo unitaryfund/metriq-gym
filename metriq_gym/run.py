@@ -67,6 +67,8 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
 
 def main() -> int:
     """Main entry point for the CLI."""
+    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
+
     load_dotenv()
     args = parse_arguments()
     job_manager = JobManager()
