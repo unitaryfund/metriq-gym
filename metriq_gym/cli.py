@@ -30,12 +30,12 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         return 0
 
     # Prepare data for tabulation.
-    headers = ["ID", "Device", "Type", "Provider", "Misc"]
+    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
     table = [
         [
             job.get("id", ""),
-            job.get("device", ""),
-            job.get("benchmark_name", ""),
+            job.get("backend", ""),
+            job.get("job_type", ""),
             job.get("provider", ""),
             ", ".join(
                 f"{key}: {job[key]}"
@@ -45,7 +45,6 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         ]
         for job in jobs
     ]
-
     # Print the table.
     print(tabulate(table, headers=headers, tablefmt="grid"))
     return 0
