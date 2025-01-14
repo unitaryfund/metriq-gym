@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from qbraid import QuantumDevice, ResultData
+from qbraid import QuantumDevice, QuantumJob, ResultData
 from scipy.stats import binom
 import math
 import statistics
@@ -186,10 +186,9 @@ class QuantumVolume(Benchmark):
         shots = self.params.shots
         trials = self.params.trials
         circuits, ideal_probs = prepare_qv_circuits(device, num_qubits, trials)
-        # quantum_job: QuantumJob = device.run(circuits, shots=shots)
+        quantum_job: QuantumJob = device.run(circuits, shots=shots)
         job_data = QuantumVolumeData(
-            # provider_job_id=quantum_job.id,
-            provider_job_id="test",
+            provider_job_id=quantum_job.id,
             qubits=num_qubits,
             shots=shots,
             depth=num_qubits,
@@ -203,7 +202,6 @@ class QuantumVolume(Benchmark):
         if not isinstance(job_data, QuantumVolumeData):
             raise TypeError("Expected job_data to be of type QuantumVolumeJobData")
         counts = result_data.get_counts()
-        print(counts)
         stats = calc_stats(job_data, counts)
         if stats.confidence_pass:
             print(f"Quantum Volume benchmark for {job_data.qubits} qubits passed.")

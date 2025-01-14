@@ -3,7 +3,6 @@ import json
 from unittest.mock import patch
 import pytest
 from jsonschema import ValidationError
-from metriq_gym.benchmarks import SCHEMA_MAPPING
 from metriq_gym.schema_validator import load_and_validate, validate_params
 
 TEST_BENCHMARK_NAME = "Test Benchmark"
@@ -36,14 +35,17 @@ def mock_schema(tmpdir):
     with open(schema_file_path, "w") as schema_file:
         json.dump(schema_content, schema_file)
 
-    SCHEMA_MAPPING[TestJobType.TEST_BENCHMARK] = schema_file_path
-    return SCHEMA_MAPPING
+    SCHEMA_MAPPING = {
+        TestJobType.TEST_BENCHMARK: str(schema_file_path),
+    }
+    with patch("metriq_gym.benchmarks.SCHEMA_MAPPING", SCHEMA_MAPPING):
+        yield
 
 
 @pytest.fixture
 def valid_params():
     return {
-        "benchmark_name": TEST_BENCHMARK_NAME,
+        "title": TEST_BENCHMARK_NAME,
         "num_qubits": 5,
         "shots": 1024,
         "trials": 10,
@@ -53,7 +55,7 @@ def valid_params():
 @pytest.fixture
 def invalid_params():
     return {
-        "benchmark_name": TEST_BENCHMARK_NAME,
+        "title": TEST_BENCHMARK_NAME,
         "num_qubits": 0,  # Invalid value
         "shots": 1024,
         "trials": 10,
