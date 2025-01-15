@@ -21,7 +21,7 @@ def test_list_jobs_all(mock_job_manager, capsys):
             id="1234",
             device_name="ibmq_qasm_simulator",
             provider_name="ibmq",
-            job_type="benchmark",
+            job_type="Quantum Volume",
             dispatch_time=datetime.strptime("2021-09-01 12:00:00", TIMESTAMP_FORMAT),
             params={},
             data={},
@@ -30,7 +30,7 @@ def test_list_jobs_all(mock_job_manager, capsys):
             id="5678",
             device_name="ionq_simulator",
             provider_name="ionq",
-            job_type="experiment",
+            job_type="Quantum Volume",
             dispatch_time=datetime.strptime("2021-09-02 12:00:00", TIMESTAMP_FORMAT),
             params={},
             data={},
@@ -48,8 +48,8 @@ def test_list_jobs_all(mock_job_manager, capsys):
 
     # Expected output using tabulate
     table = [
-        ["1234", "ibmq", "ibmq_qasm_simulator", "benchmark", "2021-09-01 12:00:00"],
-        ["5678", "ionq", "ionq_simulator", "experiment", "2021-09-02 12:00:00"],
+        ["1234", "ibmq", "ibmq_qasm_simulator", "Quantum Volume", "2021-09-01 12:00:00"],
+        ["5678", "ionq", "ionq_simulator", "Quantum Volume", "2021-09-02 12:00:00"],
     ]
     expected_output = tabulate(table, headers=LIST_JOBS_HEADERS, tablefmt="grid") + "\n"
 

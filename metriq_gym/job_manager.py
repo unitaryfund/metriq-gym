@@ -1,8 +1,9 @@
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 from datetime import datetime
 import json
 import os
 from typing import Any
+from pydantic.dataclasses import dataclass
 from metriq_gym.job_type import JobType
 
 
