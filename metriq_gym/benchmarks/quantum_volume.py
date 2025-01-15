@@ -1,9 +1,9 @@
-from dataclasses import dataclass
-from qbraid import QuantumDevice, QuantumJob, ResultData
-from scipy.stats import binom
 import math
 import statistics
+from scipy.stats import binom
+from dataclasses import dataclass
 
+from qbraid import QuantumDevice, QuantumJob, ResultData
 from pyqrack import QrackSimulator
 from qiskit import QuantumCircuit
 
@@ -22,9 +22,7 @@ class QuantumVolumeData(BenchmarkData):
     trials: int
 
 
-def prepare_qv_circuits(
-    device: QuantumDevice, n: int, trials: int
-) -> tuple[list[QuantumCircuit], list[list[float]]]:
+def prepare_qv_circuits(n: int, trials: int) -> tuple[list[QuantumCircuit], list[list[float]]]:
     circuits = []
     ideal_probs = []
 
@@ -54,7 +52,7 @@ class TrialStats:
         p_value: p-value for the heavy output count.
         confidence_level: Confidence level for benchmarking.
         confidence_pass: Boolean indicating if the p-value is below the confidence level.
-        eplg: Estimated Pauli Layer Gate (EPLG) fidelity.
+        eplg: Error Per Layered Gate (EPLG) fidelity.
     """
 
     qubits: int
@@ -185,10 +183,12 @@ class QuantumVolume(Benchmark):
         num_qubits = self.params.num_qubits
         shots = self.params.shots
         trials = self.params.trials
-        circuits, ideal_probs = prepare_qv_circuits(device, num_qubits, trials)
-        quantum_job: QuantumJob = device.run(circuits, shots=shots)
+        circuits, ideal_probs = prepare_qv_circuits(num_qubits, trials)
+        quantum_job: QuantumJob | list[QuantumJob] = device.run(circuits, shots=shots)
         job_data = QuantumVolumeData(
-            provider_job_id=quantum_job.id,
+            provider_job_id=[quantum_job.id]
+            if isinstance(quantum_job, QuantumJob)
+            else [job.id for job in quantum_job],
             qubits=num_qubits,
             shots=shots,
             depth=num_qubits,
@@ -198,10 +198,13 @@ class QuantumVolume(Benchmark):
         )
         return job_data
 
-    def poll_handler(self, job_data: BenchmarkData, result_data: ResultData) -> None:
+    def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
         if not isinstance(job_data, QuantumVolumeData):
             raise TypeError("Expected job_data to be of type QuantumVolumeJobData")
-        counts = result_data.get_counts()
+        if len(result_data) == 1:
+            counts = result_data[0].get_counts()
+        else:
+            counts = [r.get_counts() for r in result_data]
         stats = calc_stats(job_data, counts)
         if stats.confidence_pass:
             print(f"Quantum Volume benchmark for {job_data.qubits} qubits passed.")

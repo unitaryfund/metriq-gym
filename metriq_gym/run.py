@@ -1,19 +1,24 @@
 import argparse
 from dataclasses import asdict
+from datetime import datetime
 import sys
 import logging
+import uuid
 
 from dotenv import load_dotenv
-from qbraid import QuantumJob, ResultData
+from qbraid import JobStatus, QuantumJob, ResultData
 from qbraid.runtime import QuantumDevice, QuantumProvider
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
-from metriq_gym.job_manager import JobManager
+from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.provider import QBRAID_PROVIDERS, ProviderType
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> tuple:
@@ -36,39 +41,46 @@ def create_job_data(job_type: JobType, job_data: dict) -> BenchmarkData:
 
 
 def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
-    provider_name, backend_name = args.provider, args.backend
-    device = setup_device(provider_name, backend_name)
+    logger.info("Dispatching job...")
+    provider_name = args.provider
+    device_name = args.device
+    device = setup_device(provider_name, device_name)
     params = load_and_validate(args.input_file)
     job_type = JobType(params.benchmark_name)
     handler: Benchmark = setup_handler(args, params, job_type)
     job_data: BenchmarkData = handler.dispatch_handler(device)
-    job_manager.add_job(
-        {
-            "provider": provider_name,
-            "device": backend_name,
-            **params.model_dump(),
-            "data": asdict(job_data),
-        }
+    job_id = job_manager.add_job(
+        MetriqGymJob(
+            id=str(uuid.uuid4()),
+            job_type=job_type,
+            params=params.model_dump(),
+            data=asdict(job_data),
+            provider_name=provider_name,
+            device_name=device_name,
+            dispatch_time=datetime.now(),
+        )
     )
+    logger.info(f"Job dispatched with ID: {job_id}")
 
 
 def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
-    metriq_job = job_manager.get_job(args.job_id)
-    job_type: JobType = JobType(metriq_job["benchmark_name"])
-    job_data: BenchmarkData = create_job_data(job_type, metriq_job["data"])
-    job_class = setup_job_class(metriq_job["provider"])
-    device = setup_device(metriq_job["provider"], metriq_job["device"])
+    logger.info("Polling job...")
+    metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
+    job_type: JobType = JobType(metriq_job.job_type)
+    job_data: BenchmarkData = create_job_data(job_type, metriq_job.data)
+    job_class = setup_job_class(metriq_job.provider_name)
+    device = setup_device(metriq_job.provider_name, metriq_job.device_name)
     handler = setup_handler(args, None, job_type)
-    result_data: ResultData = (
-        job_class(job_id=job_data.provider_job_id, device=device).result().data
-    )
-    handler.poll_handler(job_data, result_data)
+    quantum_job = [job_class(job_id, device=device) for job_id in job_data.provider_job_id]
+    if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
+        result_data: list[ResultData] = [task.result().data for task in quantum_job]
+        handler.poll_handler(job_data, result_data)
+    else:
+        logger.info("Job is not yet completed. Please try again later.")
 
 
 def main() -> int:
     """Main entry point for the CLI."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
     load_dotenv()
     args = parse_arguments()
     job_manager = JobManager()

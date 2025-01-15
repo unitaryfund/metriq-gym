@@ -4,8 +4,11 @@ import argparse
 
 from tabulate import tabulate
 
-from metriq_gym.job_manager import JobManager
+from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.provider import ProviderType
+
+LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
+TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
@@ -18,11 +21,7 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         Return code.
     """
     # Retrieve all jobs from JobManager.
-    jobs = job_manager.get_jobs()
-
-    # Apply filters if specified.
-    if args.filter and args.value:
-        jobs = [job for job in jobs if str(job.get(args.filter, "")).lower() == args.value.lower()]
+    jobs: list[MetriqGymJob] = job_manager.get_jobs()
 
     # Display jobs in a tabular format.
     if not jobs:
@@ -30,23 +29,18 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         return 0
 
     # Prepare data for tabulation.
-    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
     table = [
         [
-            job.get("id", ""),
-            job.get("backend", ""),
-            job.get("job_type", ""),
-            job.get("provider", ""),
-            ", ".join(
-                f"{key}: {job[key]}"
-                for key in ["qubits", "shots"]
-                if key in job and job[key] is not None
-            ),
+            job.id,
+            job.provider_name,
+            job.device_name,
+            job.job_type,
+            job.dispatch_time.strftime(TIMESTAMP_FORMAT),
         ]
         for job in jobs
     ]
     # Print the table.
-    print(tabulate(table, headers=headers, tablefmt="grid"))
+    print(tabulate(table, headers=LIST_JOBS_HEADERS, tablefmt="grid"))
     return 0
 
 
@@ -80,31 +74,16 @@ def parse_arguments() -> argparse.Namespace:
         "-p",
         "--provider",
         type=str,
-        choices=ProviderType.list(),
+        choices=ProviderType.value_list(),
         default="ibmq",
         help="String identifier for backend provider service",
     )
     dispatch_parser.add_argument(
-        "-b",
-        "--backend",
+        "-d",
+        "--device",
         type=str,
         default="qasm_simulator",
         help='Backend to use (default is "qasm_simulator")',
-    )
-    dispatch_parser.add_argument(
-        "-c",
-        "--confidence_level",
-        type=float,
-        default=0.025,
-        help="p-value confidence level to use (default is 0.025)",
-    )
-    dispatch_parser.add_argument(
-        "--token", type=str, help="IBM Quantum API token (must be supplied to run on real hardware)"
-    )
-    dispatch_parser.add_argument(
-        "--instance",
-        type=str,
-        help="Name of the IBM Quantum plan instance (e.g. 'ibm-q/open/main')",
     )
 
     # Subparser for poll.
@@ -112,17 +91,6 @@ def parse_arguments() -> argparse.Namespace:
     poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
 
     # Subparser for list-jobs.
-    list_jobs_parser = subparsers.add_parser("list-jobs", help="List dispatched jobs")
-    list_jobs_parser.add_argument(
-        "--filter",
-        type=str,
-        choices=["backend", "job_type", "provider"],
-        help="Filter jobs by a specific field (e.g., backend, job_type, provider)",
-    )
-    list_jobs_parser.add_argument(
-        "--value",
-        type=str,
-        help="Value to match for the specified filter (used with --filter)",
-    )
+    subparsers.add_parser("list-jobs", help="List dispatched jobs")
 
     return parser.parse_args()

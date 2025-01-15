@@ -1,6 +1,8 @@
+from datetime import datetime
 import pytest
 from unittest.mock import MagicMock
-from metriq_gym.job_manager import JobManager
+from metriq_gym.cli import LIST_JOBS_HEADERS, TIMESTAMP_FORMAT
+from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.run import list_jobs
 from tabulate import tabulate
 
@@ -15,22 +17,24 @@ def test_list_jobs_all(mock_job_manager, capsys):
     """Test listing all jobs without filters."""
     # Mock jobs
     mock_job_manager.get_jobs.return_value = [
-        {
-            "id": "1234",
-            "backend": "qasm_simulator",
-            "job_type": "benchmark",
-            "provider": "ibmq",
-            "qubits": 5,
-            "shots": 1024,
-        },
-        {
-            "id": "5678",
-            "backend": "ionq_simulator",
-            "job_type": "experiment",
-            "provider": "ionq",
-            "qubits": 3,
-            "shots": 512,
-        },
+        MetriqGymJob(
+            id="1234",
+            device_name="ibmq_qasm_simulator",
+            provider_name="ibmq",
+            job_type="benchmark",
+            dispatch_time=datetime.strptime("2021-09-01 12:00:00", TIMESTAMP_FORMAT),
+            params={},
+            data={},
+        ),
+        MetriqGymJob(
+            id="5678",
+            device_name="ionq_simulator",
+            provider_name="ionq",
+            job_type="experiment",
+            dispatch_time=datetime.strptime("2021-09-02 12:00:00", TIMESTAMP_FORMAT),
+            params={},
+            data={},
+        ),
     ]
 
     # Mock arguments
@@ -43,12 +47,11 @@ def test_list_jobs_all(mock_job_manager, capsys):
     captured = capsys.readouterr()
 
     # Expected output using tabulate
-    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
     table = [
-        ["1234", "qasm_simulator", "benchmark", "ibmq", "qubits: 5, shots: 1024"],
-        ["5678", "ionq_simulator", "experiment", "ionq", "qubits: 3, shots: 512"],
+        ["1234", "ibmq", "ibmq_qasm_simulator", "benchmark", "2021-09-01 12:00:00"],
+        ["5678", "ionq", "ionq_simulator", "experiment", "2021-09-02 12:00:00"],
     ]
-    expected_output = tabulate(table, headers=headers, tablefmt="grid") + "\n"
+    expected_output = tabulate(table, headers=LIST_JOBS_HEADERS, tablefmt="grid") + "\n"
 
     assert captured.out == expected_output
 

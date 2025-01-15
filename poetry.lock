@@ -36,13 +36,13 @@ test = ["black", "flake8", "flake8-rst-docstrings", "isort", "pre-commit", "pyli
 
 [[package]]
 name = "amazon-braket-schemas"
-version = "1.22.4"
+version = "1.23.0"
 description = "An open source library that contains the schemas for Amazon Braket"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "amazon_braket_schemas-1.22.4-py3-none-any.whl", hash = "sha256:adbe6ce1799d907d74f5f1488b9125269f93796c792276a74e7a0363e4cdb48e"},
-    {file = "amazon_braket_schemas-1.22.4.tar.gz", hash = "sha256:2fe23bd46d62c38ce90acac76c0e269699aadee97b81ce90aa08815d18a398e4"},
+    {file = "amazon_braket_schemas-1.23.0-py3-none-any.whl", hash = "sha256:582ba92dbf342e3e45c435d95f734813b35b7b4b21d22baa89ae5691f16560ed"},
+    {file = "amazon_braket_schemas-1.23.0.tar.gz", hash = "sha256:2fa59bdcfa87f05294374a9ebd80530acbf78d58268a52680d2937892d7b91c5"},
 ]
 
 [package.dependencies]
@@ -215,17 +215,17 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.35.98"
+version = "1.35.99"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.35.98-py3-none-any.whl", hash = "sha256:d0224e1499d7189b47aa7f469d96522d98df6f5702fccb20a95a436582ebcd9d"},
-    {file = "boto3-1.35.98.tar.gz", hash = "sha256:4b6274b4fe9d7113f978abea66a1f20c8a397c268c9d1b2a6c96b14a256da4a5"},
+    {file = "boto3-1.35.99-py3-none-any.whl", hash = "sha256:83e560faaec38a956dfb3d62e05e1703ee50432b45b788c09e25107c5058bd71"},
+    {file = "boto3-1.35.99.tar.gz", hash = "sha256:e0abd794a7a591d90558e92e29a9f8837d25ece8e3c120e530526fe27eba5fca"},
 ]
 
 [package.dependencies]
-botocore = ">=1.35.98,<1.36.0"
+botocore = ">=1.35.99,<1.36.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.10.0,<0.11.0"
 
@@ -234,13 +234,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "boto3-stubs"
-version = "1.35.98"
-description = "Type annotations for boto3 1.35.98 generated with mypy-boto3-builder 8.8.0"
+version = "1.35.99"
+description = "Type annotations for boto3 1.35.99 generated with mypy-boto3-builder 8.8.0"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3_stubs-1.35.98-py3-none-any.whl", hash = "sha256:14a1443d669dde72c6247092dff576bd720e58ea10eec4b0c251e73a21ce1509"},
-    {file = "boto3_stubs-1.35.98.tar.gz", hash = "sha256:a9d38ceafdd72ada60bdfaa72d83b549f96bd8235b3b2f0904753e45191d690d"},
+    {file = "boto3_stubs-1.35.99-py3-none-any.whl", hash = "sha256:14ae7f49ad8825cc8bca5e7891d08b68e39512439ebfa1c52e41e51aed2b199c"},
+    {file = "boto3_stubs-1.35.99.tar.gz", hash = "sha256:3052e3d68e2044e2fd5daa7f0f7c976a5cc85a528aff610c3b874a30f1dbd3fb"},
 ]
 
 [package.dependencies]
@@ -295,7 +295,7 @@ bedrock-data-automation-runtime = ["mypy-boto3-bedrock-data-automation-runtime (
 bedrock-runtime = ["mypy-boto3-bedrock-runtime (>=1.35.0,<1.36.0)"]
 billing = ["mypy-boto3-billing (>=1.35.0,<1.36.0)"]
 billingconductor = ["mypy-boto3-billingconductor (>=1.35.0,<1.36.0)"]
-boto3 = ["boto3 (==1.35.98)"]
+boto3 = ["boto3 (==1.35.99)"]
 braket = ["mypy-boto3-braket (>=1.35.0,<1.36.0)"]
 budgets = ["mypy-boto3-budgets (>=1.35.0,<1.36.0)"]
 ce = ["mypy-boto3-ce (>=1.35.0,<1.36.0)"]
@@ -658,13 +658,13 @@ xray = ["mypy-boto3-xray (>=1.35.0,<1.36.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.35.98"
+version = "1.35.99"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.35.98-py3-none-any.whl", hash = "sha256:4f1c0b687488663a774ad3a5e81a5f94fae1bcada2364cfdc48482c4dbf794d5"},
-    {file = "botocore-1.35.98.tar.gz", hash = "sha256:d11742b3824bdeac3c89eeeaf5132351af41823bbcef8fc15e95c8250b1de09c"},
+    {file = "botocore-1.35.99-py3-none-any.whl", hash = "sha256:b22d27b6b617fc2d7342090d6129000af2efd20174215948c0d7ae2da0fab445"},
+    {file = "botocore-1.35.99.tar.gz", hash = "sha256:1eab44e969c39c5f3d9a3104a0836c24715579a455f12b3979a31d7cde51b3c3"},
 ]
 
 [package.dependencies]
@@ -677,13 +677,13 @@ crt = ["awscrt (==0.22.0)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.35.98"
+version = "1.35.99"
 description = "Type annotations and code completion for botocore"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore_stubs-1.35.98-py3-none-any.whl", hash = "sha256:2209d79a107c73920f82ad1690013d9d001e860784864346d94bfb94292be808"},
-    {file = "botocore_stubs-1.35.98.tar.gz", hash = "sha256:a33f474e8e9e354ed7e4e47d5efb13d68234d7366360d6391c6e70963c477589"},
+    {file = "botocore_stubs-1.35.99-py3-none-any.whl", hash = "sha256:6fe3fd4140a16ab3dd560050fdae74f41d4ff7ca55f3583df66b866ef6f9a333"},
+    {file = "botocore_stubs-1.35.99.tar.gz", hash = "sha256:659626b30b9950c2d3938f938c76bf15a854b759f96617dc2cf41594f7a4e352"},
 ]
 
 [package.dependencies]
@@ -2061,43 +2061,31 @@ python-versions = ">=3.9"
 files = [
     {file = "pandas-2.2.3-cp310-cp310-macosx_10_9_x86_64.whl", hash = "sha256:1948ddde24197a0f7add2bdc4ca83bf2b1ef84a1bc8ccffd95eda17fd836ecb5"},
     {file = "pandas-2.2.3-cp310-cp310-macosx_11_0_arm64.whl", hash = "sha256:381175499d3802cde0eabbaf6324cce0c4f5d52ca6f8c377c29ad442f50f6348"},
-    {file = "pandas-2.2.3-cp310-cp310-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:d9c45366def9a3dd85a6454c0e7908f2b3b8e9c138f5dc38fed7ce720d8453ed"},
     {file = "pandas-2.2.3-cp310-cp310-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:86976a1c5b25ae3f8ccae3a5306e443569ee3c3faf444dfd0f41cda24667ad57"},
-    {file = "pandas-2.2.3-cp310-cp310-musllinux_1_2_aarch64.whl", hash = "sha256:b8661b0238a69d7aafe156b7fa86c44b881387509653fdf857bebc5e4008ad42"},
     {file = "pandas-2.2.3-cp310-cp310-musllinux_1_2_x86_64.whl", hash = "sha256:37e0aced3e8f539eccf2e099f65cdb9c8aa85109b0be6e93e2baff94264bdc6f"},
     {file = "pandas-2.2.3-cp310-cp310-win_amd64.whl", hash = "sha256:56534ce0746a58afaf7942ba4863e0ef81c9c50d3f0ae93e9497d6a41a057645"},
     {file = "pandas-2.2.3-cp311-cp311-macosx_10_9_x86_64.whl", hash = "sha256:66108071e1b935240e74525006034333f98bcdb87ea116de573a6a0dccb6c039"},
     {file = "pandas-2.2.3-cp311-cp311-macosx_11_0_arm64.whl", hash = "sha256:7c2875855b0ff77b2a64a0365e24455d9990730d6431b9e0ee18ad8acee13dbd"},
-    {file = "pandas-2.2.3-cp311-cp311-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:cd8d0c3be0515c12fed0bdbae072551c8b54b7192c7b1fda0ba56059a0179698"},
     {file = "pandas-2.2.3-cp311-cp311-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:c124333816c3a9b03fbeef3a9f230ba9a737e9e5bb4060aa2107a86cc0a497fc"},
-    {file = "pandas-2.2.3-cp311-cp311-musllinux_1_2_aarch64.whl", hash = "sha256:63cc132e40a2e084cf01adf0775b15ac515ba905d7dcca47e9a251819c575ef3"},
     {file = "pandas-2.2.3-cp311-cp311-musllinux_1_2_x86_64.whl", hash = "sha256:29401dbfa9ad77319367d36940cd8a0b3a11aba16063e39632d98b0e931ddf32"},
     {file = "pandas-2.2.3-cp311-cp311-win_amd64.whl", hash = "sha256:3fc6873a41186404dad67245896a6e440baacc92f5b716ccd1bc9ed2995ab2c5"},
     {file = "pandas-2.2.3-cp312-cp312-macosx_10_9_x86_64.whl", hash = "sha256:b1d432e8d08679a40e2a6d8b2f9770a5c21793a6f9f47fdd52c5ce1948a5a8a9"},
     {file = "pandas-2.2.3-cp312-cp312-macosx_11_0_arm64.whl", hash = "sha256:a5a1595fe639f5988ba6a8e5bc9649af3baf26df3998a0abe56c02609392e0a4"},
-    {file = "pandas-2.2.3-cp312-cp312-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:5de54125a92bb4d1c051c0659e6fcb75256bf799a732a87184e5ea503965bce3"},
     {file = "pandas-2.2.3-cp312-cp312-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:fffb8ae78d8af97f849404f21411c95062db1496aeb3e56f146f0355c9989319"},
-    {file = "pandas-2.2.3-cp312-cp312-musllinux_1_2_aarch64.whl", hash = "sha256:6dfcb5ee8d4d50c06a51c2fffa6cff6272098ad6540aed1a76d15fb9318194d8"},
     {file = "pandas-2.2.3-cp312-cp312-musllinux_1_2_x86_64.whl", hash = "sha256:062309c1b9ea12a50e8ce661145c6aab431b1e99530d3cd60640e255778bd43a"},
     {file = "pandas-2.2.3-cp312-cp312-win_amd64.whl", hash = "sha256:59ef3764d0fe818125a5097d2ae867ca3fa64df032331b7e0917cf5d7bf66b13"},
     {file = "pandas-2.2.3-cp313-cp313-macosx_10_13_x86_64.whl", hash = "sha256:f00d1345d84d8c86a63e476bb4955e46458b304b9575dcf71102b5c705320015"},
     {file = "pandas-2.2.3-cp313-cp313-macosx_11_0_arm64.whl", hash = "sha256:3508d914817e153ad359d7e069d752cdd736a247c322d932eb89e6bc84217f28"},
-    {file = "pandas-2.2.3-cp313-cp313-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:22a9d949bfc9a502d320aa04e5d02feab689d61da4e7764b62c30b991c42c5f0"},
     {file = "pandas-2.2.3-cp313-cp313-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:f3a255b2c19987fbbe62a9dfd6cff7ff2aa9ccab3fc75218fd4b7530f01efa24"},
-    {file = "pandas-2.2.3-cp313-cp313-musllinux_1_2_aarch64.whl", hash = "sha256:800250ecdadb6d9c78eae4990da62743b857b470883fa27f652db8bdde7f6659"},
     {file = "pandas-2.2.3-cp313-cp313-musllinux_1_2_x86_64.whl", hash = "sha256:6374c452ff3ec675a8f46fd9ab25c4ad0ba590b71cf0656f8b6daa5202bca3fb"},
     {file = "pandas-2.2.3-cp313-cp313-win_amd64.whl", hash = "sha256:61c5ad4043f791b61dd4752191d9f07f0ae412515d59ba8f005832a532f8736d"},
     {file = "pandas-2.2.3-cp313-cp313t-macosx_10_13_x86_64.whl", hash = "sha256:3b71f27954685ee685317063bf13c7709a7ba74fc996b84fc6821c59b0f06468"},
     {file = "pandas-2.2.3-cp313-cp313t-macosx_11_0_arm64.whl", hash = "sha256:38cf8125c40dae9d5acc10fa66af8ea6fdf760b2714ee482ca691fc66e6fcb18"},
-    {file = "pandas-2.2.3-cp313-cp313t-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:ba96630bc17c875161df3818780af30e43be9b166ce51c9a18c1feae342906c2"},
     {file = "pandas-2.2.3-cp313-cp313t-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:1db71525a1538b30142094edb9adc10be3f3e176748cd7acc2240c2f2e5aa3a4"},
-    {file = "pandas-2.2.3-cp313-cp313t-musllinux_1_2_aarch64.whl", hash = "sha256:15c0e1e02e93116177d29ff83e8b1619c93ddc9c49083f237d4312337a61165d"},
     {file = "pandas-2.2.3-cp313-cp313t-musllinux_1_2_x86_64.whl", hash = "sha256:ad5b65698ab28ed8d7f18790a0dc58005c7629f227be9ecc1072aa74c0c1d43a"},
     {file = "pandas-2.2.3-cp39-cp39-macosx_10_9_x86_64.whl", hash = "sha256:bc6b93f9b966093cb0fd62ff1a7e4c09e6d546ad7c1de191767baffc57628f39"},
     {file = "pandas-2.2.3-cp39-cp39-macosx_11_0_arm64.whl", hash = "sha256:5dbca4c1acd72e8eeef4753eeca07de9b1db4f398669d5994086f788a5d7cc30"},
-    {file = "pandas-2.2.3-cp39-cp39-manylinux2014_aarch64.manylinux_2_17_aarch64.whl", hash = "sha256:8cd6d7cc958a3910f934ea8dbdf17b2364827bb4dafc38ce6eef6bb3d65ff09c"},
     {file = "pandas-2.2.3-cp39-cp39-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:99df71520d25fade9db7c1076ac94eb994f4d2673ef2aa2e86ee039b6746d20c"},
-    {file = "pandas-2.2.3-cp39-cp39-musllinux_1_2_aarch64.whl", hash = "sha256:31d0ced62d4ea3e231a9f228366919a5ea0b07440d9d4dac345376fd8e1477ea"},
     {file = "pandas-2.2.3-cp39-cp39-musllinux_1_2_x86_64.whl", hash = "sha256:7eee9e7cea6adf3e3d24e304ac6b8300646e2a5d1cd3a3c2abed9101b0846761"},
     {file = "pandas-2.2.3-cp39-cp39-win_amd64.whl", hash = "sha256:4850ba03528b6dd51d6c5d273c46f183f39a9baf3f0143e566b89450965b105e"},
     {file = "pandas-2.2.3.tar.gz", hash = "sha256:4f18ba62b61d7e192368b84517265a99b4d7ee8912f8708660fb4a366cc82667"},
@@ -2821,13 +2809,13 @@ files = [
 
 [[package]]
 name = "qbraid"
-version = "0.9.0"
+version = "0.9.1"
 description = "Platform-agnostic quantum runtime framework."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "qbraid-0.9.0-py3-none-any.whl", hash = "sha256:066c4131515a94a7577ae35308ab75487e2e2380a62d38d75d84769916841a0d"},
-    {file = "qbraid-0.9.0.tar.gz", hash = "sha256:2c62aca4fb982ee9080f42eaef37683c492ed0fced46276b7414c3207e9bc754"},
+    {file = "qbraid-0.9.1-py3-none-any.whl", hash = "sha256:bf840bd357f806507370ea326fd83431fdfcca46bdc2730b89d3c1732c2f7158"},
+    {file = "qbraid-0.9.1.tar.gz", hash = "sha256:fa7a2575b44a66f2a2dfb05ca988da463f5b401251db619ce7429fc7f94922f7"},
 ]
 
 [package.dependencies]
@@ -2841,7 +2829,7 @@ qbraid-core = [
     {version = ">=0.1.25"},
     {version = ">=0.1.29", extras = ["runner"], optional = true, markers = "extra == \"qir\""},
 ]
-qbraid-qir = {version = ">=0.2.0,<=0.2.3", optional = true, markers = "extra == \"qir\""}
+qbraid-qir = {version = ">=0.2.0,<=0.3.0", optional = true, markers = "extra == \"qir\""}
 rustworkx = ">=0.15.0"
 typing-extensions = ">=4.0.0"
 
@@ -2850,16 +2838,16 @@ azure = ["azure-identity (>=1.17,<2.0)", "azure-quantum (>=2.0,<2.3)", "azure-st
 bloqade = ["bloqade (>=0.15.13)"]
 braket = ["amazon-braket-sdk (>=1.83.0,<1.89.0)", "pytket-braket (>=0.30,<0.39)"]
 cirq = ["attrs (>=21.3.0)", "cirq-core (>=1.3,<1.5)", "cirq-ionq (>=1.3,<1.5)", "ply (>=3.6)"]
-docs = ["docutils (<0.22)", "sphinx (>=7.2,<8.2)", "sphinx-autodoc-typehints (>=1.24,<2.6)", "sphinx-copybutton", "sphinx-rtd-theme (>=1.3,<3.1)"]
+docs = ["docutils (<0.22)", "sphinx (>=7.2,<8.2)", "sphinx-autodoc-typehints (>=1.24,<3.1)", "sphinx-copybutton", "sphinx-rtd-theme (>=1.3,<3.1)"]
 ionq = ["pyqasm (>=0.1.0)"]
 lint = ["black", "isort", "pylint", "qbraid-cli (>=0.8.7)"]
 oqc = ["oqc-qcaas-client (>=3.11.0)"]
-pennylane = ["pennylane (<0.40)"]
+pennylane = ["pennylane (<0.41)"]
 pyqubo = ["pyqubo (>=1.4.0)"]
 pyquil = ["pyquil (>=4.4)"]
 pytket = ["pytket (>=1.31)"]
-qir = ["qbraid-core[runner] (>=0.1.29)", "qbraid-qir (>=0.2.0,<=0.2.3)"]
-qiskit = ["qiskit (>=1.0,<1.3)", "qiskit-ibm-runtime (>=0.25.0,<0.35)", "qiskit-qasm3-import (>=0.5.1)", "qiskit-qir (>=0.5.0)"]
+qir = ["qbraid-core[runner] (>=0.1.29)", "qbraid-qir (>=0.2.0,<=0.3.0)"]
+qiskit = ["packaging (>=20.0)", "qiskit (>=1.0,<1.4)", "qiskit-ibm-runtime (>=0.25.0,<0.35)", "qiskit-qasm3-import (>=0.5.1)", "qiskit-qir (>=0.5.0)"]
 quera = ["flair-visual[vis] (>=0.5.3)"]
 test = ["packaging", "pytest", "pytest-cov", "sympy"]
 visualization = ["ipympl", "ipython", "matplotlib", "pylatexenc"]
@@ -2890,25 +2878,24 @@ test = ["pytest", "pytest-asyncio", "pytest-cov"]
 
 [[package]]
 name = "qbraid-qir"
-version = "0.2.3"
+version = "0.3.0"
 description = "qBraid-SDK extension providing support for QIR conversions."
 optional = false
-python-versions = ">=3.9"
+python-versions = ">=3.10"
 files = [
-    {file = "qbraid_qir-0.2.3-py3-none-any.whl", hash = "sha256:ddd7ceb1b498519f49a892a43e485e39b225829b10dcc3185b738aac5c621d7a"},
-    {file = "qbraid_qir-0.2.3.tar.gz", hash = "sha256:2993057a648de30c0dab23a329d0cd0e3ee6a676f01c2b62dbccd0b8967573a3"},
+    {file = "qbraid_qir-0.3.0-py3-none-any.whl", hash = "sha256:2a317cfa94608be2836a9dc70310aee869b22fb7cfe0f6b61b55e53b2978efbf"},
+    {file = "qbraid_qir-0.3.0.tar.gz", hash = "sha256:2a5bc27a16139af10b71ebb10c7d9838f7e10875214571265bb5d0c8e8bb2ce0"},
 ]
 
 [package.dependencies]
-numpy = "*"
 pyqir = ">=0.10.0,<0.11.0"
 
 [package.extras]
 cirq = ["cirq-core (>=1.3.0,<1.5.0)"]
-docs = ["docutils (<0.22)", "sphinx (>=7.3.7,<8.1.0)", "sphinx-autodoc-typehints (>=1.24,<2.5)", "sphinx-copybutton", "sphinx-rtd-theme (>=2.0.0,<2.1.0)"]
-lint = ["black[jupyter]", "isort", "pylint", "qbraid-cli (>=0.8.3)"]
-qasm3 = ["openqasm3[parser] (>=0.4.0,<1.1.0)"]
-test = ["autoqasm (>=0.1.0)", "pytest", "pytest-cov", "qbraid (>=0.7.1,<0.8.0)"]
+docs = ["docutils (<0.22)", "sphinx (>=7.3.7,<=8.3.0)", "sphinx-autodoc-typehints (>=1.24,<2.6)", "sphinx-copybutton", "sphinx-rtd-theme (>=2.0,<3.1)"]
+lint = ["black", "isort", "pylint", "qbraid-cli (>=0.8.7)"]
+qasm3 = ["numpy", "pyqasm (>=0.1.0)"]
+test = ["autoqasm (>=0.1.0)", "pytest", "pytest-cov", "qbraid (>=0.8.3,<0.10.0)"]
 
 [[package]]
 name = "qiskit"
