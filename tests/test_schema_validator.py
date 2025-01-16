@@ -7,6 +7,19 @@ from metriq_gym.schema_validator import load_and_validate, validate_params
 
 TEST_BENCHMARK_NAME = "Test Benchmark"
 
+MOCK_SCHEMA_CONTENT = {
+    "$schema": "https://json-schema.org/draft/2020-12/schema",
+    "type": "object",
+    "title": TEST_BENCHMARK_NAME,
+    "properties": {
+        "benchmark_name": {"type": "string", "const": TEST_BENCHMARK_NAME},
+        "num_qubits": {"type": "integer", "minimum": 1},
+        "shots": {"type": "integer", "minimum": 1},
+        "trials": {"type": "integer", "minimum": 1},
+    },
+    "required": ["benchmark_name", "num_qubits"],
+}
+
 
 class TestJobType(Enum):
     TEST_BENCHMARK = TEST_BENCHMARK_NAME
@@ -20,32 +33,21 @@ def patch_job_type_enum():
 
 @pytest.fixture(autouse=True)
 def mock_schema(tmpdir):
-    schema_content = {
-        "$schema": "https://json-schema.org/draft/2020-12/schema",
-        "type": "object",
-        "properties": {
-            "benchmark_name": {"type": "string", "const": TEST_BENCHMARK_NAME},
-            "num_qubits": {"type": "integer", "minimum": 1},
-            "shots": {"type": "integer", "minimum": 1},
-            "trials": {"type": "integer", "minimum": 1},
-        },
-        "required": ["benchmark_name", "num_qubits"],
-    }
     schema_file_path = tmpdir.join("test.schema.json")
     with open(schema_file_path, "w") as schema_file:
-        json.dump(schema_content, schema_file)
+        json.dump(MOCK_SCHEMA_CONTENT, schema_file)
 
     SCHEMA_MAPPING = {
         TestJobType.TEST_BENCHMARK: str(schema_file_path),
     }
-    with patch("metriq_gym.benchmarks.SCHEMA_MAPPING", SCHEMA_MAPPING):
+    with patch("metriq_gym.schema_validator.SCHEMA_MAPPING", SCHEMA_MAPPING):
         yield
 
 
 @pytest.fixture
 def valid_params():
     return {
-        "title": TEST_BENCHMARK_NAME,
+        "benchmark_name": TEST_BENCHMARK_NAME,
         "num_qubits": 5,
         "shots": 1024,
         "trials": 10,
@@ -55,7 +57,7 @@ def valid_params():
 @pytest.fixture
 def invalid_params():
     return {
-        "title": TEST_BENCHMARK_NAME,
+        "benchmark_name": TEST_BENCHMARK_NAME,
         "num_qubits": 0,  # Invalid value
         "shots": 1024,
         "trials": 10,
@@ -79,8 +81,8 @@ def file_path_invalid_job(invalid_params, tmpdir):
 
 
 def test_load_and_validate_valid(file_path_valid_job, valid_params):
-    params = load_and_validate(file_path_valid_job)
-    assert params == valid_params
+    params_model = load_and_validate(file_path_valid_job)
+    assert params_model.model_dump() == valid_params
 
 
 def test_load_and_validate_invalid(file_path_invalid_job, mock_schema):
@@ -88,13 +90,13 @@ def test_load_and_validate_invalid(file_path_invalid_job, mock_schema):
         load_and_validate(file_path_invalid_job)
 
 
-def test_validate_params_valid(valid_params, mock_schema):
-    validate_params(valid_params)
+def test_validate_params_valid(valid_params):
+    validate_params(valid_params, MOCK_SCHEMA_CONTENT)
 
 
-def test_validate_params_invalid(invalid_params, mock_schema):
+def test_validate_params_invalid(invalid_params):
     with pytest.raises(ValidationError):
-        validate_params(invalid_params)
+        validate_params(invalid_params, MOCK_SCHEMA_CONTENT)
 
 
 def test_load_and_validate_invalid_job_path():

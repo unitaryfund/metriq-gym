@@ -10,6 +10,7 @@ from metriq_gym.job_type import JobType
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_SCHEMA_DIR = os.path.join(CURRENT_DIR, "schemas")
+BENCHMARK_NAME_KEY = "benchmark_name"
 
 
 def load_json_file(file_path: str) -> dict:
@@ -61,7 +62,7 @@ def load_and_validate(file_path: str, schema_dir: str = DEFAULT_SCHEMA_DIR) -> B
     Raises a ValidationError validation fails.
     """
     params = load_json_file(file_path)
-    schema = load_schema(params.get("benchmark_name"), schema_dir)
+    schema = load_schema(params.get(BENCHMARK_NAME_KEY), schema_dir)
     validate_params(params, schema)
 
     model = create_pydantic_model(schema)

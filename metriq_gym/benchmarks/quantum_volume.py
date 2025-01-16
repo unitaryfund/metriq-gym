@@ -4,6 +4,7 @@ from scipy.stats import binom
 from dataclasses import dataclass
 
 from qbraid import QuantumDevice, QuantumJob, ResultData
+from qbraid.runtime.result_data import MeasCount
 from pyqrack import QrackSimulator
 from qiskit import QuantumCircuit
 
@@ -26,15 +27,17 @@ def prepare_qv_circuits(n: int, trials: int) -> tuple[list[QuantumCircuit], list
     circuits = []
     ideal_probs = []
 
+    sim = QrackSimulator(n)
+
     for _ in range(trials):
         circuit = qiskit_random_circuit_sampling(n)
         sim_circuit = circuit.copy()
         circuit.measure_all()
         circuits.append(circuit)
-        sim = QrackSimulator(n)
+
         sim.run_qiskit_circuit(sim_circuit, shots=0)
         ideal_probs.append(sim.out_probs())
-        del sim
+        sim.reset_all()
 
     return circuits, ideal_probs
 
@@ -143,33 +146,34 @@ def calc_trial_stats(
     )
 
 
-def calc_stats(result: QuantumVolumeData, counts) -> AggregateStats:
+def calc_stats(data: QuantumVolumeData, counts: list[MeasCount]) -> AggregateStats:
     """Calculate aggregate statistics over multiple trials.
 
     Args:
-        results: A list of results from benchmarking, where each result contains trial data.
-
+        data: contains dispatch-time data (input data + ideal probability).
+        counts: contains results from the quantum device (one MeasCount per trial).
     Returns:
         A list of `AggregateStats` objects, each containing aggregated statistics for a result.
     """
     trial_stats = []
 
+    num_trials = len(counts)
     # Process each trial, handling provider-specific logic.
-    for trial in range(len(counts)):
+    for trial in range(num_trials):
         trial_stat = calc_trial_stats(
-            ideal_probs=result.ideal_probs[trial],
+            ideal_probs=data.ideal_probs[trial],
             counts=counts[trial],
-            shots=result.shots,
-            confidence_level=result.confidence_level,
+            shots=data.shots,
+            confidence_level=data.confidence_level,
         )
         trial_stats.append(trial_stat)
 
     # Aggregate the trial statistics.
-    hog_prob = sum(stat.hog_prob for stat in trial_stats) / len(trial_stats)
-    p_value = math.prod(stat.p_value for stat in trial_stats) ** (1 / len(trial_stats))
+    hog_prob = sum(stat.hog_prob for stat in trial_stats) / num_trials
+    p_value = math.prod(stat.p_value for stat in trial_stats) ** (1 / num_trials)
 
     return AggregateStats(
-        trials=len(trial_stats),
+        trials=num_trials,
         trial_p_values=[stat.p_value for stat in trial_stats],
         hog_prob=hog_prob,
         p_value=p_value,
@@ -201,10 +205,15 @@ class QuantumVolume(Benchmark):
     def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
         if not isinstance(job_data, QuantumVolumeData):
             raise TypeError("Expected job_data to be of type QuantumVolumeJobData")
+
+        counts: list[MeasCount]  # one MeasCount per trial
+
+        # AWS vs IBM
         if len(result_data) == 1:
             counts = result_data[0].get_counts()
         else:
             counts = [r.get_counts() for r in result_data]
-        stats = calc_stats(job_data, counts)
+
+        stats: AggregateStats = calc_stats(job_data, counts)
         if stats.confidence_pass:
             print(f"Quantum Volume benchmark for {job_data.qubits} qubits passed.")
