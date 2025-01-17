@@ -3,10 +3,10 @@ name = "metriq-gym"
 version = "0.1.0"
 description = ""
 authors = [
-    "UnitaryFund",
-    "Daniel Strano <dan@unitary.fund>",
-    "Vincent Russo <vincent@unitary.fund>",
-    "Alessandro Cosentino <alessandro@unitary.fund>"
+    "UnitaryFoundation",
+    "Daniel Strano <dan@unitary.foundation>",
+    "Vincent Russo <vincent@unitary.foundation>",
+    "Alessandro Cosentino <alessandro@unitary.foundation>"
 ]
 readme = "README.md"
 
@@ -28,6 +28,8 @@ qiskit-ibm-runtime = "^0.34.0"
 qiskit-ionq = "^0.5.12"
 scipy = "^1.15.1"
 tabulate = "^0.9.0"
+qbraid = {extras = ["ionq", "qir", "braket"], version = "^0.9.0"}
+qiskit-qasm3-import = "^0.5.1"
 
 [tool.poetry.group.dev.dependencies]
 mypy = "^1.14.1"
