@@ -1,88 +1,100 @@
 import argparse
+from dataclasses import asdict
+from datetime import datetime
 import sys
 import logging
-from tabulate import tabulate
-from dotenv import load_dotenv
+import uuid
 
-from metriq_gym.benchmarks.handlers import HANDLERS
-from metriq_gym.job_manager import JobManager
-from metriq_gym.cli import parse_arguments
-from metriq_gym.job_type import JobType
+from dotenv import load_dotenv
+from qbraid import JobStatus, QuantumJob, ResultData
+from qbraid.runtime import QuantumDevice, QuantumProvider
+
+from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.job_manager import JobManager, MetriqGymJob
+from metriq_gym.provider import QBRAID_PROVIDERS, ProviderType
 from metriq_gym.schema_validator import load_and_validate
+from metriq_gym.job_type import JobType
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
+
+
+def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
+    provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]["provider"]
+    device: QuantumDevice = provider().get_device(backend_name)
+    return device
+
+
+def setup_handler(args, params, job_type) -> type[Benchmark]:
+    return BENCHMARK_HANDLERS[job_type](args, params)
+
+
+def setup_job_class(provider_name: str) -> type[QuantumJob]:
+    return QBRAID_PROVIDERS[ProviderType(provider_name)]["job_class"]
+
+
+def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
+    return BENCHMARK_DATA_CLASSES[job_type]
+
+
+def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+    logger.info("Dispatching job...")
+    provider_name = args.provider
+    device_name = args.device
+    device = setup_device(provider_name, device_name)
+    params = load_and_validate(args.input_file)
+    job_type = JobType(params.benchmark_name)
+    handler: Benchmark = setup_handler(args, params, job_type)
+    job_data: BenchmarkData = handler.dispatch_handler(device)
+    job_id = job_manager.add_job(
+        MetriqGymJob(
+            id=str(uuid.uuid4()),
+            job_type=job_type,
+            params=params.model_dump(),
+            data=asdict(job_data),
+            provider_name=provider_name,
+            device_name=device_name,
+            dispatch_time=datetime.now(),
+        )
+    )
+    logger.info(f"Job dispatched with ID: {job_id}")
+
+
+def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+    logger.info("Polling job...")
+    metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
+    job_type: JobType = JobType(metriq_job.job_type)
+    job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
+    job_class = setup_job_class(metriq_job.provider_name)
+    device = setup_device(metriq_job.provider_name, metriq_job.device_name)
+    handler = setup_handler(args, None, job_type)
+    quantum_job = [job_class(job_id, device=device) for job_id in job_data.provider_job_ids]
+    if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
+        result_data: list[ResultData] = [task.result().data for task in quantum_job]
+        handler.poll_handler(job_data, result_data)
+    else:
+        logger.info("Job is not yet completed. Please try again later.")
 
 
 def main() -> int:
     """Main entry point for the CLI."""
-    logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
-
     load_dotenv()
     args = parse_arguments()
     job_manager = JobManager()
 
     if args.action == "dispatch":
-        params = load_and_validate(args.input_file)
-
-        handler = HANDLERS[JobType(params["benchmark_name"])](args, params, job_manager)
-        handler.dispatch_handler()
-
+        dispatch_job(args, job_manager)
     elif args.action == "poll":
-        job_id = args.job_id
-        job = job_manager.get_job(job_id)
-        job_type = job["job_type"]
-
-        handler = HANDLERS[JobType(job_type)](args, None, job_manager)
-        handler.poll_handler()
-
+        poll_job(args, job_manager)
     elif args.action == "list-jobs":
-        list_jobs(args, job_manager)
+        list_jobs(job_manager)
 
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")
         return 1
 
-    return 0
-
-
-def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
-    """List jobs recorded in the job manager.
-
-    Args:
-        args: Parsed arguments.
-        job_manager: Job manager instance.
-    Returns:
-        Return code.
-    """
-    # Retrieve all jobs from JobManager.
-    jobs = job_manager.get_jobs()
-
-    # Apply filters if specified.
-    if args.filter and args.value:
-        jobs = [job for job in jobs if str(job.get(args.filter, "")).lower() == args.value.lower()]
-
-    # Display jobs in a tabular format.
-    if not jobs:
-        print("No jobs found.")
-        return 0
-
-    # Prepare data for tabulation.
-    headers = ["ID", "Backend", "Type", "Provider", "Misc"]
-    table = [
-        [
-            job.get("id", ""),
-            job.get("backend", ""),
-            job.get("job_type", ""),
-            job.get("provider", ""),
-            ", ".join(
-                f"{key}: {job[key]}"
-                for key in ["qubits", "shots"]
-                if key in job and job[key] is not None
-            ),
-        ]
-        for job in jobs
-    ]
-
-    # Print the table.
-    print(tabulate(table, headers=headers, tablefmt="grid"))
     return 0
 
 
