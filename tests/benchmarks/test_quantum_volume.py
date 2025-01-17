@@ -4,7 +4,7 @@ from metriq_gym.benchmarks.quantum_volume import calc_stats, QuantumVolumeData, 
 
 @pytest.mark.parametrize("n, trials", [(2, 2), (3, 3)])
 def test_prepare_qv_circuits(n, trials):
-    circuits, ideal_probs = prepare_qv_circuits(n=n, trials=trials)
+    circuits, ideal_probs = prepare_qv_circuits(n=n, num_trials=trials)
     assert len(circuits) == trials
     assert len(ideal_probs) == trials
     assert circuits[0].size() == ((n // 2) + n + 1) * n  # (cx + u3 + measure) * depth = num_qubits
@@ -13,8 +13,8 @@ def test_prepare_qv_circuits(n, trials):
 
 def test_calc_stats_pass():
     job_data = QuantumVolumeData(
-        provider_job_id="test_job_id",
-        qubits=2,
+        provider_job_ids="test_job_id",
+        num_qubits=2,
         shots=100,
         depth=2,
         confidence_level=0.7,
@@ -34,8 +34,8 @@ def test_calc_stats_pass():
 
 def test_calc_stats_not_pass():
     job_data = QuantumVolumeData(
-        provider_job_id="test_job_id",
-        qubits=2,
+        provider_job_ids="test_job_id",
+        num_qubits=2,
         shots=100,
         depth=2,
         confidence_level=0.7,

@@ -21,7 +21,7 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-def setup_device(provider_name: str, backend_name: str) -> tuple:
+def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
     provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]["provider"]
     device: QuantumDevice = provider().get_device(backend_name)
     return device
@@ -35,9 +35,8 @@ def setup_job_class(provider_name: str) -> type[QuantumJob]:
     return QBRAID_PROVIDERS[ProviderType(provider_name)]["job_class"]
 
 
-def create_job_data(job_type: JobType, job_data: dict) -> BenchmarkData:
-    job_data_class = BENCHMARK_DATA_CLASSES[job_type]
-    return job_data_class(**job_data)
+def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
+    return BENCHMARK_DATA_CLASSES[job_type]
 
 
 def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
@@ -67,11 +66,11 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     logger.info("Polling job...")
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
-    job_data: BenchmarkData = create_job_data(job_type, metriq_job.data)
+    job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
     job_class = setup_job_class(metriq_job.provider_name)
     device = setup_device(metriq_job.provider_name, metriq_job.device_name)
     handler = setup_handler(args, None, job_type)
-    quantum_job = [job_class(job_id, device=device) for job_id in job_data.provider_job_id]
+    quantum_job = [job_class(job_id, device=device) for job_id in job_data.provider_job_ids]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
         result_data: list[ResultData] = [task.result().data for task in quantum_job]
         handler.poll_handler(job_data, result_data)
@@ -90,7 +89,7 @@ def main() -> int:
     elif args.action == "poll":
         poll_job(args, job_manager)
     elif args.action == "list-jobs":
-        list_jobs(args, job_manager)
+        list_jobs(job_manager)
 
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")

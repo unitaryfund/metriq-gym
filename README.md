@@ -49,8 +49,8 @@ visit the [IBM Quantum Platform](https://quantum.ibm.com/).
 
 Once you have invoked the `poetry shell` command as described above, you can dispatch a job by specifying the parameters of the job you wish to launch in a configuration file. The following dispatches a job on the ibm-strasbourg device for quantum volume.
 
-```
-python metriq_gym/run.py dispatch metriq_gym/schemas/examples/quantum_volume.example.json --device ibm_strasbourg --provider ibmq
+```sh
+python metriq_gym/run.py dispatch metriq_gym/schemas/examples/quantum_volume.example.json --provider ibmq --device ibm_strasbourg 
 ```
 
 Refer to the `schemas/` director for example schema files for other supported benchmarks.
@@ -58,7 +58,7 @@ Refer to the `schemas/` director for example schema files for other supported be
 
 If running on quantum cloud hardware, the job will be added to a polling queue. The status of the queue can be checked with
 
-```
+```sh
 python metriq_gym/run.py poll --job_id <METRIQ_GYM_JOB_ID>
 ```
 
@@ -75,7 +75,7 @@ python metriq_gym/run.py list-jobs
 
 ## Contributing
 
-First, follow the SETUP instructions above.
+First, follow the [Setup](#setup) instructions above.
 
 ### Updating the submodule
 To pull the latest changes from the submodule’s repository:

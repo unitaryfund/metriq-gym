@@ -37,11 +37,7 @@ def test_list_jobs_all(mock_job_manager, capsys):
         ),
     ]
 
-    # Mock arguments
-    args = MagicMock(filter=None, value=None)
-
-    # Call the function
-    list_jobs(args, mock_job_manager)
+    list_jobs(mock_job_manager)
 
     # Capture the output
     captured = capsys.readouterr()
@@ -61,11 +57,7 @@ def test_list_jobs_no_jobs(mock_job_manager, capsys):
     # Mock no jobs
     mock_job_manager.get_jobs.return_value = []
 
-    # Mock arguments
-    args = MagicMock(filter=None, value=None)
-
-    # Call the function
-    list_jobs(args, mock_job_manager)
+    list_jobs(mock_job_manager)
 
     # Capture the output
     captured = capsys.readouterr()

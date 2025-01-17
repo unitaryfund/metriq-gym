@@ -11,14 +11,11 @@ LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
-def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
+def list_jobs(job_manager: JobManager) -> None:
     """List jobs recorded in the job manager.
 
     Args:
-        args: Parsed arguments.
         job_manager: Job manager instance.
-    Returns:
-        Return code.
     """
     # Retrieve all jobs from JobManager.
     jobs: list[MetriqGymJob] = job_manager.get_jobs()
@@ -26,9 +23,8 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
     # Display jobs in a tabular format.
     if not jobs:
         print("No jobs found.")
-        return 0
+        return
 
-    # Prepare data for tabulation.
     table = [
         [
             job.id,
@@ -39,9 +35,7 @@ def list_jobs(args: argparse.Namespace, job_manager: JobManager) -> int:
         ]
         for job in jobs
     ]
-    # Print the table.
     print(tabulate(table, headers=LIST_JOBS_HEADERS, tablefmt="grid"))
-    return 0
 
 
 def parse_arguments() -> argparse.Namespace:

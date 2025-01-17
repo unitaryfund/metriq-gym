@@ -8,7 +8,7 @@ from qbraid import QuantumDevice, ResultData
 
 @dataclass
 class BenchmarkData:
-    provider_job_id: list[str]
+    provider_job_ids: list[str]
 
 
 class Benchmark:

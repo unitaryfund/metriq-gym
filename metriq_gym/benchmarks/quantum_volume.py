@@ -15,7 +15,7 @@ from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 
 @dataclass
 class QuantumVolumeData(BenchmarkData):
-    qubits: int
+    num_qubits: int
     shots: int
     depth: int
     confidence_level: float
@@ -23,13 +23,13 @@ class QuantumVolumeData(BenchmarkData):
     trials: int
 
 
-def prepare_qv_circuits(n: int, trials: int) -> tuple[list[QuantumCircuit], list[list[float]]]:
+def prepare_qv_circuits(n: int, num_trials: int) -> tuple[list[QuantumCircuit], list[list[float]]]:
     circuits = []
     ideal_probs = []
 
     sim = QrackSimulator(n)
 
-    for _ in range(trials):
+    for _ in range(num_trials):
         circuit = qiskit_random_circuit_sampling(n)
         sim_circuit = circuit.copy()
         circuit.measure_all()
@@ -187,24 +187,26 @@ class QuantumVolume(Benchmark):
         num_qubits = self.params.num_qubits
         shots = self.params.shots
         trials = self.params.trials
-        circuits, ideal_probs = prepare_qv_circuits(num_qubits, trials)
+        circuits, ideal_probs = prepare_qv_circuits(n=num_qubits, num_trials=trials)
         quantum_job: QuantumJob | list[QuantumJob] = device.run(circuits, shots=shots)
-        job_data = QuantumVolumeData(
-            provider_job_id=[quantum_job.id]
+        provider_job_ids = (
+            [quantum_job.id]
             if isinstance(quantum_job, QuantumJob)
-            else [job.id for job in quantum_job],
-            qubits=num_qubits,
+            else [job.id for job in quantum_job]
+        )
+        return QuantumVolumeData(
+            provider_job_ids=provider_job_ids,
+            num_qubits=num_qubits,
             shots=shots,
             depth=num_qubits,
             confidence_level=self.params.confidence_level,
             ideal_probs=ideal_probs,
             trials=trials,
         )
-        return job_data
 
     def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
         if not isinstance(job_data, QuantumVolumeData):
-            raise TypeError("Expected job_data to be of type QuantumVolumeJobData")
+            raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
 
         counts: list[MeasCount]  # one MeasCount per trial
 
@@ -216,4 +218,4 @@ class QuantumVolume(Benchmark):
 
         stats: AggregateStats = calc_stats(job_data, counts)
         if stats.confidence_pass:
-            print(f"Quantum Volume benchmark for {job_data.qubits} qubits passed.")
+            print(f"Quantum Volume benchmark for {job_data.num_qubits} qubits passed.")

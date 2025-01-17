@@ -1,9 +1,9 @@
-from enum import Enum
+from enum import StrEnum
 import json
 from unittest.mock import patch
 import pytest
 from jsonschema import ValidationError
-from metriq_gym.schema_validator import load_and_validate, validate_params
+from metriq_gym.schema_validator import load_and_validate
 
 TEST_BENCHMARK_NAME = "Test Benchmark"
 
@@ -21,7 +21,7 @@ MOCK_SCHEMA_CONTENT = {
 }
 
 
-class TestJobType(Enum):
+class TestJobType(StrEnum):
     TEST_BENCHMARK = TEST_BENCHMARK_NAME
 
 
@@ -88,15 +88,6 @@ def test_load_and_validate_valid(file_path_valid_job, valid_params):
 def test_load_and_validate_invalid(file_path_invalid_job, mock_schema):
     with pytest.raises(ValidationError):
         load_and_validate(file_path_invalid_job)
-
-
-def test_validate_params_valid(valid_params):
-    validate_params(valid_params, MOCK_SCHEMA_CONTENT)
-
-
-def test_validate_params_invalid(invalid_params):
-    with pytest.raises(ValidationError):
-        validate_params(invalid_params, MOCK_SCHEMA_CONTENT)
 
 
 def test_load_and_validate_invalid_job_path():
