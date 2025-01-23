@@ -2,7 +2,7 @@
 
 from dataclasses import dataclass
 import numpy as np
-from qbraid import QuantumDevice, QuantumJob
+from qbraid import QuantumDevice, QuantumJob, ResultData
 import rustworkx as rx
 
 from qiskit import QuantumCircuit
@@ -15,8 +15,6 @@ from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 @dataclass
 class CHSHData(BenchmarkData):
     shots: int
-    largest_connected_size: int
-    largest_connected_ratio: float
 
 
 class GraphColoring:
@@ -39,7 +37,7 @@ def device_coloring(device: QuantumDevice) -> GraphColoring:
         GraphColoring: Coloring object
     """
     # Get the graph of the coupling map
-    graph = device._backend.coupling_map.graph
+    graph = device.coupling_map.graph
     # Got to undirected graph for coloring
     undirected_graph = graph.to_undirected(multigraph=False)
     # Graphs are bipartite so use that feature to prevent extra colors from greedy search
@@ -145,7 +143,7 @@ class CHSH(Benchmark):
     def dispatch_handler(self, device: QuantumDevice) -> CHSHData:
         shots = self.params.shots
 
-        coloring = device_coloring(device)
+        coloring = device_coloring(device._backend)
         exp_sets = generate_chsh_circuit_sets(coloring)
 
         pm = generate_preset_pass_manager(1, device._backend)
@@ -154,8 +152,7 @@ class CHSH(Benchmark):
         quantum_jobs: list[QuantumJob] = [
             device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
         ]
-        good_graph = chsh_subgraph(quantum_jobs, coloring)
-        largest_size = largest_connected_size(good_graph)
+
         provider_job_ids = [
             job.id
             for quantum_job_set in quantum_jobs
@@ -164,41 +161,20 @@ class CHSH(Benchmark):
         return CHSHData(
             provider_job_ids=provider_job_ids,
             shots=shots,
-            largest_connected_size=largest_size,
-            largest_connected_ratio=largest_size / coloring.num_nodes,
         )
 
-    # def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
-    #     if not isinstance(job_data, QuantumVolumeData):
-    #         raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
+    def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
+        if not isinstance(job_data, CHSHData):
+            raise TypeError(f"Expected job_data to be of type {type(CHSHData)}")
 
-    #     counts: list[MeasCount]  # one MeasCount per trial
+        # counts: list[MeasCount]  # one MeasCount per trial
+        # exit()
+        # good_graph = chsh_subgraph(quantum_jobs, coloring)
+        # largest_size = largest_connected_size(good_graph)
+        # print(largest_size)
 
-    #     # AWS vs IBM
-    #     if len(result_data) == 1:
-    #         counts = result_data[0].get_counts()
-    #     else:
-    #         counts = [r.get_counts() for r in result_data]
-
-    #     stats: AggregateStats = calc_stats(job_data, counts)
-    #     if stats.confidence_pass:
-    #         print(f"Quantum Volume benchmark for {job_data.num_qubits} qubits passed.")
-
-
-# service = QiskitRuntimeService()
-# backend = service.backend("ibm_sherbrooke")
-# backend = GenericBackendV2(num_qubits=127)
-# backend = AerSimulator.from_backend(service.backend("ibm_sherbrooke"))
-# backend = FakeManilaV2()
-# coloring = backend_coloring(backend)
-# exp_sets = generate_chsh_circuit_sets(coloring)
-
-# pm = generate_preset_pass_manager(1, backend)
-# trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
-# batch = Batch(backend=backend)
-# sampler = SamplerV2(mode=batch)
-# jobs = [sampler.run(circ_set, shots=512) for circ_set in trans_exp_sets]
-# good_graph = chsh_subgraph(jobs, coloring)
-# largest_size = largest_connected_size(good_graph)
-
-# print(largest_size / coloring.num_nodes)
+        # # AWS vs IBM
+        # if len(result_data) == 1:
+        #     counts = result_data[0].get_counts()
+        # else:
+        #     counts = [r.get_counts() for r in result_data]

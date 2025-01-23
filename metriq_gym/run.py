@@ -40,11 +40,14 @@ def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
 
 
 def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
-    logger.info("Dispatching job...")
+    logger.info("Starting job dispatch...")
     provider_name = args.provider
     device_name = args.device
     device = setup_device(provider_name, device_name)
+
     params = load_and_validate(args.input_file)
+    logger.info(f"Dispatching {params.benchmark_name} benchmark job on {args.device} device...")
+
     job_type = JobType(params.benchmark_name)
     handler: Benchmark = setup_handler(args, params, job_type)
     job_data: BenchmarkData = handler.dispatch_handler(device)
