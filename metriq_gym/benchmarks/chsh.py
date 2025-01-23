@@ -1,3 +1,5 @@
+"""CHSH benchmark for the Metriq Gym (credit to Paul Nation for the original code for IBM devices)."""
+
 from dataclasses import dataclass
 import numpy as np
 import rustworkx as rx
