@@ -2,25 +2,21 @@
 
 from dataclasses import dataclass
 import numpy as np
+from qbraid import QuantumDevice, QuantumJob
 import rustworkx as rx
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
-from qiskit_ibm_runtime import Batch, SamplerV2
-from qiskit_ibm_runtime.fake_provider import FakeManilaV2
 from qiskit.result import marginal_counts, sampled_expectation_value
 
-from metriq_gym.benchmarks.benchmark import BenchmarkData
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 
 
 @dataclass
 class CHSHData(BenchmarkData):
-    num_qubits: int
     shots: int
-    depth: int
-    confidence_level: float
-    ideal_probs: list[list[float]]
-    trials: int
+    largest_connected_size: int
+    largest_connected_ratio: float
 
 
 class GraphColoring:
@@ -33,8 +29,8 @@ class GraphColoring:
         self.num_nodes = num_nodes
 
 
-def backend_coloring(backend):
-    """Graph coloring for a backend entangling gate topology.
+def device_coloring(device: QuantumDevice) -> GraphColoring:
+    """Graph coloring for a backend device entangling gate topology.
 
     Parameters:
         backend (IBMBackend): Target backend to be colored
@@ -43,7 +39,7 @@ def backend_coloring(backend):
         GraphColoring: Coloring object
     """
     # Get the graph of the coupling map
-    graph = backend.coupling_map.graph
+    graph = device._backend.coupling_map.graph
     # Got to undirected graph for coloring
     undirected_graph = graph.to_undirected(multigraph=False)
     # Graphs are bipartite so use that feature to prevent extra colors from greedy search
@@ -145,20 +141,64 @@ def largest_connected_size(good_graph):
     return len(largest_cc)
 
 
+class CHSH(Benchmark):
+    def dispatch_handler(self, device: QuantumDevice) -> CHSHData:
+        shots = self.params.shots
+
+        coloring = device_coloring(device)
+        exp_sets = generate_chsh_circuit_sets(coloring)
+
+        pm = generate_preset_pass_manager(1, device._backend)
+        trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
+
+        quantum_jobs: list[QuantumJob] = [
+            device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
+        ]
+        good_graph = chsh_subgraph(quantum_jobs, coloring)
+        largest_size = largest_connected_size(good_graph)
+        provider_job_ids = [
+            job.id
+            for quantum_job_set in quantum_jobs
+            for job in (quantum_job_set if isinstance(quantum_job_set, list) else [quantum_job_set])
+        ]
+        return CHSHData(
+            provider_job_ids=provider_job_ids,
+            shots=shots,
+            largest_connected_size=largest_size,
+            largest_connected_ratio=largest_size / coloring.num_nodes,
+        )
+
+    # def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
+    #     if not isinstance(job_data, QuantumVolumeData):
+    #         raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
+
+    #     counts: list[MeasCount]  # one MeasCount per trial
+
+    #     # AWS vs IBM
+    #     if len(result_data) == 1:
+    #         counts = result_data[0].get_counts()
+    #     else:
+    #         counts = [r.get_counts() for r in result_data]
+
+    #     stats: AggregateStats = calc_stats(job_data, counts)
+    #     if stats.confidence_pass:
+    #         print(f"Quantum Volume benchmark for {job_data.num_qubits} qubits passed.")
+
+
 # service = QiskitRuntimeService()
 # backend = service.backend("ibm_sherbrooke")
 # backend = GenericBackendV2(num_qubits=127)
 # backend = AerSimulator.from_backend(service.backend("ibm_sherbrooke"))
-backend = FakeManilaV2()
-coloring = backend_coloring(backend)
-exp_sets = generate_chsh_circuit_sets(coloring)
+# backend = FakeManilaV2()
+# coloring = backend_coloring(backend)
+# exp_sets = generate_chsh_circuit_sets(coloring)
 
-pm = generate_preset_pass_manager(1, backend)
-trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
-batch = Batch(backend=backend)
-sampler = SamplerV2(mode=batch)
-jobs = [sampler.run(circ_set, shots=512) for circ_set in trans_exp_sets]
-good_graph = chsh_subgraph(jobs, coloring)
-largest_size = largest_connected_size(good_graph)
+# pm = generate_preset_pass_manager(1, backend)
+# trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
+# batch = Batch(backend=backend)
+# sampler = SamplerV2(mode=batch)
+# jobs = [sampler.run(circ_set, shots=512) for circ_set in trans_exp_sets]
+# good_graph = chsh_subgraph(jobs, coloring)
+# largest_size = largest_connected_size(good_graph)
 
-print(largest_size / coloring.num_nodes)
+# print(largest_size / coloring.num_nodes)

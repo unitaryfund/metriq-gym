@@ -1,0 +1,19 @@
+{
+  "$id": "metriq-gym/chsh.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",  
+  "title": "CHSH",
+  "type": "object",
+  "properties": {
+    "benchmark_name": {
+      "type": "string",
+      "const": "CHSH"
+    },
+    "shots": {
+      "type": "integer",
+      "default": 1000,
+      "minimum": 1,
+      "examples": [1000]
+    }
+  },
+  "required": ["benchmark_name"]
+}
