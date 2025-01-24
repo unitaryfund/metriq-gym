@@ -2819,13 +2819,13 @@ files = [
 
 [[package]]
 name = "qbraid"
-version = "0.9.1"
+version = "0.9.2"
 description = "Platform-agnostic quantum runtime framework."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "qbraid-0.9.1-py3-none-any.whl", hash = "sha256:bf840bd357f806507370ea326fd83431fdfcca46bdc2730b89d3c1732c2f7158"},
-    {file = "qbraid-0.9.1.tar.gz", hash = "sha256:fa7a2575b44a66f2a2dfb05ca988da463f5b401251db619ce7429fc7f94922f7"},
+    {file = "qbraid-0.9.2-py3-none-any.whl", hash = "sha256:a382a703d5e4762db1908341daff423bfc92950b93d6cb6805f21adca00fc25c"},
+    {file = "qbraid-0.9.2.tar.gz", hash = "sha256:345cbae679d87a8aae2f4870cdb7350a2c0f6ca1b9d6b0bad6843160bc116b99"},
 ]
 
 [package.dependencies]
@@ -4125,4 +4125,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "7ed97dd2d81f73231fcea5b62de05bff0ec4b7a3150ed6cc3fbc3109a186f63b"
+content-hash = "56cad489f9cb331bca44bfb87e266419a4c8ddabc0f3cbe7cb3dc405d5c7bd3c"
