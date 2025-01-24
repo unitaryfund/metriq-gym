@@ -1,6 +1,6 @@
 {
   "benchmark_name": "Quantum Volume",
-  "num_qubits": 2,
+  "num_qubits": 4,
   "shots": 2,
   "trials": 2,
   "confidence_level": 0.95
