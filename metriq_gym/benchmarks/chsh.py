@@ -1,8 +1,18 @@
-"""CHSH benchmark for the Metriq Gym (credit to Paul Nation for the original code for IBM devices)."""
+"""CHSH benchmark for the Metriq Gym (credit to Paul Nation for the original code for IBM devices).
+
+The CHSH benchmark evaluates a quantum device's ability to produce entangled states and measure correlations that
+violate the CHSH inequality. The violation of this inequality indicates successful entanglement between qubits.
+"""
 
 from dataclasses import dataclass
+import networkx as nx
 import numpy as np
 from qbraid import QuantumDevice, QuantumJob, ResultData
+from qbraid.runtime import (
+    QiskitBackend,
+    BraketDevice,
+    IonQDevice,
+)
 import rustworkx as rx
 
 from qiskit import QuantumCircuit
@@ -28,23 +38,36 @@ class GraphColoring:
 
 
 def device_coloring(device: QuantumDevice) -> GraphColoring:
-    """Graph coloring for a backend device entangling gate topology.
+    """Graph coloring for a device's topology.
 
     Parameters:
-        backend (IBMBackend): Target backend to be colored
+        device: The qBraid device.
 
     Returns:
         GraphColoring: Coloring object
     """
-    # Get the graph of the coupling map
-    graph = device.coupling_map.graph
-    # Got to undirected graph for coloring
-    undirected_graph = graph.to_undirected(multigraph=False)
-    # Graphs are bipartite so use that feature to prevent extra colors from greedy search
-    edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
+    if isinstance(device, IonQDevice):
+        # Complete graph for IonQ devices
+        topology_graph = nx.complete_graph(device.num_qubits)
+        edge_color_map = {i: 0 for i in range(topology_graph.number_of_edges())}
+        topology_graph = rx.networkx_converter(topology_graph)
+    elif isinstance(device, QiskitBackend):
+        # Get the graph of the coupling map
+        topology_graph = device._backend.coupling_map.graph
+        # Got to undirected graph for coloring
+        undirected_graph = topology_graph.to_undirected(multigraph=False)
+        # Graphs are bipartite so use that feature to prevent extra colors from greedy search
+        edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
+        topology_graph = undirected_graph
+    elif isinstance(device, BraketDevice):
+        topology_graph = nx.Graph(device._device.topology_graph)
+        pass
+    else:
+        raise ValueError("Unsupported device type.")
+
     # Get the index of the edges
-    edge_index_map = undirected_graph.edge_index_map()
-    return GraphColoring(graph.num_nodes(), edge_color_map, edge_index_map)
+    edge_index_map = topology_graph.edge_index_map()
+    return GraphColoring(device.num_qubits, edge_color_map, edge_index_map)
 
 
 def generate_chsh_circuit_sets(coloring):
@@ -142,8 +165,8 @@ def largest_connected_size(good_graph):
 class CHSH(Benchmark):
     def dispatch_handler(self, device: QuantumDevice) -> CHSHData:
         shots = self.params.shots
+        coloring = device_coloring(device)
 
-        coloring = device_coloring(device._backend)
         exp_sets = generate_chsh_circuit_sets(coloring)
 
         pm = generate_preset_pass_manager(1, device._backend)
