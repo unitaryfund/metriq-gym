@@ -56,15 +56,6 @@ def parse_arguments() -> argparse.Namespace:
         help="Path to the file containing the benchmark parameters",
     )
     dispatch_parser.add_argument(
-        "-n", "--num_qubits", type=int, default=8, help="Number of qubits (default is 8)"
-    )
-    dispatch_parser.add_argument(
-        "-s", "--shots", type=int, default=8, help="Number of shots per trial (default is 8)"
-    )
-    dispatch_parser.add_argument(
-        "-t", "--trials", type=int, default=8, help="Number of trials (default is 8)"
-    )
-    dispatch_parser.add_argument(
         "-p",
         "--provider",
         type=str,
