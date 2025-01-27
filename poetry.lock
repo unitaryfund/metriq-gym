@@ -55,13 +55,13 @@ test = ["jsonschema", "numpy", "pre-commit", "pytest", "pytest-cov", "pytest-rer
 
 [[package]]
 name = "amazon-braket-sdk"
-version = "1.88.3"
+version = "1.88.1"
 description = "An open source library for interacting with quantum computing devices on Amazon Braket"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "amazon_braket_sdk-1.88.3-py3-none-any.whl", hash = "sha256:8cad90c1bbadd645493df75eed9af1603b966c8825c0c1c7e3084f755b4d64d8"},
-    {file = "amazon_braket_sdk-1.88.3.tar.gz", hash = "sha256:1b6fa1185d4e2d24102f030257fd91a9d1bef3d379fba43b2ac373bbe2293787"},
+    {file = "amazon_braket_sdk-1.88.1-py3-none-any.whl", hash = "sha256:a27587630dcf981574569cb1dfddc9d903f08b56a513ca03176df545bb122978"},
+    {file = "amazon_braket_sdk-1.88.1.tar.gz", hash = "sha256:9986e0cf5822359ba47df953159e7f9dd2d14391c52b6c511f782f574baefe6a"},
 ]
 
 [package.dependencies]
@@ -71,7 +71,7 @@ backoff = "*"
 "backports.entry-points-selectable" = "*"
 boltons = "*"
 boto3 = ">=1.28.53"
-cloudpickle = "2.2.1"
+cloudpickle = ">=3"
 nest-asyncio = "*"
 networkx = "*"
 numpy = "*"
@@ -910,13 +910,13 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "cloudpickle"
-version = "2.2.1"
-description = "Extended pickling support for Python objects"
+version = "3.1.1"
+description = "Pickler class to extend the standard pickle.Pickler functionality"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "cloudpickle-2.2.1-py3-none-any.whl", hash = "sha256:61f594d1f4c295fa5cd9014ceb3a1fc4a70b0de1164b94fbc2d854ccba056f9f"},
-    {file = "cloudpickle-2.2.1.tar.gz", hash = "sha256:d89684b8de9e34a2a43b3460fbca07d09d6e25ce858df4d5a44240403b6178f5"},
+    {file = "cloudpickle-3.1.1-py3-none-any.whl", hash = "sha256:c8c5a44295039331ee9dad40ba100a9c7297b6f988e50e87ccdf3765a668350e"},
+    {file = "cloudpickle-3.1.1.tar.gz", hash = "sha256:b216fa8ae4019d5482a8ac3c95d8f6346115d8835911fd4aefd1a445e4242c64"},
 ]
 
 [[package]]
@@ -3378,8 +3378,10 @@ files = [
     {file = "rustworkx-0.16.0-cp39-abi3-macosx_10_12_x86_64.whl", hash = "sha256:476a6c67b0142acd941691943750cc6737a48372304489969c2b62d30aaf4c27"},
     {file = "rustworkx-0.16.0-cp39-abi3-macosx_11_0_arm64.whl", hash = "sha256:bef2ef42870f806af93979b457e240f6dfa4f867ca33965c620f3a804409ed3a"},
     {file = "rustworkx-0.16.0-cp39-abi3-manylinux_2_12_i686.manylinux2010_i686.manylinux_2_17_i686.manylinux2014_i686.whl", hash = "sha256:0db3a73bf68b3e66c08322a2fc95d3aa663d037d9b4e49c3509da4898d3529cc"},
+    {file = "rustworkx-0.16.0-cp39-abi3-manylinux_2_17_aarch64.manylinux2014_aarch64.whl", hash = "sha256:4f12a13d7486234fa2a84746d5e41f436bf9df43548043e7a232f48804ff8c61"},
     {file = "rustworkx-0.16.0-cp39-abi3-manylinux_2_17_s390x.manylinux2014_s390x.whl", hash = "sha256:89efd5c3a4653ddacc55ca39f28b261d43deec7d678f8f8fc6b76b5087f1dfea"},
     {file = "rustworkx-0.16.0-cp39-abi3-manylinux_2_17_x86_64.manylinux2014_x86_64.whl", hash = "sha256:ec0c12aac8c54910ace20ac6ada4b890cd39f95f69100514715f8ad7af9041e4"},
+    {file = "rustworkx-0.16.0-cp39-abi3-musllinux_1_2_aarch64.whl", hash = "sha256:d650e39fc1a1534335f7517358ebfc3478bb235428463cfcd7c5750d50377b33"},
     {file = "rustworkx-0.16.0-cp39-abi3-musllinux_1_2_x86_64.whl", hash = "sha256:293180b83509ee9bff4c3af7ccc1024f6528d61b65d0cb7320bd31924f10cb71"},
     {file = "rustworkx-0.16.0-cp39-abi3-win32.whl", hash = "sha256:040c4368729cf502f756a3b0ff5f1c6915fc389f74dcc6afc6c3833688c97c01"},
     {file = "rustworkx-0.16.0-cp39-abi3-win_amd64.whl", hash = "sha256:905df608843c32fa45ac023687769fe13056edf7584474c801d5c50705d76e9b"},
