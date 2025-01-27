@@ -8,7 +8,6 @@ from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.provider import ProviderType
 
 LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 
 def list_jobs(job_manager: JobManager) -> None:
@@ -25,17 +24,9 @@ def list_jobs(job_manager: JobManager) -> None:
         print("No jobs found.")
         return
 
-    table = [
-        [
-            job.id,
-            job.provider_name,
-            job.device_name,
-            job.job_type,
-            job.dispatch_time.strftime(TIMESTAMP_FORMAT),
-        ]
-        for job in jobs
-    ]
-    print(tabulate(table, headers=LIST_JOBS_HEADERS, tablefmt="grid"))
+    print(
+        tabulate([job.to_table_row() for job in jobs], headers=LIST_JOBS_HEADERS, tablefmt="grid")
+    )
 
 
 def parse_arguments() -> argparse.Namespace:
