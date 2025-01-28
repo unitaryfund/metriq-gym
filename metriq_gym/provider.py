@@ -1,11 +1,11 @@
-from qbraid import QbraidJob, QbraidProvider
+from qbraid import (
+    QbraidProvider,
+    QuantumProvider,
+)
 from qbraid.runtime import (
     QiskitRuntimeProvider,
     IonQProvider,
     BraketProvider,
-    QiskitJob,
-    IonQJob,
-    BraketQuantumTask,
 )
 from enum import StrEnum
 
@@ -21,21 +21,9 @@ class ProviderType(StrEnum):
         return [provider.value for provider in cls]
 
 
-QBRAID_PROVIDERS = {
-    ProviderType.AWS: {
-        "provider": BraketProvider,
-        "job_class": BraketQuantumTask,
-    },
-    ProviderType.IBMQ: {
-        "provider": QiskitRuntimeProvider,
-        "job_class": QiskitJob,
-    },
-    ProviderType.IONQ: {
-        "provider": IonQProvider,
-        "job_class": IonQJob,
-    },
-    ProviderType.QBRAID: {
-        "provider": QbraidProvider,
-        "job_class": QbraidJob,
-    },
+QBRAID_PROVIDERS: dict[ProviderType, QuantumProvider] = {
+    ProviderType.AWS: BraketProvider,
+    ProviderType.IBMQ: QiskitRuntimeProvider,
+    ProviderType.IONQ: IonQProvider,
+    ProviderType.QBRAID: QbraidProvider,
 }

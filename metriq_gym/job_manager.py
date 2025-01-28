@@ -1,9 +1,8 @@
-from dataclasses import asdict
+from dataclasses import asdict, dataclass
 from datetime import datetime
 import json
 import os
 from typing import Any
-from pydantic.dataclasses import dataclass
 from metriq_gym.job_type import JobType
 
 
@@ -16,6 +15,26 @@ class MetriqGymJob:
     provider_name: str
     device_name: str
     dispatch_time: datetime
+
+    def to_table_row(self) -> list[str]:
+        return [
+            self.id,
+            self.provider_name,
+            self.device_name,
+            self.job_type,
+            self.dispatch_time.isoformat(),
+        ]
+
+    def serialize(self) -> str:
+        return json.dumps(asdict(self), sort_keys=True, default=str)
+
+    @staticmethod
+    def deserialize(data: str) -> "MetriqGymJob":
+        job_dict = json.loads(data)
+        job = MetriqGymJob(**job_dict)
+        job.job_type = JobType(job_dict["job_type"])
+        job.dispatch_time = datetime.fromisoformat(job_dict["dispatch_time"])
+        return job
 
 
 # TODO: https://github.com/unitaryfund/metriq-gym/issues/51
@@ -32,7 +51,7 @@ class JobManager:
             with open(self.jobs_file) as file:
                 for line in file:
                     try:
-                        job = MetriqGymJob(**json.loads(line.strip()))
+                        job = MetriqGymJob.deserialize(line.strip())
                         self.jobs.append(job)
                     except json.JSONDecodeError:
                         continue
@@ -40,7 +59,7 @@ class JobManager:
     def add_job(self, job: MetriqGymJob) -> str:
         self.jobs.append(job)
         with open(self.jobs_file, "a") as file:
-            file.write(json.dumps(asdict(job), sort_keys=True, default=str) + "\n")
+            file.write(job.serialize() + "\n")
         return job.id
 
     def get_jobs(self) -> list[MetriqGymJob]:
