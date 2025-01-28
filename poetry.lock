@@ -215,17 +215,17 @@ files = [
 
 [[package]]
 name = "boto3"
-version = "1.36.6"
+version = "1.36.7"
 description = "The AWS SDK for Python"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3-1.36.6-py3-none-any.whl", hash = "sha256:6d473f0f340d02b4e9ad5b8e68786a09728101a8b950231b89ebdaf72b6dca21"},
-    {file = "boto3-1.36.6.tar.gz", hash = "sha256:b36feae061dc0793cf311468956a0a9e99215ce38bc99a1a4e55a5b105f16297"},
+    {file = "boto3-1.36.7-py3-none-any.whl", hash = "sha256:ab501f75557863e2d2c9fa731e4fe25c45f35e0d92ea0ee11a4eaa63929d3ede"},
+    {file = "boto3-1.36.7.tar.gz", hash = "sha256:ae98634efa7b47ced1b0d7342e2940b32639eee913f33ab406590b8ed55ee94b"},
 ]
 
 [package.dependencies]
-botocore = ">=1.36.6,<1.37.0"
+botocore = ">=1.36.7,<1.37.0"
 jmespath = ">=0.7.1,<2.0.0"
 s3transfer = ">=0.11.0,<0.12.0"
 
@@ -234,13 +234,13 @@ crt = ["botocore[crt] (>=1.21.0,<2.0a0)"]
 
 [[package]]
 name = "boto3-stubs"
-version = "1.36.6"
-description = "Type annotations for boto3 1.36.6 generated with mypy-boto3-builder 8.8.0"
+version = "1.36.7"
+description = "Type annotations for boto3 1.36.7 generated with mypy-boto3-builder 8.8.0"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "boto3_stubs-1.36.6-py3-none-any.whl", hash = "sha256:fa601aa025e328848b6159d1e8c8cb374e4a8421f2514d962d5f468d26e92b37"},
-    {file = "boto3_stubs-1.36.6.tar.gz", hash = "sha256:f5ec1a5a6ecb92912903631163482f6ce84f092d5bc36ec08f770700befccc7b"},
+    {file = "boto3_stubs-1.36.7-py3-none-any.whl", hash = "sha256:d5d3f1f537c4d317f1f11b1cb4ce8f427822204936e29419b43c709ec54758ea"},
+    {file = "boto3_stubs-1.36.7.tar.gz", hash = "sha256:197bdbacd3a9085c6310a06f21616f30f6103ed8be67705962620ac4587ba1fb"},
 ]
 
 [package.dependencies]
@@ -295,7 +295,7 @@ bedrock-data-automation-runtime = ["mypy-boto3-bedrock-data-automation-runtime (
 bedrock-runtime = ["mypy-boto3-bedrock-runtime (>=1.36.0,<1.37.0)"]
 billing = ["mypy-boto3-billing (>=1.36.0,<1.37.0)"]
 billingconductor = ["mypy-boto3-billingconductor (>=1.36.0,<1.37.0)"]
-boto3 = ["boto3 (==1.36.6)"]
+boto3 = ["boto3 (==1.36.7)"]
 braket = ["mypy-boto3-braket (>=1.36.0,<1.37.0)"]
 budgets = ["mypy-boto3-budgets (>=1.36.0,<1.37.0)"]
 ce = ["mypy-boto3-ce (>=1.36.0,<1.37.0)"]
@@ -658,13 +658,13 @@ xray = ["mypy-boto3-xray (>=1.36.0,<1.37.0)"]
 
 [[package]]
 name = "botocore"
-version = "1.36.6"
+version = "1.36.7"
 description = "Low-level, data-driven core of boto 3."
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore-1.36.6-py3-none-any.whl", hash = "sha256:f77bbbb03fb420e260174650fb5c0cc142ec20a96967734eed2b0ef24334ef34"},
-    {file = "botocore-1.36.6.tar.gz", hash = "sha256:4864c53d638da191a34daf3ede3ff1371a3719d952cc0c6bd24ce2836a38dd77"},
+    {file = "botocore-1.36.7-py3-none-any.whl", hash = "sha256:a6c6772d777af2957ac9975207fac1ccc4ce101408b85e9b5e3c5ba0bb949102"},
+    {file = "botocore-1.36.7.tar.gz", hash = "sha256:9abc64bde5e7d8f814ea91d6fc0a8142511fc96427c19fe9209677c20a0c9e6e"},
 ]
 
 [package.dependencies]
@@ -677,13 +677,13 @@ crt = ["awscrt (==0.23.4)"]
 
 [[package]]
 name = "botocore-stubs"
-version = "1.36.6"
+version = "1.36.7"
 description = "Type annotations and code completion for botocore"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "botocore_stubs-1.36.6-py3-none-any.whl", hash = "sha256:e4b35ed9557e15d6ba0cb110bffe89f5ed6a8a202e7cf4c9a67667e7e4a7790c"},
-    {file = "botocore_stubs-1.36.6.tar.gz", hash = "sha256:f47c30036a5e3c842ef7347aeb2067a952959a7b9c32c7dc0ed27040a231350d"},
+    {file = "botocore_stubs-1.36.7-py3-none-any.whl", hash = "sha256:77052e3a86a3f77383c638db63379652bafac3a2b310954392e0cfb3dacd3dad"},
+    {file = "botocore_stubs-1.36.7.tar.gz", hash = "sha256:51c51da5379d3e4c4cb7e3dbe8451f572ecbfe6a5ced3a76a6b958941ef72409"},
 ]
 
 [package.dependencies]
@@ -2663,12 +2663,12 @@ zx = ["autoray (>=0.6.12)", "numba (>=0.60.0)", "quimb (>=1.8.2)"]
 
 [[package]]
 name = "pytket-braket"
-version = "0.38.0"
+version = "0.39.0"
 description = "Extension for pytket, providing access to Amazon Braket backends"
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "pytket_braket-0.38.0-py3-none-any.whl", hash = "sha256:526f2b5d6ad350c4f7b847e52c636cdd02f47c4b99e8f1579e4da8f735185e50"},
+    {file = "pytket_braket-0.39.0-py3-none-any.whl", hash = "sha256:b3e83de198a3bf399b297e0c977bd2230072f3dd7d3e8e5e0c83a3193ebc68da"},
 ]
 
 [package.dependencies]
@@ -2676,7 +2676,7 @@ amazon-braket-default-simulator = ">=1.20,<2.0"
 amazon-braket-schemas = ">=1.22,<2.0"
 amazon-braket-sdk = ">=1.53,<2.0"
 boto3-stubs = "*"
-pytket = ">=1.33.0"
+pytket = ">=1.39.0"
 
 [[package]]
 name = "pytket-qir"
@@ -2809,13 +2809,13 @@ files = [
 
 [[package]]
 name = "qbraid"
-version = "0.9.2"
+version = "0.9.3"
 description = "Platform-agnostic quantum runtime framework."
 optional = false
 python-versions = ">=3.10"
 files = [
-    {file = "qbraid-0.9.2-py3-none-any.whl", hash = "sha256:a382a703d5e4762db1908341daff423bfc92950b93d6cb6805f21adca00fc25c"},
-    {file = "qbraid-0.9.2.tar.gz", hash = "sha256:345cbae679d87a8aae2f4870cdb7350a2c0f6ca1b9d6b0bad6843160bc116b99"},
+    {file = "qbraid-0.9.3-py3-none-any.whl", hash = "sha256:0b81c333963c63a2421ff3babf7a0c1af64a019ec8792c591e68f0efe1c339af"},
+    {file = "qbraid-0.9.3.tar.gz", hash = "sha256:bcf9249bfc1aca348846c95f3cf8800b471b1e1058a395e937e69186256ebf1e"},
 ]
 
 [package.dependencies]
@@ -2824,30 +2824,32 @@ numpy = ">=1.17"
 openqasm3 = {version = ">=0.4.0", extras = ["parser"]}
 pydantic = ">2.0.0"
 pyqasm = ">=0.1.0"
-pytket-braket = {version = ">=0.30,<0.39", optional = true, markers = "extra == \"braket\""}
+pytket-braket = {version = ">=0.30,<0.40", optional = true, markers = "extra == \"braket\""}
 qbraid-core = [
     {version = ">=0.1.25"},
     {version = ">=0.1.29", extras = ["runner"], optional = true, markers = "extra == \"qir\""},
 ]
 qbraid-qir = {version = ">=0.2.0,<=0.3.0", optional = true, markers = "extra == \"qir\""}
+qiskit-ionq = {version = ">=0.5.12", optional = true, markers = "extra == \"ionq\""}
+qiskit-qir = {version = ">=0.5.0", optional = true, markers = "extra == \"qir\""}
 rustworkx = ">=0.15.0"
 typing-extensions = ">=4.0.0"
 
 [package.extras]
 azure = ["azure-identity (>=1.17,<2.0)", "azure-quantum (>=2.0,<2.3)", "azure-storage-blob (>=12.20,<13.0)"]
 bloqade = ["bloqade (>=0.15.13)"]
-braket = ["amazon-braket-sdk (>=1.83.0,<1.89.0)", "pytket-braket (>=0.30,<0.39)"]
+braket = ["amazon-braket-sdk (>=1.83.0,<1.89.0)", "pytket-braket (>=0.30,<0.40)"]
 cirq = ["attrs (>=21.3.0)", "cirq-core (>=1.3,<1.5)", "cirq-ionq (>=1.3,<1.5)", "ply (>=3.6)"]
 docs = ["docutils (<0.22)", "sphinx (>=7.2,<8.2)", "sphinx-autodoc-typehints (>=1.24,<3.1)", "sphinx-copybutton", "sphinx-rtd-theme (>=1.3,<3.1)"]
-ionq = ["pyqasm (>=0.1.0)"]
+ionq = ["qiskit-ionq (>=0.5.12)"]
 lint = ["black", "isort", "pylint", "qbraid-cli (>=0.8.7)"]
 oqc = ["oqc-qcaas-client (>=3.11.0)"]
 pennylane = ["pennylane (<0.41)"]
 pyqubo = ["pyqubo (>=1.4.0)"]
 pyquil = ["pyquil (>=4.4)"]
 pytket = ["pytket (>=1.31)"]
-qir = ["qbraid-core[runner] (>=0.1.29)", "qbraid-qir (>=0.2.0,<=0.3.0)"]
-qiskit = ["packaging (>=20.0)", "qiskit (>=1.0,<1.4)", "qiskit-ibm-runtime (>=0.25.0,<0.35)", "qiskit-qasm3-import (>=0.5.1)", "qiskit-qir (>=0.5.0)"]
+qir = ["qbraid-core[runner] (>=0.1.29)", "qbraid-qir (>=0.2.0,<=0.3.0)", "qiskit-qir (>=0.5.0)"]
+qiskit = ["packaging (>=20.0)", "qiskit (>=1.0,<1.4)", "qiskit-ibm-runtime (>=0.25.0,<0.35)", "qiskit-qasm3-import (>=0.5.1)"]
 quera = ["flair-visual[vis] (>=0.5.3)"]
 test = ["packaging", "pytest", "pytest-cov", "sympy"]
 visualization = ["ipympl", "ipython", "matplotlib", "pylatexenc"]
@@ -3126,6 +3128,24 @@ files = [
 [package.dependencies]
 openqasm3 = {version = ">=0.4,<2.0", extras = ["parser"]}
 qiskit = ">=0.37.0"
+
+[[package]]
+name = "qiskit-qir"
+version = "0.5.0"
+description = "Qiskit to QIR translator"
+optional = false
+python-versions = ">=3.8"
+files = [
+    {file = "qiskit-qir-0.5.0.tar.gz", hash = "sha256:5635837234974fdf6f1f6863231493f1fcdd571dc5283b480fe45ef69c9c86fd"},
+    {file = "qiskit_qir-0.5.0-py2.py3-none-any.whl", hash = "sha256:646c924919d24562d4640973f0284d32e9e2e8c63b6352b12e98f1bce89b1e8e"},
+]
+
+[package.dependencies]
+pyqir = ">=0.10.0,<0.11.0"
+qiskit = ">=1.0.0,<2.0"
+
+[package.extras]
+test = ["pytest"]
 
 [[package]]
 name = "qwasm"
@@ -3867,13 +3887,13 @@ typing-extensions = ">=3.7.4.3"
 
 [[package]]
 name = "types-awscrt"
-version = "0.23.7"
+version = "0.23.8"
 description = "Type annotations and code completion for awscrt"
 optional = false
 python-versions = ">=3.8"
 files = [
-    {file = "types_awscrt-0.23.7-py3-none-any.whl", hash = "sha256:e428514a835a2efebd1b6d8a66473b67422cc52e0770a39bee0a4d72048d878b"},
-    {file = "types_awscrt-0.23.7.tar.gz", hash = "sha256:676284ba043cd5e3fb3911e4978c0e8c32871561646131c272121e33ddd92873"},
+    {file = "types_awscrt-0.23.8-py3-none-any.whl", hash = "sha256:d66b3817565769f5311b7e171a3c48d3dbf8a8f9c22f02686c2f003b6559a2a5"},
+    {file = "types_awscrt-0.23.8.tar.gz", hash = "sha256:2141391a8f4d36cf098406c19d9060b34f13a558c22d4aadac250a0c57d12710"},
 ]
 
 [[package]]
@@ -4121,4 +4141,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "8efd0037a75fe10f8d1eaa36e36be321cefb5d91fa60e9ad8804e52ddb21313d"
+content-hash = "3ba9fb541ea5ef74f75efcf8a431ad9f0d5d85e53ced349bb12ae61ef2b84024"
