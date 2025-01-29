@@ -21,6 +21,5 @@ updates:
       interval: "weekly"
     open-pull-requests-limit: 10
     allow:
-      # Allow both direct and indirect updates for all packages
-      - dependency-type: "all"
+      - dependency-type: "direct"
 
