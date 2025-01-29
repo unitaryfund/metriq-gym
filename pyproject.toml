@@ -42,7 +42,7 @@ deptry = "^0.23.0"
 [tool.mypy]
 files = ["metriq_gym"]
 ignore_missing_imports = true
-follow_imports = "skip"  # This breaks numpy > 2.0: https://github.com/numpy/numpy/issues/26720
+follow_imports = "skip"
 disable_error_code = ["misc"]
 
 [tool.ruff]
@@ -55,3 +55,6 @@ exclude = ["submodules"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+mypy-stubgen = "sh -c 'stubgen --no-analysis && poetry run mypy'"
