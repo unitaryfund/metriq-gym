@@ -55,6 +55,3 @@ exclude = ["submodules"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-mypy-stubgen = "bash -c 'stubgen --no-analysis && mypy'"
