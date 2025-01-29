@@ -6,8 +6,8 @@ import logging
 import uuid
 
 from dotenv import load_dotenv
-from qbraid import JobStatus, QuantumJob, ResultData
-from qbraid.runtime import QuantumDevice, QuantumProvider
+from qbraid import JobStatus, ResultData
+from qbraid.runtime import QuantumDevice, QuantumProvider, load_job
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
@@ -22,17 +22,12 @@ logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
-    provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]["provider"]
-    device: QuantumDevice = provider().get_device(backend_name)
-    return device
+    provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]
+    return provider().get_device(backend_name)
 
 
-def setup_handler(args, params, job_type) -> type[Benchmark]:
+def setup_benchmark(args, params, job_type: JobType) -> Benchmark:
     return BENCHMARK_HANDLERS[job_type](args, params)
-
-
-def setup_job_class(provider_name: str) -> type[QuantumJob]:
-    return QBRAID_PROVIDERS[ProviderType(provider_name)]["job_class"]
 
 
 def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
@@ -49,7 +44,7 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     logger.info(f"Dispatching {params.benchmark_name} benchmark job on {args.device} device...")
 
     job_type = JobType(params.benchmark_name)
-    handler: Benchmark = setup_handler(args, params, job_type)
+    handler: Benchmark = setup_benchmark(args, params, job_type)
     job_data: BenchmarkData = handler.dispatch_handler(device)
     job_id = job_manager.add_job(
         MetriqGymJob(
@@ -70,10 +65,11 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
     job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
-    job_class = setup_job_class(metriq_job.provider_name)
-    device = setup_device(metriq_job.provider_name, metriq_job.device_name)
-    handler = setup_handler(args, None, job_type)
-    quantum_job = [job_class(job_id, device=device) for job_id in job_data.provider_job_ids]
+    handler = setup_benchmark(args, None, job_type)
+    quantum_job = [
+        load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
+        for job_id in job_data.provider_job_ids
+    ]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
         result_data: list[ResultData] = [task.result().data for task in quantum_job]
         handler.poll_handler(job_data, result_data)

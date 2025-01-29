@@ -52,7 +52,9 @@ def load_and_validate(file_path: str, schema_dir: str = DEFAULT_SCHEMA_DIR) -> B
     Raises a ValidationError if validation fails.
     """
     params = load_json_file(file_path)
-    schema = load_schema(params.get(BENCHMARK_NAME_KEY), schema_dir)
+    if params.get(BENCHMARK_NAME_KEY) is None:
+        raise ValueError(f"Missing {BENCHMARK_NAME_KEY} key in input file.")
+    schema = load_schema(params[BENCHMARK_NAME_KEY], schema_dir)
     validate(params, schema)
 
     model = create_pydantic_model(schema)

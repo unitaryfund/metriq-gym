@@ -1,7 +1,7 @@
 from datetime import datetime
 import pytest
 from unittest.mock import MagicMock
-from metriq_gym.cli import LIST_JOBS_HEADERS, TIMESTAMP_FORMAT
+from metriq_gym.cli import LIST_JOBS_HEADERS
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.run import list_jobs
 from tabulate import tabulate
@@ -22,7 +22,7 @@ def test_list_jobs_all(mock_job_manager, capsys):
             device_name="ibmq_qasm_simulator",
             provider_name="ibmq",
             job_type="Quantum Volume",
-            dispatch_time=datetime.strptime("2021-09-01 12:00:00", TIMESTAMP_FORMAT),
+            dispatch_time=datetime.fromisoformat("2021-09-01T12:00:00"),
             params={},
             data={},
         ),
@@ -31,7 +31,7 @@ def test_list_jobs_all(mock_job_manager, capsys):
             device_name="ionq_simulator",
             provider_name="ionq",
             job_type="Quantum Volume",
-            dispatch_time=datetime.strptime("2021-09-02 12:00:00", TIMESTAMP_FORMAT),
+            dispatch_time=datetime.fromisoformat("2021-09-02T12:00:00"),
             params={},
             data={},
         ),
@@ -44,8 +44,8 @@ def test_list_jobs_all(mock_job_manager, capsys):
 
     # Expected output using tabulate
     table = [
-        ["1234", "ibmq", "ibmq_qasm_simulator", "Quantum Volume", "2021-09-01 12:00:00"],
-        ["5678", "ionq", "ionq_simulator", "Quantum Volume", "2021-09-02 12:00:00"],
+        ["1234", "ibmq", "ibmq_qasm_simulator", "Quantum Volume", "2021-09-01T12:00:00"],
+        ["5678", "ionq", "ionq_simulator", "Quantum Volume", "2021-09-02T12:00:00"],
     ]
     expected_output = tabulate(table, headers=LIST_JOBS_HEADERS, tablefmt="grid") + "\n"
 

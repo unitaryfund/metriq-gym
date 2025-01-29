@@ -7,7 +7,8 @@ violate the CHSH inequality. The violation of this inequality indicates successf
 from dataclasses import dataclass
 import networkx as nx
 import numpy as np
-from qbraid import QuantumDevice, QuantumJob, ResultData
+from qbraid import QuantumDevice, ResultData
+from qbraid.runtime.result_data import MeasCount
 from qbraid.runtime import (
     QiskitBackend,
     BraketDevice,
@@ -61,7 +62,7 @@ def device_coloring(device: QuantumDevice) -> GraphColoring:
         topology_graph = undirected_graph
     elif isinstance(device, BraketDevice):
         topology_graph = nx.Graph(device._device.topology_graph)
-        pass
+        raise ValueError("Braket devices are still being worked on (UF).")
     else:
         raise ValueError("Unsupported device type.")
 
@@ -156,31 +157,143 @@ def chsh_subgraph(jobs, coloring):
     return good_graph
 
 
+def chsh_subgraph_ionq(jobs, num_qubits):
+    """Return subgraph where all edges correspond to qubit
+    pairs that violate the CHSH inequality for IonQ.
+
+    Parameters:
+        jobs (list): A list of jobs to process.
+        num_qubits (int): Number of qubits in the device.
+
+    Returns:
+        rx.PyGraph: Graph for the CHSH subgraph.
+    """
+    good_edges = []
+    for job_idx, job in enumerate(jobs):
+        print(job_idx, len(jobs))
+        counts_list = [result.data.c.get_counts() for result in job.result()]
+
+        for idx, counts in enumerate(counts_list):
+            print(idx, counts)
+            num_meas_pairs = len(counts.keys()) // 2  # Each measurement pair contributes two keys
+            exp_vals = np.zeros(num_meas_pairs, dtype=float)
+            for pair in range(num_meas_pairs):
+                print(pair, len(counts_list))
+                sub_counts = marginal_counts(counts, [2 * pair, 2 * pair + 1])
+                exp_val = sampled_expectation_value(sub_counts, "ZZ")
+                exp_vals[pair] += exp_val if idx != 2 else -exp_val
+
+            for pair_idx, exp_val in enumerate(exp_vals):
+                print(pair_idx, exp_val, len(exp_vals))
+                # Convert pair index back to qubit pair
+                edge = (pair_idx // num_qubits, pair_idx % num_qubits)
+                if exp_val > 2:  # CHSH inequality violation
+                    good_edges.append(edge)
+
+    # Create the good subgraph
+    good_graph = rx.PyGraph(multigraph=False)
+    good_graph.add_nodes_from(list(range(num_qubits)))
+    for edge in good_edges:
+        good_graph.add_edge(*edge, 1)
+    return good_graph
+
+
 def largest_connected_size(good_graph):
     cc = rx.connected_components(good_graph)
     largest_cc = cc[np.argmax([len(g) for g in cc])]
     return len(largest_cc)
 
 
+def generate_chsh_circuits_ionq(
+    topology_graph, sample_edges: int | None = None
+) -> list[QuantumCircuit]:
+    """Generate CHSH circuits for IonQ's complete graph topology.
+
+    Parameters:
+        topology_graph (rx.PyGraph): Complete graph representing the IonQ topology.
+        sample_edges (int): Optional. Number of edges to sample from the complete graph.
+                            If None, use all edges.
+
+    Returns:
+        list[QuantumCircuit]: List of QuantumCircuit objects for the CHSH experiment.
+    """
+    num_qubits = topology_graph.number_of_nodes()
+    circuits = []
+
+    # Convert edges to a list of tuples
+    all_edges = list(topology_graph.edges())
+
+    # If sampling is required
+    if sample_edges:
+        sampled_indices = np.random.choice(len(all_edges), size=sample_edges, replace=False)
+        edges = [all_edges[i] for i in sampled_indices]
+    else:
+        edges = all_edges
+
+    for edge in edges:
+        # Each edge generates 4 circuits (one for each CHSH basis)
+        qubit_pair = edge[:2]  # Extract the pair of qubits
+        for basis in ["ZZ", "ZX", "XZ", "XX"]:
+            # Initialize a circuit for this edge and basis
+            qc = QuantumCircuit(num_qubits, 2)
+
+            # Prepare the Bell state
+            qc.h(qubit_pair[0])
+            qc.cx(*qubit_pair)
+
+            # Apply rotation on one qubit
+            qc.ry(np.pi / 4, qubit_pair[0])
+
+            # Basis-dependent rotations
+            if basis[0] == "X":
+                qc.h(qubit_pair[0])
+            if basis[1] == "X":
+                qc.h(qubit_pair[1])
+
+            # Add measurements
+            qc.measure(qubit_pair[0], 0)
+            qc.measure(qubit_pair[1], 1)
+
+            # Add the circuit to the list
+            circuits.append(qc)
+
+    return circuits
+
+
 class CHSH(Benchmark):
     def dispatch_handler(self, device: QuantumDevice) -> CHSHData:
         shots = self.params.shots
-        coloring = device_coloring(device)
 
-        exp_sets = generate_chsh_circuit_sets(coloring)
+        if isinstance(device, IonQDevice):
+            provider_backend = device
+            topology_graph = nx.complete_graph(device.num_qubits)
+            trans_exp_sets = generate_chsh_circuits_ionq(topology_graph, sample_edges=5)
+        elif isinstance(device, QiskitBackend):
+            provider_backend = device._backend
+            coloring = device_coloring(device)
+            exp_sets = generate_chsh_circuit_sets(coloring)
 
-        pm = generate_preset_pass_manager(1, device._backend)
-        trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
+            pm = generate_preset_pass_manager(1, provider_backend)
+            trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
 
-        quantum_jobs: list[QuantumJob] = [
-            device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
-        ]
+        quantum_jobs = []
+        print(len(trans_exp_sets))
+        for i, circ_set in enumerate(trans_exp_sets):
+            print(i)
+            quantum_jobs.append(device.run(circ_set, shots=shots))
+
+        # quantum_jobs: list[QuantumJob] = [
+        #     device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
+        # ]
 
         provider_job_ids = [
             job.id
             for quantum_job_set in quantum_jobs
             for job in (quantum_job_set if isinstance(quantum_job_set, list) else [quantum_job_set])
         ]
+        good_graph = chsh_subgraph_ionq(quantum_jobs, device.num_qubits)
+        largest_size = largest_connected_size(good_graph)
+        print(largest_size)
         return CHSHData(
             provider_job_ids=provider_job_ids,
             shots=shots,
@@ -189,6 +302,16 @@ class CHSH(Benchmark):
     def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
         if not isinstance(job_data, CHSHData):
             raise TypeError(f"Expected job_data to be of type {type(CHSHData)}")
+
+        print(result_data)
+        counts: list[MeasCount]  # one MeasCount per trial
+
+        # AWS vs IBM
+        if len(result_data) == 1:
+            counts = result_data[0].get_counts()
+        else:
+            counts = [r.get_counts() for r in result_data]
+        print(counts)
 
         # counts: list[MeasCount]  # one MeasCount per trial
         # exit()
