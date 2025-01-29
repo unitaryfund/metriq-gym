@@ -57,4 +57,4 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
-mypy-stubgen = "sh -c 'stubgen --no-analysis && poetry run mypy'"
+mypy-stubgen = "bash -c 'stubgen --no-analysis && mypy'"
