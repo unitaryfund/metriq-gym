@@ -55,13 +55,13 @@ test = ["jsonschema", "numpy", "pre-commit", "pytest", "pytest-cov", "pytest-rer
 
 [[package]]
 name = "amazon-braket-sdk"
-version = "1.88.3"
+version = "1.88.1"
 description = "An open source library for interacting with quantum computing devices on Amazon Braket"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "amazon_braket_sdk-1.88.3-py3-none-any.whl", hash = "sha256:8cad90c1bbadd645493df75eed9af1603b966c8825c0c1c7e3084f755b4d64d8"},
-    {file = "amazon_braket_sdk-1.88.3.tar.gz", hash = "sha256:1b6fa1185d4e2d24102f030257fd91a9d1bef3d379fba43b2ac373bbe2293787"},
+    {file = "amazon_braket_sdk-1.88.1-py3-none-any.whl", hash = "sha256:a27587630dcf981574569cb1dfddc9d903f08b56a513ca03176df545bb122978"},
+    {file = "amazon_braket_sdk-1.88.1.tar.gz", hash = "sha256:9986e0cf5822359ba47df953159e7f9dd2d14391c52b6c511f782f574baefe6a"},
 ]
 
 [package.dependencies]
@@ -71,7 +71,7 @@ backoff = "*"
 "backports.entry-points-selectable" = "*"
 boltons = "*"
 boto3 = ">=1.28.53"
-cloudpickle = "2.2.1"
+cloudpickle = ">=3"
 nest-asyncio = "*"
 networkx = "*"
 numpy = "*"
@@ -910,13 +910,13 @@ colorama = {version = "*", markers = "platform_system == \"Windows\""}
 
 [[package]]
 name = "cloudpickle"
-version = "2.2.1"
-description = "Extended pickling support for Python objects"
+version = "3.1.1"
+description = "Pickler class to extend the standard pickle.Pickler functionality"
 optional = false
-python-versions = ">=3.6"
+python-versions = ">=3.8"
 files = [
-    {file = "cloudpickle-2.2.1-py3-none-any.whl", hash = "sha256:61f594d1f4c295fa5cd9014ceb3a1fc4a70b0de1164b94fbc2d854ccba056f9f"},
-    {file = "cloudpickle-2.2.1.tar.gz", hash = "sha256:d89684b8de9e34a2a43b3460fbca07d09d6e25ce858df4d5a44240403b6178f5"},
+    {file = "cloudpickle-3.1.1-py3-none-any.whl", hash = "sha256:c8c5a44295039331ee9dad40ba100a9c7297b6f988e50e87ccdf3765a668350e"},
+    {file = "cloudpickle-3.1.1.tar.gz", hash = "sha256:b216fa8ae4019d5482a8ac3c95d8f6346115d8835911fd4aefd1a445e4242c64"},
 ]
 
 [[package]]
