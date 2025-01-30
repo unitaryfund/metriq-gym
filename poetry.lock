@@ -36,13 +36,13 @@ test = ["black", "flake8", "flake8-rst-docstrings", "isort", "pre-commit", "pyli
 
 [[package]]
 name = "amazon-braket-schemas"
-version = "1.23.0"
+version = "1.23.1"
 description = "An open source library that contains the schemas for Amazon Braket"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "amazon_braket_schemas-1.23.0-py3-none-any.whl", hash = "sha256:582ba92dbf342e3e45c435d95f734813b35b7b4b21d22baa89ae5691f16560ed"},
-    {file = "amazon_braket_schemas-1.23.0.tar.gz", hash = "sha256:2fa59bdcfa87f05294374a9ebd80530acbf78d58268a52680d2937892d7b91c5"},
+    {file = "amazon_braket_schemas-1.23.1-py3-none-any.whl", hash = "sha256:dc3988fe9b8e6313fcc1c8cb718e17063294c6e8a9a0929c950258a91cd7798c"},
+    {file = "amazon_braket_schemas-1.23.1.tar.gz", hash = "sha256:b8d480a27c79afc2f93dcd23ad4d514efcd5918c08d250533879178eb335d16b"},
 ]
 
 [package.dependencies]
