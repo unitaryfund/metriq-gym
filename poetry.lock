@@ -13,13 +13,13 @@ files = [
 
 [[package]]
 name = "amazon-braket-default-simulator"
-version = "1.26.2"
+version = "1.26.3"
 description = "An open source quantum circuit simulator to be run locally with the Amazon Braket SDK"
 optional = false
 python-versions = ">=3.9"
 files = [
-    {file = "amazon_braket_default_simulator-1.26.2-py3-none-any.whl", hash = "sha256:2a632b61e66b29984190647a672a65c9bade3f1966d1318a9229ed4a2afd6cc1"},
-    {file = "amazon_braket_default_simulator-1.26.2.tar.gz", hash = "sha256:edebf00abed10b673e6d339738473855a0b3eae6f2c20e6808420e944e145e13"},
+    {file = "amazon_braket_default_simulator-1.26.3-py3-none-any.whl", hash = "sha256:a71afba385014d5d13cc512e10b7e5fb4c10117c4e91c46eadb1593b18d94f86"},
+    {file = "amazon_braket_default_simulator-1.26.3.tar.gz", hash = "sha256:263009af82d0012fd979e6d132d535b8406acfde45ff5cb619bb00865e91ccaa"},
 ]
 
 [package.dependencies]
