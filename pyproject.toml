@@ -26,7 +26,6 @@ qiskit-device-benchmarking = { path = "submodules/qiskit-device-benchmarking" }
 qiskit-ibm-runtime = "^0.34.0"
 scipy = "^1.15.1"
 tabulate = "^0.9.0"
-qiskit-qasm3-import = "^0.5.1"
 numpy = "^2.2.2"
 qbraid = {extras = ["ionq", "qir", "braket"], version = "^0.9.3"}
 
