@@ -196,7 +196,6 @@ class CHSH(Benchmark):
         """Runs the benchmark and returns job metadata."""
         shots = self.params.shots
 
-        # Handle all device-specific logic here
         topology_graph = None
         coloring = None
         trans_exp_sets = None
