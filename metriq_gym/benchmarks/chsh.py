@@ -59,10 +59,10 @@ class CHSHData(BenchmarkData):
 def device_coloring(device: QuantumDevice) -> GraphColoring:
     """Performs graph coloring for a quantum device's topology.
 
-    The goal is to assign colors to edges such that no two adjacent edges have the same color.  This ensures independent
-    CHSH experiments can be run in parallel. Identifies qubit pairs (edges) that can be executed without interference.
-    These pairs are grouped by "color." The coloring reduces the complexity of the benchmarking process by organizing
-    the graph into independent sets of qubit pairs.
+    The goal is to assign colors to edges such that no two adjacent edges have the same color.
+    This ensures independent CHSH experiments can be run in parallel. Identifies qubit pairs (edges)
+    that can be executed without interference. These pairs are grouped by "color." The coloring reduces
+    the complexity of the benchmarking process by organizing the graph into independent sets of qubit pairs.
 
     Args:
         device: The quantum device.
@@ -70,31 +70,28 @@ def device_coloring(device: QuantumDevice) -> GraphColoring:
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    match device:
-        case IonQDevice():
-            # IonQ devices use a fully connected (complete) graph.
-            topology_graph = nx.complete_graph(device.num_qubits)
-            edge_color_map = {i: 0 for i in range(topology_graph.number_of_edges())}
-            topology_graph = rx.networkx_converter(topology_graph)
+    if isinstance(device, IonQDevice):
+        # IonQ devices use a fully connected (complete) graph.
+        topology_graph = nx.complete_graph(device.num_qubits)
+        edge_color_map = {i: 0 for i in range(topology_graph.number_of_edges())}
 
-        case QiskitBackend():
-            # Get the graph of the coupling map.
-            topology_graph = device._backend.coupling_map.graph
-            # Got to undirected graph for coloring.
-            undirected_graph = topology_graph.to_undirected(multigraph=False)
-            # Graphs are bipartite so use that feature to prevent extra colors from greedy search.  This graph is
-            # colored using a bipartite edge-coloring algorithm. Each "color" groups edges (qubit pairs) that can be
-            # benchmarked independently.
-            edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
-            topology_graph = undirected_graph
+    elif isinstance(device, QiskitBackend):
+        # Get the graph of the coupling map.
+        topology_graph = device._backend.coupling_map.graph
+        # Convert to undirected graph for coloring.
+        undirected_graph = topology_graph.to_undirected(multigraph=False)
+        # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
+        # This graph is colored using a bipartite edge-coloring algorithm.
+        edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
+        topology_graph = undirected_graph
 
-        case BraketDevice():
-            # Convert AWS device topology to NetworkX format.
-            topology_graph = nx.Graph(device._device.topology_graph)
-            raise ValueError("Braket devices are still being worked on (UF).")
+    elif isinstance(device, BraketDevice):
+        # Convert AWS device topology to NetworkX format.
+        topology_graph = nx.Graph(device._device.topology_graph)
+        raise ValueError("Braket devices are still being worked on (UF).")
 
-        case _:
-            raise ValueError("Unsupported device type.")
+    else:
+        raise ValueError("Unsupported device type.")
 
     # Get the index of the edges.
     edge_index_map = topology_graph.edge_index_map()
