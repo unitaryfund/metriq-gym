@@ -56,7 +56,7 @@ class CHSHData(BenchmarkData):
     coloring: GraphColoring | None = None
 
 
-def device_coloring(device: QuantumDevice) -> GraphColoring:
+def ibm_device_coloring(device: QuantumDevice) -> GraphColoring:
     """Performs graph coloring for a quantum device's topology.
 
     The goal is to assign colors to edges such that no two adjacent edges have the same color.
@@ -70,28 +70,14 @@ def device_coloring(device: QuantumDevice) -> GraphColoring:
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    if isinstance(device, IonQDevice):
-        # IonQ devices use a fully connected (complete) graph.
-        topology_graph = nx.complete_graph(device.num_qubits)
-        edge_color_map = {i: 0 for i in range(topology_graph.number_of_edges())}
-
-    elif isinstance(device, QiskitBackend):
-        # Get the graph of the coupling map.
-        topology_graph = device._backend.coupling_map.graph
-        # Convert to undirected graph for coloring.
-        undirected_graph = topology_graph.to_undirected(multigraph=False)
-        # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
-        # This graph is colored using a bipartite edge-coloring algorithm.
-        edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
-        topology_graph = undirected_graph
-
-    elif isinstance(device, BraketDevice):
-        # Convert AWS device topology to NetworkX format.
-        topology_graph = nx.Graph(device._device.topology_graph)
-        raise ValueError("Braket devices are still being worked on (UF).")
-
-    else:
-        raise ValueError("Unsupported device type.")
+    # Get the graph of the coupling map.
+    topology_graph = device._backend.coupling_map.graph
+    # Convert to undirected graph for coloring.
+    undirected_graph = topology_graph.to_undirected(multigraph=False)
+    # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
+    # This graph is colored using a bipartite edge-coloring algorithm.
+    edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
+    topology_graph = undirected_graph
 
     # Get the index of the edges.
     edge_index_map = topology_graph.edge_index_map()
@@ -214,38 +200,35 @@ class CHSH(Benchmark):
     def dispatch_handler(self, device: QuantumDevice) -> CHSHData:
         """Runs the benchmark and returns job metadata."""
         shots = self.params.shots
+
+        # Handle all device-specific logic here
         topology_graph = None
         coloring = None
         trans_exp_sets = None
 
-        match device:
-            case QiskitBackend():
-                coloring = device_coloring(device)
-                exp_sets = generate_chsh_circuit_sets(coloring)
-                # The circuits are transpiled using a preset pass manager to optimize them for the device's constraints.
-                pm = generate_preset_pass_manager(1, device._backend)
-                trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
+        if isinstance(device, QiskitBackend):
+            coloring = ibm_device_coloring(device)
+            exp_sets = generate_chsh_circuit_sets(coloring)
+            pm = generate_preset_pass_manager(1, device._backend)
+            trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
 
-            case IonQDevice():
-                topology_graph = nx.complete_graph(device.num_qubits)
-                raise ValueError("IonQ devices are not supported at this time.")
+        elif isinstance(device, IonQDevice):
+            topology_graph = nx.complete_graph(device.num_qubits)
+            raise ValueError("IonQ devices are not supported at this time.")
 
-            case BraketDevice():
-                topology_graph = device._device.topology_graph
-                raise ValueError("AWS devices are not supported at this time.")
+        elif isinstance(device, BraketDevice):
+            topology_graph = device._device.topology_graph
+            raise ValueError("AWS devices are not supported at this time.")
 
-            case _:
-                raise ValueError(f"Unsupported device type: {type(device)}")
+        else:
+            raise ValueError(f"Unsupported device type: {type(device)}")
 
         quantum_jobs: list[QuantumJob] = [
             device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
         ]
 
-        provider_job_ids = [
-            job.id
-            for quantum_job_set in quantum_jobs
-            for job in (quantum_job_set if isinstance(quantum_job_set, list) else [quantum_job_set])
-        ]
+        provider_job_ids = [job.id for job_set in quantum_jobs for job in job_set]
+
         return CHSHData(
             provider_job_ids=provider_job_ids,
             shots=shots,
