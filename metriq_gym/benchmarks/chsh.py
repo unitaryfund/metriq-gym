@@ -135,7 +135,7 @@ def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
     return exp_sets
 
 
-def chsh_subgraph(job_data: CHSHData, result_data: list[ResultData]) -> rx.PyGraph:
+def ibm_chsh_subgraph(coloring: GraphColoring, result_data: list[ResultData]) -> rx.PyGraph:
     """Constructs a subgraph of qubit pairs that violate the CHSH inequality.
 
     Args:
@@ -145,11 +145,6 @@ def chsh_subgraph(job_data: CHSHData, result_data: list[ResultData]) -> rx.PyGra
     Returns:
         The graph of edges that violated the CHSH inequality.
     """
-    coloring = job_data.coloring
-
-    if coloring is None:
-        raise ValueError("Coloring information is required but not found in job_data.")
-
     # A subgraph is constructed containing only the edges (qubit pairs) that successfully violate the CHSH inequality.
     # The size of the largest connected component in this subgraph provides a measure of the device's performance.
     good_edges = []
@@ -242,5 +237,6 @@ class CHSH(Benchmark):
         if not isinstance(job_data, CHSHData):
             raise TypeError(f"Expected job_data to be of type {type(CHSHData)}")
 
-        good_graph = chsh_subgraph(job_data, result_data)
-        print(f"Largest connected size: {largest_connected_size(good_graph)}")
+        if job_data.coloring:
+            good_graph = ibm_chsh_subgraph(job_data.coloring, result_data)
+            print(f"Largest connected size: {largest_connected_size(good_graph)}")
