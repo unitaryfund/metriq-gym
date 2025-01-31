@@ -222,7 +222,11 @@ class CHSH(Benchmark):
             device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
         ]
 
-        provider_job_ids = [job.id for job_set in quantum_jobs for job in job_set]
+        provider_job_ids = [
+            job.id
+            for quantum_job_set in quantum_jobs
+            for job in (quantum_job_set if isinstance(quantum_job_set, list) else [quantum_job_set])
+        ]
 
         return CHSHData(
             provider_job_ids=provider_job_ids,
