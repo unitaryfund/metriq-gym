@@ -61,9 +61,19 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     )
     logger.info(f"Job dispatched with ID: {job_id}")
 
-
 def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     logger.info("Polling job...")
+    if not args.job_id:
+        jobs = job_manager.get_jobs()
+        if not jobs:
+            logger.info("No jobs available for polling.")
+            return
+        print("Available jobs:")
+        for i, job in enumerate(jobs):
+            print(f"[{i}] {job.id} - {job.job_type}")
+        selected_index = int(input("Select a job index: "))
+        args.job_id = jobs[selected_index].id
+    
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
     job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)

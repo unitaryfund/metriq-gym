@@ -82,7 +82,8 @@ def parse_arguments() -> argparse.Namespace:
 
     # Subparser for poll.
     poll_parser = subparsers.add_parser("poll", help="Poll jobs")
-    poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
+    #poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
+    poll_parser.add_argument("--job_id", type=str, required=False, help="Job ID to poll (optional)")
 
     # Subparser for list-jobs.
     subparsers.add_parser("list-jobs", help="List dispatched jobs")
