@@ -53,8 +53,7 @@ def setup_benchmark(
 
 
 def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
-    """
-    Retrieve and return the data class associated with the specified job type.
+    """Retrieve and return the data class associated with the specified job type.
 
     Args:
         job_type: The job type for which the corresponding data class is needed.
@@ -102,8 +101,7 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
 
 
 def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
-    """
-    Poll the status of a previously dispatched quantum job and process the results if completed.
+    """Poll the status of a previously dispatched quantum job and process the results if completed.
 
     This function performs the following:
       1. Retrieves the job information from the job manager.
@@ -134,8 +132,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
 
 
 def main() -> int:
-    """
-    Main entry point for the command-line interface (CLI).
+    """Main entry point for the command-line interface (CLI).
 
     This function performs the following steps:
       1. Loads environment variables.
