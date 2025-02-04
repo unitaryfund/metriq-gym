@@ -17,7 +17,7 @@ metriq-client = { git = "https://github.com/unitaryfund/metriq-client.git", bran
 pyqrack = "^1.35.0"
 python = "~3.12"
 python-dotenv = "^1.0.1"
-pytket = "^1.39.0"
+pytket = "^1.40.0"
 pytket-qiskit = "^0.63.0"
 pytket-quantinuum = "^0.43.0"
 pydantic = ">=2.5.0,<2.10"
