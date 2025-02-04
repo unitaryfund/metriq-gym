@@ -66,12 +66,19 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     if not args.job_id:
         jobs = job_manager.get_jobs()
         if not jobs:
-            logger.info("No jobs available for polling.")
+            print("No jobs available for polling.")
             return
         print("Available jobs:")
-        for i, job in enumerate(jobs):
-            print(f"[{i}] {job.id} - {job.job_type}")
-        selected_index = int(input("Select a job index: "))
+        list_jobs(job_manager, show_index=True)
+        while True:
+            try:
+                selected_index = int(input("Select a job index: "))
+                if 0 <= selected_index < len(jobs):
+                    break
+                else:
+                    print("Invalid index. Please enter a number between 0 and", len(jobs) - 1)
+            except ValueError:
+                print("Invalid input. Please enter a valid number.")
         args.job_id = jobs[selected_index].id
     
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
