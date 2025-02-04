@@ -1,3 +1,4 @@
+from typing import Any
 import argparse
 from dataclasses import asdict
 from datetime import datetime
@@ -22,19 +23,62 @@ logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
+    """Initialize and return a QuantumDevice using the specified provider and backend.
+
+    Args:
+        provider_name: The name of the quantum provider.
+        backend_name: The name of the quantum backend device.
+
+    Returns:
+        An instance of the quantum device initialized with the specified provider and backend.
+    """
     provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]
     return provider().get_device(backend_name)
 
 
-def setup_benchmark(args, params, job_type: JobType) -> Benchmark:
+def setup_benchmark(
+    args: argparse.Namespace, params: dict[str, Any] | None, job_type: JobType
+) -> Benchmark:
+    """Set up and return a benchmark handler based on the provided arguments, parameters, and job type.
+
+    Args:
+        args: Command-line arguments.
+        params: Parameters loaded from the input file, validated against the expected schema.
+        job_type: The type of job or benchmark to run.
+
+    Returns:
+        An instance of the benchmark handler for the specified job type.
+    """
     return BENCHMARK_HANDLERS[job_type](args, params)
 
 
 def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
+    """
+    Retrieve and return the data class associated with the specified job type.
+
+    Args:
+        job_type: The job type for which the corresponding data class is needed.
+
+    Returns:
+        The data class corresponding to the given job type.
+    """
     return BENCHMARK_DATA_CLASSES[job_type]
 
 
 def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+    """Dispatch a quantum job using the provided arguments and record it in the job manager.
+
+    This function performs the following steps:
+      1. Initializes the quantum device based on provider and device names.
+      2. Loads and validates benchmark parameters from the input file.
+      3. Sets up the benchmark handler.
+      4. Dispatches the job to the quantum device.
+      5. Records the dispatched job in the job manager with a unique job ID.
+
+    Args:
+        args: Command-line arguments containing job configuration.
+        job_manager: The job manager used to store and track dispatched jobs.
+    """
     logger.info("Dispatching job...")
     provider_name = args.provider
     device_name = args.device
@@ -58,6 +102,21 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
 
 
 def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+    """
+    Poll the status of a previously dispatched quantum job and process the results if completed.
+
+    This function performs the following:
+      1. Retrieves the job information from the job manager.
+      2. Reconstructs the job data class instance from stored job data.
+      3. Loads the quantum job(s) corresponding to the provider job IDs.
+      4. Checks if all quantum tasks are completed.
+      5. If completed, retrieves result data and invokes the benchmark's poll handler.
+      6. Logs a message if the job is not yet completed.
+
+    Args:
+        args: Command-line arguments containing the job ID to poll.
+        job_manager: The job manager used to retrieve job information.
+    """
     logger.info("Polling job...")
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
@@ -75,7 +134,18 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
 
 
 def main() -> int:
-    """Main entry point for the CLI."""
+    """
+    Main entry point for the command-line interface (CLI).
+
+    This function performs the following steps:
+      1. Loads environment variables.
+      2. Parses command-line arguments.
+      3. Initializes the job manager.
+      4. Dispatches, polls, or lists jobs based on the specified action.
+
+    Returns:
+        Exit code for the CLI application (0 for success, 1 for error).
+    """
     load_dotenv()
     args = parse_arguments()
     job_manager = JobManager()
