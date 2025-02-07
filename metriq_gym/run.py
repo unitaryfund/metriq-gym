@@ -69,7 +69,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
             print("No jobs available for polling.")
             return
         print("Available jobs:")
-        list_jobs(job_manager, show_index=True)
+        list_jobs(jobs, show_index=True)
         while True:
             try:
                 selected_index = int(input("Select a job index: "))
@@ -106,7 +106,8 @@ def main() -> int:
     elif args.action == "poll":
         poll_job(args, job_manager)
     elif args.action == "list-jobs":
-        list_jobs(job_manager)
+        jobs: list[MetriqGymJob] = job_manager.get_jobs()
+        list_jobs(jobs)
 
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")

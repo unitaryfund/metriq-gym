@@ -10,44 +10,20 @@ from metriq_gym.provider import ProviderType
 LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
 TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
 
-
-def list_jobs(job_manager: JobManager, show_index: bool = False) -> None:
+def list_jobs(jobs: list[MetriqGymJob], show_index: bool = True) -> None:
     """List jobs recorded in the job manager.
 
     Args:
-        job_manager: Job manager instance.
+        jobs: List of MetriqGymJob instances.
         show_index: Whether to show the job index in the output table.
     """
-    # Retrieve all jobs from JobManager.
-    jobs: list[MetriqGymJob] = job_manager.get_jobs()
-
-    # Display jobs in a tabular format.
     if not jobs:
         print("No jobs found.")
         return
-        
-    table_headers = LIST_JOBS_HEADERS.copy()
-    if show_index:
-        table_headers.insert(0, "Index")
-    
-    table = [
-        [
-            i,
-            job.id,
-            job.provider_name,
-            job.device_name,
-            job.job_type,
-            job.dispatch_time.strftime(TIMESTAMP_FORMAT),
-        ] if show_index else [
-            job.id,
-            job.provider_name,
-            job.device_name,
-            job.job_type,
-            job.dispatch_time.strftime(TIMESTAMP_FORMAT),
-        ]
-        for i, job in enumerate(jobs)
-    ]
-    print(tabulate(table, headers=table_headers, tablefmt="grid"))
+    # Display jobs in a tabular format.
+    print(
+        tabulate([job.to_table_row() for job in jobs], headers=LIST_JOBS_HEADERS, tablefmt="grid", showindex=show_index)
+    )
 
 def parse_arguments() -> argparse.Namespace:
     """
