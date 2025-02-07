@@ -4,11 +4,11 @@ import argparse
 
 from tabulate import tabulate
 
-from metriq_gym.job_manager import JobManager, MetriqGymJob
+from metriq_gym.job_manager import MetriqGymJob
 from metriq_gym.provider import ProviderType
 
 LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
-TIMESTAMP_FORMAT = "%Y-%m-%d %H:%M:%S"
+
 
 def list_jobs(jobs: list[MetriqGymJob], show_index: bool = True) -> None:
     """List jobs recorded in the job manager.
@@ -22,8 +22,14 @@ def list_jobs(jobs: list[MetriqGymJob], show_index: bool = True) -> None:
         return
     # Display jobs in a tabular format.
     print(
-        tabulate([job.to_table_row() for job in jobs], headers=LIST_JOBS_HEADERS, tablefmt="grid", showindex=show_index)
+        tabulate(
+            [job.to_table_row() for job in jobs],
+            headers=LIST_JOBS_HEADERS,
+            tablefmt="grid",
+            showindex=show_index,
+        )
     )
+
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -41,15 +47,6 @@ def parse_arguments() -> argparse.Namespace:
         "input_file",
         type=str,
         help="Path to the file containing the benchmark parameters",
-    )
-    dispatch_parser.add_argument(
-        "-n", "--num_qubits", type=int, default=8, help="Number of qubits (default is 8)"
-    )
-    dispatch_parser.add_argument(
-        "-s", "--shots", type=int, default=8, help="Number of shots per trial (default is 8)"
-    )
-    dispatch_parser.add_argument(
-        "-t", "--trials", type=int, default=8, help="Number of trials (default is 8)"
     )
     dispatch_parser.add_argument(
         "-p",
