@@ -3119,13 +3119,13 @@ websocket-client = ">=1.0.1"
 
 [[package]]
 name = "qiskit-ibm-runtime"
-version = "0.34.0"
+version = "0.35.0"
 description = "IBM Quantum client for Qiskit Runtime."
 optional = false
-python-versions = ">=3.8"
+python-versions = ">=3.9"
 files = [
-    {file = "qiskit_ibm_runtime-0.34.0-py3-none-any.whl", hash = "sha256:a082c7ae53cf771c28ed2d8748a86990bada1ab4742c171d49918a8948a910bd"},
-    {file = "qiskit_ibm_runtime-0.34.0.tar.gz", hash = "sha256:58905231fa326d8c8e5b72c1eb55d0ca193af8276eeb4b8a55e9b7cddfc98882"},
+    {file = "qiskit_ibm_runtime-0.35.0-py3-none-any.whl", hash = "sha256:a2b6dd7f6d24a632fb17b0fe8cfe30b56310679a8c01a79d641302431360eb6d"},
+    {file = "qiskit_ibm_runtime-0.35.0.tar.gz", hash = "sha256:8b5919bfb96215d13ca5b103b8652c194e2e85b78dbe937dc2b6f675646de65f"},
 ]
 
 [package.dependencies]
@@ -3141,7 +3141,7 @@ websocket-client = ">=1.5.1"
 
 [package.extras]
 common = ["black (>=24.1,<25.0)", "coverage (>=6.3)", "ddt (>=1.2.0,!=1.4.0,!=1.4.3)", "jupyter", "matplotlib (>=2.1)", "mypy (==0.931)", "nbconvert (>=5.3.1)", "nbformat (>=4.4.0)", "nbqa (==1.5.3)", "pproxy (==2.7.8)", "pylatexenc", "pylint (==3.0.0)", "qiskit-aer (>=0.14.2)", "scikit-learn", "scipy (>=1.0)", "setuptools", "websockets (>=8)"]
-dev = ["qiskit-ibm-runtime[common]", "qiskit-ibm-runtime[documentation]"]
+dev = ["qiskit-ibm-runtime[common]", "qiskit-ibm-runtime[documentation]", "qiskit-ibm-runtime[visualization]"]
 documentation = ["Sphinx (>=6)", "jupyter-sphinx", "nbsphinx", "packaging", "sphinx-autodoc-typehints (<=1.19.2)", "sphinx-automodapi", "sphinxcontrib-katex (==0.9.9)"]
 visualization = ["plotly (>=5.23.0)"]
 
@@ -4204,4 +4204,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.0"
 python-versions = "~3.12"
-content-hash = "baf5bdc1a6b135c3cc712b877c8fb1bfc9621dd27e10f8b5b71884e153530939"
+content-hash = "8cd9aa5307f2bae5d6e36abbf526797c8c9e42fce82311f2cf3bc55da78bd26d"
