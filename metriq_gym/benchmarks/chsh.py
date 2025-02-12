@@ -152,7 +152,7 @@ def ibm_chsh_subgraph(coloring: GraphColoring, result_data: list[ResultData]) ->
         num_meas_pairs = len(
             {key for key, val in coloring.edge_color_map.items() if val == job_idx}
         )
-        exp_vals = np.zeros(num_meas_pairs, dtype=float)
+        exp_vals: np.ndarray = np.zeros(num_meas_pairs, dtype=float)
         for idx in range(4):
             counts = result.measurement_counts[idx]
             # Expectation values for the CHSH correlation terms are calculated based on measurement outcomes.
