@@ -7,7 +7,7 @@ violate the CHSH inequality. The violation of this inequality indicates successf
 from dataclasses import dataclass
 import networkx as nx
 import numpy as np
-from qbraid import QuantumDevice, QuantumJob, ResultData
+from qbraid import GateModelResultData, QuantumDevice, QuantumJob, ResultData
 from qbraid.runtime import (
     QiskitBackend,
 )
@@ -54,7 +54,7 @@ class CHSHData(BenchmarkData):
     coloring: GraphColoring | None = None
 
 
-def ibm_device_coloring(device: QuantumDevice) -> GraphColoring:
+def ibm_device_coloring(device: QiskitBackend) -> GraphColoring:
     """Performs graph coloring for a quantum device's topology.
 
     The goal is to assign colors to edges such that no two adjacent edges have the same color.
@@ -133,7 +133,9 @@ def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
     return exp_sets
 
 
-def ibm_chsh_subgraph(coloring: GraphColoring, result_data: list[ResultData]) -> rx.PyGraph:
+def ibm_chsh_subgraph(
+    coloring: GraphColoring, result_data: list[GateModelResultData]
+) -> rx.PyGraph:
     """Constructs a subgraph of qubit pairs that violate the CHSH inequality.
 
     Args:
@@ -147,6 +149,8 @@ def ibm_chsh_subgraph(coloring: GraphColoring, result_data: list[ResultData]) ->
     # The size of the largest connected component in this subgraph provides a measure of the device's performance.
     good_edges = []
     for job_idx, result in enumerate(result_data):
+        if result.measurement_counts is None:
+            continue
         num_meas_pairs = len(
             {key for key, val in coloring.edge_color_map.items() if val == job_idx}
         )
@@ -196,7 +200,7 @@ class CHSH(Benchmark):
 
         topology_graph = None
         coloring = None
-        trans_exp_sets = None
+        trans_exp_sets: list[list[QuantumCircuit]]
 
         if isinstance(device, QiskitBackend):
             coloring = ibm_device_coloring(device)
@@ -206,7 +210,7 @@ class CHSH(Benchmark):
         else:
             raise ValueError(f"Unsupported device type: {type(device)}")
 
-        quantum_jobs: list[QuantumJob] = [
+        quantum_jobs: list[QuantumJob | list[QuantumJob]] = [
             device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
         ]
 
