@@ -1,7 +1,7 @@
 repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
   # Ruff version (keep in sync with the version in pyproject.toml)
-  rev: v0.7.3
+  rev: v0.9.6
   hooks:
     # Run the linter.
     - id: ruff
@@ -11,10 +11,11 @@ repos:
 
 - repo: https://github.com/pre-commit/mirrors-mypy
   # MyPy version (keep in sync with the version in pyproject.toml)
-  rev: v1.13.0  
+  rev: v1.15.0  
   hooks:
     - id: mypy
       additional_dependencies: ['types-tabulate']
       args: [--config-file=pyproject.toml]
-      pass_filenames: false
+      pass_filenames: true
+      stages: [pre-commit]
 
