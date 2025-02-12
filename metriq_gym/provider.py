@@ -11,8 +11,11 @@ from enum import StrEnum
 
 
 class ProviderType(StrEnum):
-    AWS = "aws"
-    IBMQ = "ibmq"
+    # Values of the enum need to be consistent with qBraid's entry-points
+    # https://github.com/qBraid/qBraid/blob/c6ec0a6fb48d4132c97d48845b6a630800578b78/pyproject.toml#L79-L85
+    # TODO: Consider moving this to a shared location
+    AWS = "aws"  # supports IQM, QuEra, Rigetti devices
+    IBMQ = "ibm"
     IONQ = "ionq"
     QBRAID = "qbraid"
 
@@ -21,7 +24,7 @@ class ProviderType(StrEnum):
         return [provider.value for provider in cls]
 
 
-QBRAID_PROVIDERS: dict[ProviderType, QuantumProvider] = {
+QBRAID_PROVIDERS: dict[ProviderType, type[QuantumProvider]] = {
     ProviderType.AWS: BraketProvider,
     ProviderType.IBMQ: QiskitRuntimeProvider,
     ProviderType.IONQ: IonQProvider,
