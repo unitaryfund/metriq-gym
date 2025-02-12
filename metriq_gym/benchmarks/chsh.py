@@ -10,8 +10,6 @@ import numpy as np
 from qbraid import QuantumDevice, QuantumJob, ResultData
 from qbraid.runtime import (
     QiskitBackend,
-    BraketDevice,
-    IonQDevice,
 )
 import rustworkx as rx
 
@@ -205,15 +203,6 @@ class CHSH(Benchmark):
             exp_sets = generate_chsh_circuit_sets(coloring)
             pm = generate_preset_pass_manager(1, device._backend)
             trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
-
-        elif isinstance(device, IonQDevice):
-            topology_graph = nx.complete_graph(device.num_qubits)
-            raise ValueError("IonQ devices are not supported at this time.")
-
-        elif isinstance(device, BraketDevice):
-            topology_graph = device._device.topology_graph
-            raise ValueError("AWS devices are not supported at this time.")
-
         else:
             raise ValueError(f"Unsupported device type: {type(device)}")
 
