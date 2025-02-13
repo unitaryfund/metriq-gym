@@ -36,8 +36,9 @@ def test_list_jobs_all(mock_job_manager, capsys):
             data={},
         ),
     ]
-
-    list_jobs(mock_job_manager)
+    
+    mock_jobs: list[MetriqGymJob] = mock_job_manager.get_jobs()
+    list_jobs(mock_jobs, show_index=False)
 
     # Capture the output
     captured = capsys.readouterr()
@@ -57,7 +58,8 @@ def test_list_jobs_no_jobs(mock_job_manager, capsys):
     # Mock no jobs
     mock_job_manager.get_jobs.return_value = []
 
-    list_jobs(mock_job_manager)
+    mock_jobs: list[MetriqGymJob] = mock_job_manager.get_jobs()
+    list_jobs(mock_jobs, show_index=False)
 
     # Capture the output
     captured = capsys.readouterr()
