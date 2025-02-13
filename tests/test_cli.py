@@ -12,11 +12,10 @@ def mock_job_manager():
     """Fixture to provide a mocked JobManager."""
     return MagicMock(spec=JobManager)
 
-
-def test_list_jobs_all(mock_job_manager, capsys):
+def test_list_jobs_all(capsys):
     """Test listing all jobs without filters."""
     # Mock jobs
-    mock_job_manager.get_jobs.return_value = [
+    mock_jobs = [
         MetriqGymJob(
             id="1234",
             device_name="ibmq_qasm_simulator",
@@ -37,7 +36,6 @@ def test_list_jobs_all(mock_job_manager, capsys):
         ),
     ]
     
-    mock_jobs: list[MetriqGymJob] = mock_job_manager.get_jobs()
     list_jobs(mock_jobs, show_index=False)
 
     # Capture the output
@@ -53,12 +51,11 @@ def test_list_jobs_all(mock_job_manager, capsys):
     assert captured.out == expected_output
 
 
-def test_list_jobs_no_jobs(mock_job_manager, capsys):
+def test_list_jobs_no_jobs(capsys):
     """Test listing jobs when no jobs are recorded."""
     # Mock no jobs
-    mock_job_manager.get_jobs.return_value = []
-
-    mock_jobs: list[MetriqGymJob] = mock_job_manager.get_jobs()
+    mock_jobs = []
+    
     list_jobs(mock_jobs, show_index=False)
 
     # Capture the output
