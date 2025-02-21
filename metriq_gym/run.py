@@ -1,9 +1,13 @@
 import argparse
 from dataclasses import asdict
 from datetime import datetime
+import os
 import sys
 import logging
 import uuid
+
+from qbraid.runtime import AzureQuantumProvider
+from azure.quantum import Workspace
 
 from dotenv import load_dotenv
 from qbraid import JobStatus, ResultData
@@ -22,8 +26,13 @@ logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
-    provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]
-    return provider().get_device(backend_name)
+    if provider_name == "azure":
+        connection_string = f"SubscriptionId={os.getenv('AZURE_SUBSCRIPTION_ID')};ResourceGroupName={os.getenv('AZURE_RESOURCE_GROUP')};WorkspaceName={os.getenv('AZURE_WORKSPACE_NAME')};ApiKey={os.getenv('AZURE_CLIENT_SECRET')};QuantumEndpoint=https://{os.getenv('AZURE_LOCATION')}.quantum.azure.com/;"
+        workspace = Workspace.from_connection_string(connection_string)
+        return AzureQuantumProvider(workspace=workspace).get_device(backend_name)
+    else:
+        provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]
+        return provider().get_device(backend_name)
 
 
 def setup_benchmark(args, params, job_type: JobType) -> Benchmark:
