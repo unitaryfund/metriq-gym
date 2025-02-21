@@ -4,30 +4,30 @@ import argparse
 
 from tabulate import tabulate
 
-from metriq_gym.job_manager import JobManager, MetriqGymJob
+from metriq_gym.job_manager import MetriqGymJob
 from metriq_gym.provider import ProviderType
 
 LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
 
-
-def list_jobs(job_manager: JobManager) -> None:
+def list_jobs(jobs: list[MetriqGymJob], show_index: bool = True) -> None:
     """List jobs recorded in the job manager.
 
     Args:
-        job_manager: Job manager instance.
+        jobs: List of MetriqGymJob instances.
+        show_index: Whether to show the job index in the output table.
     """
-    # Retrieve all jobs from JobManager.
-    jobs: list[MetriqGymJob] = job_manager.get_jobs()
-
-    # Display jobs in a tabular format.
     if not jobs:
         print("No jobs found.")
         return
-
+    # Display jobs in a tabular format.
     print(
-        tabulate([job.to_table_row() for job in jobs], headers=LIST_JOBS_HEADERS, tablefmt="grid")
+        tabulate(
+            [job.to_table_row() for job in jobs],
+            headers=LIST_JOBS_HEADERS,
+            tablefmt="grid",
+            showindex=show_index,
+        )
     )
-
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -64,7 +64,7 @@ def parse_arguments() -> argparse.Namespace:
 
     # Subparser for poll.
     poll_parser = subparsers.add_parser("poll", help="Poll jobs")
-    poll_parser.add_argument("--job_id", type=str, required=True, help="Job ID to poll")
+    poll_parser.add_argument("--job_id", type=str, required=False, help="Job ID to poll (optional)")
 
     # Subparser for list-jobs.
     subparsers.add_parser("list-jobs", help="List dispatched jobs")
