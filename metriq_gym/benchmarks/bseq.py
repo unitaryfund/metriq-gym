@@ -5,6 +5,7 @@ This benchmark evaluates a quantum device's ability to produce entangled states 
 the CHSH inequality. The violation of this inequality indicates successful entanglement between qubits.
 """
 
+from typing import Any
 from dataclasses import dataclass, field
 
 import networkx as nx
@@ -55,7 +56,7 @@ class GraphColoring:
 
     num_nodes: int
     edge_color_map: dict
-    edge_index_map: dict
+    edge_index_map: dict | rx.EdgeIndexMap[Any]
     num_colors: int = field(init=False)
 
     def __post_init__(self):
@@ -109,7 +110,7 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
 
     # Get the index of the edges.
     edge_index_map = topology_graph.edge_index_map()
-    edge_index_map = {k: tuple(v) for k, v in topology_graph.edge_index_map().items()}
+    # edge_index_map = {k: tuple(v) for k, v in topology_graph.edge_index_map().items()}
     return GraphColoring(
         num_nodes=num_nodes, edge_color_map=edge_color_map, edge_index_map=edge_index_map
     )
@@ -178,13 +179,10 @@ def ibm_chsh_subgraph(
     Returns:
         The graph of edges that violated the CHSH inequality.
     """
-    print(result_data)
-    print(coloring)
     # A subgraph is constructed containing only the edges (qubit pairs) that successfully violate the CHSH inequality.
     # The size of the largest connected component in this subgraph provides a measure of the device's performance.
     good_edges = []
     for job_idx, result in enumerate(result_data):
-        print(job_idx, result)
         if result.measurement_counts is None:
             continue
         num_meas_pairs = len(
@@ -192,6 +190,8 @@ def ibm_chsh_subgraph(
         )
         exp_vals: np.ndarray = np.zeros(num_meas_pairs, dtype=float)
         for idx in range(4):
+            print(result)
+            exit()
             counts = result.measurement_counts[idx]
             # Expectation values for the CHSH correlation terms are calculated based on measurement outcomes.
             for pair in range(num_meas_pairs):
