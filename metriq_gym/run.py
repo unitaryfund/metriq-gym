@@ -7,13 +7,12 @@ import uuid
 
 from dotenv import load_dotenv
 from qbraid import JobStatus, ResultData
-from qbraid.runtime import QuantumDevice, QuantumProvider, load_job
+from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provider
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from metriq_gym.provider import QBRAID_PROVIDERS, ProviderType
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
 
@@ -22,8 +21,8 @@ logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
-    provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]
-    return provider().get_device(backend_name)
+    provider: QuantumProvider = load_provider(provider_name)
+    return provider.get_device(backend_name)
 
 
 def setup_benchmark(args, params, job_type: JobType) -> Benchmark:
