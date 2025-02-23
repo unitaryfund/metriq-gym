@@ -5,7 +5,8 @@ This benchmark evaluates a quantum device's ability to produce entangled states 
 the CHSH inequality. The violation of this inequality indicates successful entanglement between qubits.
 """
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
+
 import networkx as nx
 import numpy as np
 from qbraid import GateModelResultData, QuantumDevice, QuantumJob, ResultData
@@ -21,6 +22,7 @@ from qiskit.result import marginal_counts, sampled_expectation_value
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 
 
+@dataclass
 class GraphColoring:
     """A simple class containing graph coloring data.
 
@@ -31,11 +33,22 @@ class GraphColoring:
         num_colors: Total number of colors assigned in the graph.
     """
 
-    def __init__(self, num_nodes: int, edge_color_map: dict, edge_index_map: dict) -> None:
-        self.edge_color_map = edge_color_map
-        self.edge_index_map = edge_index_map
-        self.num_colors = max(edge_color_map.values()) + 1
-        self.num_nodes = num_nodes
+    num_nodes: int
+    edge_color_map: dict
+    edge_index_map: dict
+    num_colors: int = field(init=False)
+
+    def __post_init__(self):
+        self.num_colors = max(self.edge_color_map.values()) + 1
+
+    @classmethod
+    def from_dict(cls, data: dict) -> "GraphColoring":
+        """Reconstruct GraphColoring from a dictionary, ensuring integer keys."""
+        return cls(
+            num_nodes=data["num_nodes"],
+            edge_color_map={int(k): v for k, v in data["edge_color_map"].items()},
+            edge_index_map={int(k): v for k, v in data["edge_index_map"].items()},
+        )
 
 
 @dataclass
@@ -52,7 +65,7 @@ class BSEQData(BenchmarkData):
     shots: int
     num_qubits: int
     topology_graph: nx.Graph | None = None
-    coloring: GraphColoring | None = None
+    coloring: GraphColoring | dict | None = None
 
 
 def ibm_device_coloring(device: QiskitBackend) -> GraphColoring:
@@ -226,7 +239,11 @@ class BSEQ(Benchmark):
             shots=shots,
             num_qubits=device.num_qubits,
             topology_graph=topology_graph,
-            coloring=coloring,
+            coloring={
+                "num_nodes": coloring.num_nodes,
+                "edge_color_map": dict(coloring.edge_color_map),
+                "edge_index_map": dict(coloring.edge_index_map),
+            },
         )
 
     def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
@@ -235,5 +252,7 @@ class BSEQ(Benchmark):
             raise TypeError(f"Expected job_data to be of type {type(BSEQData)}")
 
         if job_data.coloring:
+            if isinstance(job_data.coloring, dict):
+                job_data.coloring = GraphColoring.from_dict(job_data.coloring)
             good_graph = ibm_chsh_subgraph(job_data.coloring, result_data)
             print(f"Largest connected size: {largest_connected_size(good_graph)}")
