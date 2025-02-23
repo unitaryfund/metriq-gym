@@ -102,7 +102,7 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    num_qubits = _convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
+    num_nodes = _convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
     # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
     # This graph is colored using a bipartite edge-coloring algorithm.
     edge_color_map = rx.graph_bipartite_edge_color(topology_graph)
@@ -110,7 +110,9 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     # Get the index of the edges.
     edge_index_map = topology_graph.edge_index_map()
     edge_index_map = {k: tuple(v) for k, v in topology_graph.edge_index_map().items()}
-    return GraphColoring(num_qubits, edge_color_map, edge_index_map)
+    return GraphColoring(
+        num_nodes=num_nodes, edge_color_map=edge_color_map, edge_index_map=edge_index_map
+    )
 
 
 def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
@@ -176,10 +178,13 @@ def ibm_chsh_subgraph(
     Returns:
         The graph of edges that violated the CHSH inequality.
     """
+    print(result_data)
+    print(coloring)
     # A subgraph is constructed containing only the edges (qubit pairs) that successfully violate the CHSH inequality.
     # The size of the largest connected component in this subgraph provides a measure of the device's performance.
     good_edges = []
     for job_idx, result in enumerate(result_data):
+        print(job_idx, result)
         if result.measurement_counts is None:
             continue
         num_meas_pairs = len(
