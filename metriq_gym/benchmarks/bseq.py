@@ -5,7 +5,6 @@ This benchmark evaluates a quantum device's ability to produce entangled states 
 the CHSH inequality. The violation of this inequality indicates successful entanglement between qubits.
 """
 
-from typing import Any
 from dataclasses import dataclass, field
 
 import networkx as nx
@@ -56,7 +55,7 @@ class GraphColoring:
 
     num_nodes: int
     edge_color_map: dict
-    edge_index_map: dict | rx.EdgeIndexMap[Any]
+    edge_index_map: dict
     num_colors: int = field(init=False)
 
     def __post_init__(self):
@@ -109,8 +108,7 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     edge_color_map = rx.graph_bipartite_edge_color(topology_graph)
 
     # Get the index of the edges.
-    edge_index_map = topology_graph.edge_index_map()
-    # edge_index_map = {k: tuple(v) for k, v in topology_graph.edge_index_map().items()}
+    edge_index_map = dict(topology_graph.edge_index_map())
     return GraphColoring(
         num_nodes=num_nodes, edge_color_map=edge_color_map, edge_index_map=edge_index_map
     )
@@ -167,9 +165,7 @@ def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
     return exp_sets
 
 
-def ibm_chsh_subgraph(
-    coloring: GraphColoring, result_data: list[GateModelResultData]
-) -> rx.PyGraph:
+def chsh_subgraph(coloring: GraphColoring, result_data: list[GateModelResultData]) -> rx.PyGraph:
     """Constructs a subgraph of qubit pairs that violate the CHSH inequality.
 
     Args:
@@ -189,15 +185,21 @@ def ibm_chsh_subgraph(
             {key for key, val in coloring.edge_color_map.items() if val == job_idx}
         )
         exp_vals: np.ndarray = np.zeros(num_meas_pairs, dtype=float)
-        for idx in range(4):
-            print(result)
-            exit()
-            counts = result.measurement_counts[idx]
-            # Expectation values for the CHSH correlation terms are calculated based on measurement outcomes.
-            for pair in range(num_meas_pairs):
-                sub_counts = marginal_counts(counts, [2 * pair, 2 * pair + 1])
-                exp_val = sampled_expectation_value(sub_counts, "ZZ")
-                exp_vals[pair] += exp_val if idx != 2 else -exp_val
+
+        # IBM case: multiple dictionaries (one per measurement basis)
+        if isinstance(result.measurement_counts, list):
+            for idx in range(4):
+                counts = result.measurement_counts[idx]
+                for pair in range(num_meas_pairs):
+                    sub_counts = marginal_counts(counts, [2 * pair, 2 * pair + 1])
+                    exp_val = sampled_expectation_value(sub_counts, "ZZ")
+                    exp_vals[pair] += exp_val if idx != 2 else -exp_val
+
+        # AWS case: single dictionary → Simulate different measurement bases
+        elif isinstance(result.measurement_counts, dict):
+            counts = result.measurement_counts
+            # TODO: Something needs to actually happen here but at present I don't know how or what.
+
         for idx, edge_idx in enumerate(
             key for key, val in coloring.edge_color_map.items() if val == job_idx
         ):
@@ -279,5 +281,5 @@ class BSEQ(Benchmark):
         if job_data.coloring:
             if isinstance(job_data.coloring, dict):
                 job_data.coloring = GraphColoring.from_dict(job_data.coloring)
-            good_graph = ibm_chsh_subgraph(job_data.coloring, result_data)
+            good_graph = chsh_subgraph(job_data.coloring, result_data)
             print(f"Largest connected size: {largest_connected_size(good_graph)}")
