@@ -5,6 +5,7 @@ This benchmark evaluates a quantum device's ability to produce entangled states 
 the CHSH inequality. The violation of this inequality indicates successful entanglement between qubits.
 """
 
+from typing import Any
 from dataclasses import dataclass, field
 
 import networkx as nx
@@ -55,7 +56,7 @@ class GraphColoring:
 
     num_nodes: int
     edge_color_map: dict
-    edge_index_map: dict
+    edge_index_map: dict | rx.EdgeIndexMap[Any]
     num_colors: int = field(init=False)
 
     def __post_init__(self):
@@ -97,7 +98,7 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     the complexity of the benchmarking process by organizing the graph into independent sets of qubit pairs.
 
     Args:
-        device: The quantum device.
+        topology_graph: The topology graph (coupling map) of the quantum device.
 
     Returns:
         GraphColoring: An object containing the coloring information.
@@ -266,7 +267,7 @@ class BSEQ(Benchmark):
         )
 
     def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
-        """Poll and calculate largest connected componenet."""
+        """Poll and calculate largest connected component."""
         if not isinstance(job_data, BSEQData):
             raise TypeError(f"Expected job_data to be of type {type(BSEQData)}")
 
