@@ -8,18 +8,38 @@ the CHSH inequality. The violation of this inequality indicates successful entan
 from dataclasses import dataclass, field
 
 import networkx as nx
+import rustworkx as rx
 import numpy as np
 from qbraid import GateModelResultData, QuantumDevice, QuantumJob, ResultData
 from qbraid.runtime import (
+    BraketDevice,
     QiskitBackend,
 )
-import rustworkx as rx
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit.result import marginal_counts, sampled_expectation_value
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+
+
+def _convert_rustworkx_to_networkx(graph: rx.PyGraph) -> nx.Graph:
+    """Convert a rustworkx PyGraph or PyDiGraph to a networkx graph.
+
+    Adapted from:
+    https://www.rustworkx.org/dev/networkx.html#converting-from-a-networkx-graph
+    """
+    edge_list = [(graph[x[0]], graph[x[1]], {"weight": x[2]}) for x in graph.weighted_edge_list()]
+    graph_type = (
+        nx.MultiGraph
+        if graph.multigraph
+        else nx.Graph
+        if isinstance(graph, rx.PyGraph)
+        else nx.MultiDiGraph
+        if graph.multigraph
+        else nx.DiGraph
+    )
+    return graph_type(edge_list)
 
 
 @dataclass
@@ -68,7 +88,7 @@ class BSEQData(BenchmarkData):
     coloring: GraphColoring | dict | None = None
 
 
-def ibm_device_coloring(device: QiskitBackend) -> GraphColoring:
+def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     """Performs graph coloring for a quantum device's topology.
 
     The goal is to assign colors to edges such that no two adjacent edges have the same color.
@@ -82,18 +102,14 @@ def ibm_device_coloring(device: QiskitBackend) -> GraphColoring:
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    # Get the graph of the coupling map.
-    topology_graph = device._backend.coupling_map.graph
-    # Convert to undirected graph for coloring.
-    undirected_graph = topology_graph.to_undirected(multigraph=False)
+    num_qubits = _convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
     # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
     # This graph is colored using a bipartite edge-coloring algorithm.
-    edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
-    topology_graph = undirected_graph
+    edge_color_map = rx.graph_bipartite_edge_color(topology_graph)
 
     # Get the index of the edges.
     edge_index_map = topology_graph.edge_index_map()
-    return GraphColoring(device.num_qubits, edge_color_map, edge_index_map)
+    return GraphColoring(num_qubits, edge_color_map, edge_index_map)
 
 
 def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
@@ -211,18 +227,21 @@ class BSEQ(Benchmark):
     def dispatch_handler(self, device: QuantumDevice) -> BSEQData:
         """Runs the benchmark and returns job metadata."""
         shots = self.params.shots
-
-        topology_graph = None
-        coloring = None
         trans_exp_sets: list[list[QuantumCircuit]]
 
         if isinstance(device, QiskitBackend):
-            coloring = ibm_device_coloring(device)
+            topology_graph = device._backend.coupling_map.graph.to_undirected(multigraph=False)
+
+            coloring = device_graph_coloring(topology_graph)
             exp_sets = generate_chsh_circuit_sets(coloring)
+
             pm = generate_preset_pass_manager(1, device._backend)
             trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
-        else:
-            raise ValueError(f"Unsupported device type: {type(device)}")
+
+        elif isinstance(device, BraketDevice):
+            topology_graph = rx.networkx_converter(nx.Graph(device._device.topology_graph))
+            coloring = device_graph_coloring(topology_graph)
+            trans_exp_sets = generate_chsh_circuit_sets(coloring)
 
         quantum_jobs: list[QuantumJob | list[QuantumJob]] = [
             device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
