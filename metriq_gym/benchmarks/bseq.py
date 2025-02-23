@@ -5,7 +5,6 @@ This benchmark evaluates a quantum device's ability to produce entangled states 
 the CHSH inequality. The violation of this inequality indicates successful entanglement between qubits.
 """
 
-from typing import Any
 from dataclasses import dataclass, field
 
 import networkx as nx
@@ -56,7 +55,7 @@ class GraphColoring:
 
     num_nodes: int
     edge_color_map: dict
-    edge_index_map: dict | rx.EdgeIndexMap[Any]
+    edge_index_map: dict
     num_colors: int = field(init=False)
 
     def __post_init__(self):
@@ -110,6 +109,7 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
 
     # Get the index of the edges.
     edge_index_map = topology_graph.edge_index_map()
+    edge_index_map = {k: tuple(v) for k, v in topology_graph.edge_index_map().items()}
     return GraphColoring(num_qubits, edge_color_map, edge_index_map)
 
 
