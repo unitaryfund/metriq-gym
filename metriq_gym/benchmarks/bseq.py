@@ -10,17 +10,19 @@ from dataclasses import dataclass, field
 import networkx as nx
 import rustworkx as rx
 import numpy as np
-from qbraid import GateModelResultData, QuantumDevice, QuantumJob, ResultData
+from qbraid import QuantumDevice, QuantumJob, ResultData
 from qbraid.runtime import (
     BraketDevice,
     QiskitBackend,
 )
+from qbraid.runtime.result_data import MeasCount
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit.result import marginal_counts, sampled_expectation_value
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+from metriq_gym.task_helpers import flatten_counts
 
 
 def _convert_rustworkx_to_networkx(graph: rx.PyGraph) -> nx.Graph:
@@ -165,7 +167,7 @@ def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
     return exp_sets
 
 
-def chsh_subgraph(coloring: GraphColoring, result_data: list[GateModelResultData]) -> rx.PyGraph:
+def chsh_subgraph(coloring: GraphColoring, counts: list[MeasCount]) -> rx.PyGraph:
     """Constructs a subgraph of qubit pairs that violate the CHSH inequality.
 
     Args:
@@ -178,36 +180,27 @@ def chsh_subgraph(coloring: GraphColoring, result_data: list[GateModelResultData
     # A subgraph is constructed containing only the edges (qubit pairs) that successfully violate the CHSH inequality.
     # The size of the largest connected component in this subgraph provides a measure of the device's performance.
     good_edges = []
-    for job_idx, result in enumerate(result_data):
-        if result.measurement_counts is None:
-            continue
+    for color_idx in range(coloring.num_colors):
         num_meas_pairs = len(
-            {key for key, val in coloring.edge_color_map.items() if val == job_idx}
+            {key for key, val in coloring.edge_color_map.items() if val == color_idx}
         )
         exp_vals: np.ndarray = np.zeros(num_meas_pairs, dtype=float)
 
-        # IBM case: multiple dictionaries (one per measurement basis)
-        if isinstance(result.measurement_counts, list):
-            for idx in range(4):
-                counts = result.measurement_counts[idx]
-                for pair in range(num_meas_pairs):
-                    sub_counts = marginal_counts(counts, [2 * pair, 2 * pair + 1])
-                    exp_val = sampled_expectation_value(sub_counts, "ZZ")
-                    exp_vals[pair] += exp_val if idx != 2 else -exp_val
-
-        # AWS case: single dictionary → Simulate different measurement bases
-        elif isinstance(result.measurement_counts, dict):
-            counts = result.measurement_counts
-            # TODO: Something needs to actually happen here but at present I don't know how or what.
+        for idx in range(4):
+            for pair in range(num_meas_pairs):
+                sub_counts = marginal_counts(counts[color_idx * 4 + idx], [2 * pair, 2 * pair + 1])
+                exp_val = sampled_expectation_value(sub_counts, "ZZ")
+                exp_vals[pair] += exp_val if idx != 2 else -exp_val
 
         for idx, edge_idx in enumerate(
-            key for key, val in coloring.edge_color_map.items() if val == job_idx
+            key for key, val in coloring.edge_color_map.items() if val == color_idx
         ):
             edge = (coloring.edge_index_map[edge_idx][0], coloring.edge_index_map[edge_idx][1])
             # The benchmark checks whether the CHSH inequality is violated (i.e., the sum of correlations exceeds 2,
             # indicating entanglement).
             if exp_vals[idx] > 2:
                 good_edges.append(edge)
+
     good_graph = rx.PyGraph(multigraph=False)
     good_graph.add_nodes_from(list(range(coloring.num_nodes)))
     for edge in good_edges:
@@ -281,5 +274,5 @@ class BSEQ(Benchmark):
         if job_data.coloring:
             if isinstance(job_data.coloring, dict):
                 job_data.coloring = GraphColoring.from_dict(job_data.coloring)
-            good_graph = chsh_subgraph(job_data.coloring, result_data)
+            good_graph = chsh_subgraph(job_data.coloring, flatten_counts(result_data))
             print(f"Largest connected size: {largest_connected_size(good_graph)}")
