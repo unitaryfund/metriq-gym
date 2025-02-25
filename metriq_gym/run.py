@@ -89,7 +89,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     ]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
         result_data: list[ResultData] = [task.result().data for task in quantum_job]
-        handler.poll_handler(job_data, result_data)
+        print(handler.poll_handler(job_data, result_data))
     else:
         logger.info("Job is not yet completed. Please try again later.")
 
