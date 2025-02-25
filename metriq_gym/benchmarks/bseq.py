@@ -8,18 +8,40 @@ the CHSH inequality. The violation of this inequality indicates successful entan
 from dataclasses import dataclass, field
 
 import networkx as nx
+import rustworkx as rx
 import numpy as np
-from qbraid import GateModelResultData, QuantumDevice, QuantumJob, ResultData
+from qbraid import QuantumDevice, QuantumJob, ResultData
 from qbraid.runtime import (
+    BraketDevice,
     QiskitBackend,
 )
-import rustworkx as rx
+from qbraid.runtime.result_data import MeasCount
 
 from qiskit import QuantumCircuit
 from qiskit.transpiler.preset_passmanagers import generate_preset_pass_manager
 from qiskit.result import marginal_counts, sampled_expectation_value
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+from metriq_gym.task_helpers import flatten_counts
+
+
+def _convert_rustworkx_to_networkx(graph: rx.PyGraph) -> nx.Graph:
+    """Convert a rustworkx PyGraph or PyDiGraph to a networkx graph.
+
+    Adapted from:
+    https://www.rustworkx.org/dev/networkx.html#converting-from-a-networkx-graph
+    """
+    edge_list = [(graph[x[0]], graph[x[1]], {"weight": x[2]}) for x in graph.weighted_edge_list()]
+    graph_type = (
+        nx.MultiGraph
+        if graph.multigraph
+        else nx.Graph
+        if isinstance(graph, rx.PyGraph)
+        else nx.MultiDiGraph
+        if graph.multigraph
+        else nx.DiGraph
+    )
+    return graph_type(edge_list)
 
 
 @dataclass
@@ -68,7 +90,7 @@ class BSEQData(BenchmarkData):
     coloring: GraphColoring | dict | None = None
 
 
-def ibm_device_coloring(device: QiskitBackend) -> GraphColoring:
+def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     """Performs graph coloring for a quantum device's topology.
 
     The goal is to assign colors to edges such that no two adjacent edges have the same color.
@@ -77,23 +99,21 @@ def ibm_device_coloring(device: QiskitBackend) -> GraphColoring:
     the complexity of the benchmarking process by organizing the graph into independent sets of qubit pairs.
 
     Args:
-        device: The quantum device.
+        topology_graph: The topology graph (coupling map) of the quantum device.
 
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    # Get the graph of the coupling map.
-    topology_graph = device._backend.coupling_map.graph
-    # Convert to undirected graph for coloring.
-    undirected_graph = topology_graph.to_undirected(multigraph=False)
+    num_nodes = _convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
     # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
     # This graph is colored using a bipartite edge-coloring algorithm.
-    edge_color_map = rx.graph_bipartite_edge_color(undirected_graph)
-    topology_graph = undirected_graph
+    edge_color_map = rx.graph_bipartite_edge_color(topology_graph)
 
     # Get the index of the edges.
-    edge_index_map = topology_graph.edge_index_map()
-    return GraphColoring(device.num_qubits, edge_color_map, edge_index_map)
+    edge_index_map = dict(topology_graph.edge_index_map())
+    return GraphColoring(
+        num_nodes=num_nodes, edge_color_map=edge_color_map, edge_index_map=edge_index_map
+    )
 
 
 def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
@@ -147,9 +167,7 @@ def generate_chsh_circuit_sets(coloring: GraphColoring) -> list[QuantumCircuit]:
     return exp_sets
 
 
-def ibm_chsh_subgraph(
-    coloring: GraphColoring, result_data: list[GateModelResultData]
-) -> rx.PyGraph:
+def chsh_subgraph(coloring: GraphColoring, counts: list[MeasCount]) -> rx.PyGraph:
     """Constructs a subgraph of qubit pairs that violate the CHSH inequality.
 
     Args:
@@ -162,28 +180,27 @@ def ibm_chsh_subgraph(
     # A subgraph is constructed containing only the edges (qubit pairs) that successfully violate the CHSH inequality.
     # The size of the largest connected component in this subgraph provides a measure of the device's performance.
     good_edges = []
-    for job_idx, result in enumerate(result_data):
-        if result.measurement_counts is None:
-            continue
+    for color_idx in range(coloring.num_colors):
         num_meas_pairs = len(
-            {key for key, val in coloring.edge_color_map.items() if val == job_idx}
+            {key for key, val in coloring.edge_color_map.items() if val == color_idx}
         )
         exp_vals: np.ndarray = np.zeros(num_meas_pairs, dtype=float)
+
         for idx in range(4):
-            counts = result.measurement_counts[idx]
-            # Expectation values for the CHSH correlation terms are calculated based on measurement outcomes.
             for pair in range(num_meas_pairs):
-                sub_counts = marginal_counts(counts, [2 * pair, 2 * pair + 1])
+                sub_counts = marginal_counts(counts[color_idx * 4 + idx], [2 * pair, 2 * pair + 1])
                 exp_val = sampled_expectation_value(sub_counts, "ZZ")
                 exp_vals[pair] += exp_val if idx != 2 else -exp_val
+
         for idx, edge_idx in enumerate(
-            key for key, val in coloring.edge_color_map.items() if val == job_idx
+            key for key, val in coloring.edge_color_map.items() if val == color_idx
         ):
             edge = (coloring.edge_index_map[edge_idx][0], coloring.edge_index_map[edge_idx][1])
             # The benchmark checks whether the CHSH inequality is violated (i.e., the sum of correlations exceeds 2,
             # indicating entanglement).
             if exp_vals[idx] > 2:
                 good_edges.append(edge)
+
     good_graph = rx.PyGraph(multigraph=False)
     good_graph.add_nodes_from(list(range(coloring.num_nodes)))
     for edge in good_edges:
@@ -211,18 +228,21 @@ class BSEQ(Benchmark):
     def dispatch_handler(self, device: QuantumDevice) -> BSEQData:
         """Runs the benchmark and returns job metadata."""
         shots = self.params.shots
-
-        topology_graph = None
-        coloring = None
         trans_exp_sets: list[list[QuantumCircuit]]
 
         if isinstance(device, QiskitBackend):
-            coloring = ibm_device_coloring(device)
+            topology_graph = device._backend.coupling_map.graph.to_undirected(multigraph=False)
+
+            coloring = device_graph_coloring(topology_graph)
             exp_sets = generate_chsh_circuit_sets(coloring)
+
             pm = generate_preset_pass_manager(1, device._backend)
             trans_exp_sets = [pm.run(circ_set) for circ_set in exp_sets]
-        else:
-            raise ValueError(f"Unsupported device type: {type(device)}")
+
+        elif isinstance(device, BraketDevice):
+            topology_graph = rx.networkx_converter(nx.Graph(device._device.topology_graph))
+            coloring = device_graph_coloring(topology_graph)
+            trans_exp_sets = generate_chsh_circuit_sets(coloring)
 
         quantum_jobs: list[QuantumJob | list[QuantumJob]] = [
             device.run(circ_set, shots=shots) for circ_set in trans_exp_sets
@@ -247,12 +267,12 @@ class BSEQ(Benchmark):
         )
 
     def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
-        """Poll and calculate largest connected componenet."""
+        """Poll and calculate largest connected component."""
         if not isinstance(job_data, BSEQData):
             raise TypeError(f"Expected job_data to be of type {type(BSEQData)}")
 
         if job_data.coloring:
             if isinstance(job_data.coloring, dict):
                 job_data.coloring = GraphColoring.from_dict(job_data.coloring)
-            good_graph = ibm_chsh_subgraph(job_data.coloring, result_data)
+            good_graph = chsh_subgraph(job_data.coloring, flatten_counts(result_data))
             print(f"Largest connected size: {largest_connected_size(good_graph)}")
