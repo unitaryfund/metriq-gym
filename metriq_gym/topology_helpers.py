@@ -110,6 +110,6 @@ def device_topology(device: QuantumDevice) -> nx.Graph:
     if isinstance(device, QiskitBackend):
         return device._backend.coupling_map.graph.to_undirected(multigraph=False)
     elif isinstance(device, BraketDevice):
-        return rx.networkxconverter(nx.Graph(device._device.topology_graph.to_undirected()))
+        return rx.networkx_converter(nx.Graph(device._device.topology_graph.to_undirected()))
 
     raise ValueError("Device type not supported.")
