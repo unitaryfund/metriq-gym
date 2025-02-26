@@ -52,7 +52,7 @@ def largest_connected_size(good_graph: rx.PyGraph) -> int:
     return len(largest_cc)
 
 
-def _convert_rustworkx_to_networkx(graph: rx.PyGraph) -> nx.Graph:
+def convert_rustworkx_to_networkx(graph: rx.PyGraph) -> nx.Graph:
     """Convert a rustworkx PyGraph or PyDiGraph to a networkx graph.
 
     Adapted from:
@@ -85,7 +85,8 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    num_nodes = _convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
+    num_nodes = convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
+
     # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
     # This graph is colored using a bipartite edge-coloring algorithm.
     edge_color_map = rx.graph_bipartite_edge_color(topology_graph)
@@ -109,6 +110,6 @@ def device_topology(device: QuantumDevice) -> nx.Graph:
     if isinstance(device, QiskitBackend):
         return device._backend.coupling_map.graph.to_undirected(multigraph=False)
     elif isinstance(device, BraketDevice):
-        return rx.networkx_converter(nx.Graph(device._device.topology_graph.to_undirected()))
+        return rx.networkxconverter(nx.Graph(device._device.topology_graph.to_undirected()))
 
     raise ValueError("Device type not supported.")
