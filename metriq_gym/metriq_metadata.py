@@ -96,3 +96,13 @@ tasks = {
     "quantum_fourier_transform": 142,
     "grovers": 97,
 }
+
+# Metriq result metadata field by job type
+is_higher_better = {
+
+}
+
+# Metric name by job type
+metric_names = {
+
+}

@@ -65,6 +65,8 @@ def parse_arguments() -> argparse.Namespace:
     # Subparser for poll.
     poll_parser = subparsers.add_parser("poll", help="Poll jobs")
     poll_parser.add_argument("--job_id", type=str, required=False, help="Job ID to poll (optional)")
+    poll_parser.add_argument("-t", "--token", type=str, required=False, help="Metriq API token (needed to upload results)")
+    poll_parser.add_argument("-s", "--submission_id", type=int, required=False, help="Metriq submission ID (needed to upload results)")
 
     # Subparser for list-jobs.
     subparsers.add_parser("list-jobs", help="List dispatched jobs")

@@ -1,7 +1,6 @@
 import argparse
 from dataclasses import asdict
 from datetime import datetime
-import sys
 import logging
 import uuid
 
@@ -15,6 +14,10 @@ from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
+from metriq_gym.metriq_metadata import platforms, methods, tasks, is_higher_better, metric_names
+
+from metriq_client import MetriqClient
+from metriq_client.models import ResultCreateRequest
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -59,7 +62,7 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     logger.info(f"Job dispatched with ID: {job_id}")
 
 
-def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=False) -> None:
     if not args.job_id:
         jobs = job_manager.get_jobs()
         if not jobs:
@@ -90,8 +93,33 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
         result_data: list[ResultData] = [task.result().data for task in quantum_job]
         print(handler.poll_handler(job_data, result_data))
+        if is_upload:
+            upload_job(args, job_manager, job_type, job_data)
     else:
         logger.info("Job is not yet completed. Please try again later.")
+
+
+def upload_job(args: argparse.Namespace, job_manager: JobManager, job_type: JobType, job_data: BenchmarkData):
+    client = MetriqClient(args.token)
+    client.submission_add_task(args.submission_id, tasks[job_type])
+    client.submission_add_method(args.submission_id, methods[job_type])
+    client.submission_add_platform(args.submission_id, platforms[job_type])
+    result_create_request = ResultCreateRequest(
+        task = tasks[job_type],
+        method = methods[job_type],
+        platform = platforms[job_type],
+        isHigherBetter = is_higher_better[job_type],
+        metricName = metric_names[job_type],
+        metricValue = str | None = None,
+        evaluatedAt = date.today().strftime("%Y-%m-%d"),
+        qubitCount = str | None = None,
+        circuitDepth = str | None = None,
+        shots = str | None = None,
+        # notes: str | None = None
+        # sampleSize: str | None = None
+        # standardError: str | None = None
+    )
+    client.result_add(result_create_request, args.submission_id)
 
 
 def main() -> int:
@@ -103,7 +131,9 @@ def main() -> int:
     if args.action == "dispatch":
         dispatch_job(args, job_manager)
     elif args.action == "poll":
-        poll_job(args, job_manager)
+        poll_job(args, job_manager, False)
+    elif args.action == "upload":
+        poll_job(args, job_manager, True)
     elif args.action == "list-jobs":
         jobs: list[MetriqGymJob] = job_manager.get_jobs()
         list_jobs(jobs)
