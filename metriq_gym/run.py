@@ -1,23 +1,18 @@
 import argparse
 from dataclasses import asdict
 from datetime import datetime
-import os
 import sys
 import logging
 import uuid
 
-from qbraid.runtime import AzureQuantumProvider
-from azure.quantum import Workspace
-
 from dotenv import load_dotenv
 from qbraid import JobStatus, ResultData
-from qbraid.runtime import QuantumDevice, QuantumProvider, load_job
+from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provider
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from metriq_gym.provider import QBRAID_PROVIDERS, ProviderType
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
 
@@ -26,13 +21,8 @@ logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
-    if provider_name == "azure":
-        connection_string = f"SubscriptionId={os.getenv('AZURE_SUBSCRIPTION_ID')};ResourceGroupName={os.getenv('AZURE_RESOURCE_GROUP')};WorkspaceName={os.getenv('AZURE_WORKSPACE_NAME')};ApiKey={os.getenv('AZURE_CLIENT_SECRET')};QuantumEndpoint=https://{os.getenv('AZURE_LOCATION')}.quantum.azure.com/;"
-        workspace = Workspace.from_connection_string(connection_string)
-        return AzureQuantumProvider(workspace=workspace).get_device(backend_name)
-    else:
-        provider: QuantumProvider = QBRAID_PROVIDERS[ProviderType(provider_name)]
-        return provider().get_device(backend_name)
+    provider: QuantumProvider = load_provider(provider_name)
+    return provider.get_device(backend_name)
 
 
 def setup_benchmark(args, params, job_type: JobType) -> Benchmark:
@@ -44,11 +34,14 @@ def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
 
 
 def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
-    logger.info("Dispatching job...")
+    logger.info("Starting job dispatch...")
     provider_name = args.provider
     device_name = args.device
     device = setup_device(provider_name, device_name)
+
     params = load_and_validate(args.input_file)
+    logger.info(f"Dispatching {params.benchmark_name} benchmark job on {args.device} device...")
+
     job_type = JobType(params.benchmark_name)
     handler: Benchmark = setup_benchmark(args, params, job_type)
     job_data: BenchmarkData = handler.dispatch_handler(device)
@@ -96,7 +89,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     ]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
         result_data: list[ResultData] = [task.result().data for task in quantum_job]
-        handler.poll_handler(job_data, result_data)
+        print(handler.poll_handler(job_data, result_data))
     else:
         logger.info("Job is not yet completed. Please try again later.")
 

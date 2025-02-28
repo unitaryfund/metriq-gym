@@ -1,13 +1,3 @@
-from qbraid import (
-    QbraidProvider,
-    QuantumProvider,
-)
-from qbraid.runtime import (
-    AzureQuantumProvider,
-    BraketProvider,
-    IonQProvider,
-    QiskitRuntimeProvider,
-)
 from enum import StrEnum
 
 
@@ -24,12 +14,3 @@ class ProviderType(StrEnum):
     @classmethod
     def value_list(cls):
         return [provider.value for provider in cls]
-
-
-QBRAID_PROVIDERS: dict[ProviderType, type[QuantumProvider]] = {
-    ProviderType.AWS: BraketProvider,
-    ProviderType.AZURE: AzureQuantumProvider,
-    ProviderType.IBMQ: QiskitRuntimeProvider,
-    ProviderType.IONQ: IonQProvider,
-    ProviderType.QBRAID: QbraidProvider,
-}

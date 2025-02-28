@@ -3,14 +3,15 @@ import statistics
 from scipy.stats import binom
 from dataclasses import dataclass
 
-from qbraid import QuantumDevice, QuantumJob, ResultData
+from qbraid import GateModelResultData, QuantumDevice, QuantumJob
 from qbraid.runtime.result_data import MeasCount
 from pyqrack import QrackSimulator
 from qiskit import QuantumCircuit
 
 from metriq_gym.circuits import qiskit_random_circuit_sampling
 
-from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
+from metriq_gym.task_helpers import flatten_counts
 
 
 @dataclass
@@ -21,6 +22,13 @@ class QuantumVolumeData(BenchmarkData):
     confidence_level: float
     ideal_probs: list[list[float]]
     trials: int
+
+
+@dataclass
+class QuantumVolumeResult(BenchmarkResult):
+    num_qubits: int
+    confidence_pass: bool
+    xeb: float
 
 
 def prepare_qv_circuits(n: int, num_trials: int) -> tuple[list[QuantumCircuit], list[list[float]]]:
@@ -204,18 +212,15 @@ class QuantumVolume(Benchmark):
             trials=trials,
         )
 
-    def poll_handler(self, job_data: BenchmarkData, result_data: list[ResultData]) -> None:
+    def poll_handler(
+        self, job_data: BenchmarkData, result_data: list[GateModelResultData]
+    ) -> BenchmarkResult:
         if not isinstance(job_data, QuantumVolumeData):
             raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
 
-        counts: list[MeasCount]  # one MeasCount per trial
-
-        # AWS vs IBM
-        if len(result_data) == 1:
-            counts = result_data[0].get_counts()
-        else:
-            counts = [r.get_counts() for r in result_data]
-
-        stats: AggregateStats = calc_stats(job_data, counts)
-        if stats.confidence_pass:
-            print(f"Quantum Volume benchmark for {job_data.num_qubits} qubits passed.")
+        stats: AggregateStats = calc_stats(job_data, flatten_counts(result_data))
+        return QuantumVolumeResult(
+            num_qubits=job_data.num_qubits,
+            confidence_pass=stats.confidence_pass,
+            xeb=1,
+        )

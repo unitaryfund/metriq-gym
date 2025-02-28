@@ -3,12 +3,17 @@ import argparse
 from pydantic import BaseModel
 from dataclasses import dataclass
 
-from qbraid import QuantumDevice, ResultData
+from qbraid import GateModelResultData, QuantumDevice
 
 
 @dataclass
 class BenchmarkData:
     provider_job_ids: list[str]
+
+
+@dataclass
+class BenchmarkResult:
+    pass
 
 
 class Benchmark:
@@ -26,6 +31,6 @@ class Benchmark:
     def poll_handler(
         self,
         job_data: BenchmarkData,
-        result_data: list[ResultData],
-    ) -> None:
+        result_data: list[GateModelResultData],
+    ) -> BenchmarkResult:
         raise NotImplementedError
