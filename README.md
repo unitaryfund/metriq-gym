@@ -74,6 +74,13 @@ python metriq_gym/run.py poll --job_id <METRIQ_GYM_JOB_ID>
 
 where `<METRIQ_GYM_JOB_ID>` is the assigned job ID of the job that was dispatched as provided by `metriq-gym`. 
 
+Alternatively, the `poll` action can be used without the `--job_id` flag to view all dispatched jobs, 
+and select the one that is of interest.
+
+```sh
+python metriq_gym/run.py poll
+```
+
 ### Listing jobs
 
 You can view all the jobs that have been dispatched by using the `list-jobs` action. This will read the `jobs_file`
