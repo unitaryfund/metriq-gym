@@ -29,6 +29,11 @@ class QuantumVolumeResult(BenchmarkResult):
     num_qubits: int
     confidence_pass: bool
     xeb: float
+    hog_prob: float
+    hog_pass: bool
+    eplg: float
+    p_value: float
+    trials: int
 
 
 def prepare_qv_circuits(n: int, num_trials: int) -> tuple[list[QuantumCircuit], list[list[float]]]:
@@ -82,21 +87,26 @@ class AggregateStats:
     """Data class to store aggregated statistics over multiple trials.
 
     Attributes:
-        provider: The quantum backend provider for the result.
         trials: Number of trials aggregated.
         trial_p_values: List of p-values for each trial.
+        trial_stats: List of TrialStats objects for each trial.
         hog_prob: Average probability of measuring heavy outputs across trials.
         p_value: Combined p-value for all trials.
         hog_pass: Boolean indicating whether all trials exceeded the heavy output probability threshold.
         confidence_pass: Boolean indicating if all trials passed the confidence level.
+        avg_eplg: Average Error Per Layered Gate across all trials.
+        avg_xeb: Average Cross Entropy Benchmarking score across all trials.
     """
 
     trials: int
     trial_p_values: list[float]
+    trial_stats: list[TrialStats]
     hog_prob: float
     p_value: float
     hog_pass: bool
     confidence_pass: bool
+    avg_eplg: float
+    avg_xeb: float
 
 
 def calc_trial_stats(
@@ -161,7 +171,7 @@ def calc_stats(data: QuantumVolumeData, counts: list[MeasCount]) -> AggregateSta
         data: contains dispatch-time data (input data + ideal probability).
         counts: contains results from the quantum device (one MeasCount per trial).
     Returns:
-        A list of `AggregateStats` objects, each containing aggregated statistics for a result.
+        An AggregateStats object containing aggregated statistics for the result.
     """
     trial_stats = []
 
@@ -179,14 +189,19 @@ def calc_stats(data: QuantumVolumeData, counts: list[MeasCount]) -> AggregateSta
     # Aggregate the trial statistics.
     hog_prob = sum(stat.hog_prob for stat in trial_stats) / num_trials
     p_value = math.prod(stat.p_value for stat in trial_stats) ** (1 / num_trials)
+    avg_eplg = sum(stat.eplg for stat in trial_stats) / num_trials
+    avg_xeb = sum(stat.xeb for stat in trial_stats) / num_trials
 
     return AggregateStats(
         trials=num_trials,
         trial_p_values=[stat.p_value for stat in trial_stats],
+        trial_stats=trial_stats,
         hog_prob=hog_prob,
         p_value=p_value,
         hog_pass=all(stat.hog_pass for stat in trial_stats),
         confidence_pass=all(stat.confidence_pass for stat in trial_stats),
+        avg_eplg=avg_eplg,
+        avg_xeb=avg_xeb,
     )
 
 
@@ -219,8 +234,14 @@ class QuantumVolume(Benchmark):
             raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
 
         stats: AggregateStats = calc_stats(job_data, flatten_counts(result_data))
+
         return QuantumVolumeResult(
             num_qubits=job_data.num_qubits,
             confidence_pass=stats.confidence_pass,
-            xeb=1,
+            xeb=stats.avg_xeb,
+            hog_prob=stats.hog_prob,
+            hog_pass=stats.hog_pass,
+            eplg=stats.avg_eplg,
+            p_value=stats.p_value,
+            trials=stats.trials,
         )
