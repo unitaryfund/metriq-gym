@@ -87,9 +87,8 @@ class AggregateStats:
     """Data class to store aggregated statistics over multiple trials.
 
     Attributes:
-        trials: Number of trials aggregated.
-        trial_p_values: List of p-values for each trial.
         trial_stats: List of TrialStats objects for each trial.
+        trials: Number of trials aggregated.
         hog_prob: Average probability of measuring heavy outputs across trials.
         p_value: Combined p-value for all trials.
         hog_pass: Boolean indicating whether all trials exceeded the heavy output probability threshold.
@@ -98,9 +97,8 @@ class AggregateStats:
         avg_xeb: Average Cross Entropy Benchmarking score across all trials.
     """
 
-    trials: int
-    trial_p_values: list[float]
     trial_stats: list[TrialStats]
+    trials: int  # Added this field to fix the type error
     hog_prob: float
     p_value: float
     hog_pass: bool
@@ -193,9 +191,8 @@ def calc_stats(data: QuantumVolumeData, counts: list[MeasCount]) -> AggregateSta
     avg_xeb = sum(stat.xeb for stat in trial_stats) / num_trials
 
     return AggregateStats(
-        trials=num_trials,
-        trial_p_values=[stat.p_value for stat in trial_stats],
         trial_stats=trial_stats,
+        trials=num_trials,  # Set the trials field to fix the type error
         hog_prob=hog_prob,
         p_value=p_value,
         hog_pass=all(stat.hog_pass for stat in trial_stats),
