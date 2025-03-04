@@ -14,7 +14,7 @@ from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
-from metriq_gym.metriq_metadata import platforms, methods, tasks, is_higher_better, metric_names
+from metriq_gym.metriq_metadata import platforms, methods, tasks, is_higher_better
 from metriq_gym.benchmarks.quantum_volume import QuantumVolumeData, QuantumVolumeResult
 from metriq_gym.benchmarks.bseq import BSEQData, BSEQResult
 
@@ -104,15 +104,24 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
 
 def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: list[ResultData]):
     client = MetriqClient(args.token)
-    client.submission_add_task(args.submission_id, tasks[job_type])
-    client.submission_add_method(args.submission_id, methods[job_type])
-    client.submission_add_platform(args.submission_id, platforms[job_type])
+    task = 0
+    method = 0
+    platform = 0
     if job_type == JobType.QUANTUM_VOLUME:
         job_data = QuantumVolumeData(job_data)
+        task = 235 #Quantum Volume task ID
+        method = methods[job_type]
+        platform = platforms[job_type]
     elif job_type == JobType.BSEQ:
         job_data = BSEQData(job_data)
+        task = 236 #BSEQ task ID
+        method = methods[job_type]
+        platform = platforms[job_type]
     else:
         raise Exception("You're trying to upload an unrecognized job type!")
+    client.submission_add_task(args.submission_id, task)
+    client.submission_add_method(args.submission_id, method)
+    client.submission_add_platform(args.submission_id, platform)
     for result in result_data:
         if job_type == JobType.QUANTUM_VOLUME:
             result = QuantumVolumeResult(result)
@@ -125,7 +134,7 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
             isHigherBetter = is_higher_better[job_type],
             metricName = "",
             metricValue = 0,
-            evaluatedAt = date.today().strftime("%Y-%m-%d"),
+            evaluatedAt = datetime.date.today().strftime("%Y-%m-%d"),
             qubitCount = job_data.num_qubits,
             shots = job_data.shots,
             # circuitDepth = str | None = None,
