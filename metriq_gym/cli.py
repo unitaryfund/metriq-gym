@@ -7,9 +7,10 @@ from tabulate import tabulate
 from metriq_gym.job_manager import MetriqGymJob
 from metriq_gym.provider import ProviderType
 
-LIST_JOBS_HEADERS = ["ID", "Provider", "Device", "Type", "Dispatch time (UTC)"]
+LIST_JOBS_HEADERS = ["Metriq-gym Job Id", "Provider", "Device", "Type", "Dispatch time (UTC)"]
 
-def list_jobs(jobs: list[MetriqGymJob], show_index: bool = True) -> None:
+
+def list_jobs(jobs: list[MetriqGymJob], show_index: bool = False) -> None:
     """List jobs recorded in the job manager.
 
     Args:
@@ -28,6 +29,7 @@ def list_jobs(jobs: list[MetriqGymJob], show_index: bool = True) -> None:
             showindex=show_index,
         )
     )
+
 
 def parse_arguments() -> argparse.Namespace:
     """
