@@ -9,12 +9,14 @@ from qbraid import JobStatus, ResultData
 from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provider
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
-from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
 from metriq_gym.metriq_metadata import platforms, methods, tasks, is_higher_better, metric_names
+from metriq_gym.benchmarks.quantum_volume import QuantumVolumeData, QuantumVolumeResult
+from metriq_gym.benchmarks.bseq import BSEQData, BSEQResult
 
 from metriq_client import MetriqClient
 from metriq_client.models import ResultCreateRequest
@@ -92,34 +94,44 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
     ]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
         result_data: list[ResultData] = [task.result().data for task in quantum_job]
-        print(handler.poll_handler(job_data, result_data))
+        results: BenchmarkResult = handler.poll_handler(job_data, result_data)
+        print(results)
         if is_upload:
-            upload_job(args, job_manager, job_type, job_data)
+            upload_job(args, job_type, job_data, results)
     else:
         logger.info("Job is not yet completed. Please try again later.")
 
 
-def upload_job(args: argparse.Namespace, job_manager: JobManager, job_type: JobType, job_data: BenchmarkData):
+def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: list[ResultData]):
     client = MetriqClient(args.token)
     client.submission_add_task(args.submission_id, tasks[job_type])
     client.submission_add_method(args.submission_id, methods[job_type])
     client.submission_add_platform(args.submission_id, platforms[job_type])
-    result_create_request = ResultCreateRequest(
-        task = tasks[job_type],
-        method = methods[job_type],
-        platform = platforms[job_type],
-        isHigherBetter = is_higher_better[job_type],
-        metricName = metric_names[job_type],
-        metricValue = str | None = None,
-        evaluatedAt = date.today().strftime("%Y-%m-%d"),
-        qubitCount = str | None = None,
-        circuitDepth = str | None = None,
-        shots = str | None = None,
-        # notes: str | None = None
-        # sampleSize: str | None = None
-        # standardError: str | None = None
-    )
-    client.result_add(result_create_request, args.submission_id)
+    if job_type == JobType.QUANTUM_VOLUME:
+        job_data = QuantumVolumeData(job_data)
+    elif job_type == JobType.BSEQ:
+        job_data = BSEQData(job_data)
+    for result in result_data:
+        if job_type == JobType.QUANTUM_VOLUME:
+            result = QuantumVolumeResult(result)
+        elif job_type == JobType.BSEQ:
+            result = BSEQResult(result)
+        result_create_request = ResultCreateRequest(
+            task = tasks[job_type],
+            method = methods[job_type],
+            platform = platforms[job_type],
+            isHigherBetter = is_higher_better[job_type],
+            metricName = metric_names[job_type],
+            metricValue = str | None = None,
+            evaluatedAt = date.today().strftime("%Y-%m-%d"),
+            qubitCount = job_data.num_qubits,
+            shots = job_data.shots,
+            # circuitDepth = str | None = None,
+            # notes: str | None = None
+            # sampleSize: str | None = None
+            # standardError: str | None = None
+        )
+        client.result_add(result_create_request, args.submission_id)
 
 
 def main() -> int:
