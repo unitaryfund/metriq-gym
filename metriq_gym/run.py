@@ -111,6 +111,8 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
         job_data = QuantumVolumeData(job_data)
     elif job_type == JobType.BSEQ:
         job_data = BSEQData(job_data)
+    else:
+        raise Exception("You're trying to upload an unrecognized job type!")
     for result in result_data:
         if job_type == JobType.QUANTUM_VOLUME:
             result = QuantumVolumeResult(result)
@@ -121,8 +123,8 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
             method = methods[job_type],
             platform = platforms[job_type],
             isHigherBetter = is_higher_better[job_type],
-            metricName = metric_names[job_type],
-            metricValue = str | None = None,
+            metricName = "",
+            metricValue = 0,
             evaluatedAt = date.today().strftime("%Y-%m-%d"),
             qubitCount = job_data.num_qubits,
             shots = job_data.shots,
@@ -131,7 +133,20 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
             # sampleSize: str | None = None
             # standardError: str | None = None
         )
-        client.result_add(result_create_request, args.submission_id)
+        if job_type == JobType.QUANTUM_VOLUME:
+            result_create_request.metricName = "Heavy-output generation rate"
+            result_create_request.metricValue = result.hog_prob
+            client.result_add(result_create_request, args.submission_id)
+            result_create_request.metricName = "Cross-entropy benchmark fidelity"
+            result_create_request.metricValue = result.xeb
+            client.result_add(result_create_request, args.submission_id)
+        elif job_type == JobType.BSEQ:
+            result_create_request.metricName = "Largest connected component size"
+            result_create_request.metricValue = result.largest_connected_size
+            client.result_add(result_create_request, args.submission_id)
+            result_create_request.metricName = "Largest connected component size per node"
+            result_create_request.metricValue = result.fraction_connected
+            client.result_add(result_create_request, args.submission_id)
 
 
 def main() -> int:
