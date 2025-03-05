@@ -52,7 +52,7 @@ obtain API keys from them.
 The `.env.example` file illustrates how to specify the API keys once you have acquired them. You will need to create a
 `.env` file in the same directory as `.env.example` and populate the values of these variables accordingly.
 
-### Workflow: 
+### Workflow
 
 Once you have invoked the `poetry shell` command as described above, you can dispatch a job by specifying the parameters
 of the job you wish to launch in a configuration file. 
