@@ -41,7 +41,7 @@ poetry install
 poetry shell
 ```
 
-## Running on hardware
+## Running benchmarks
 
 ### Credential management
 
@@ -52,18 +52,16 @@ obtain API keys from them.
 The `.env.example` file illustrates how to specify the API keys once you have acquired them. You will need to create a
 `.env` file in the same directory as `.env.example` and populate the values of these variables accordingly.
 
-### Example
+### Workflow: 
 
-To run on IBM hardware, you will also require an IBM token. To obtain this, please
-visit the [IBM Quantum Platform](https://quantum.ibm.com/).
-
-Once you have invoked the `poetry shell` command as described above, you can dispatch a job by specifying the parameters of the job you wish to launch in a configuration file. The following dispatches a job on the ibm-strasbourg device for quantum volume.
+Once you have invoked the `poetry shell` command as described above, you can dispatch a job by specifying the parameters
+of the job you wish to launch in a configuration file. 
 
 ```sh
-python metriq_gym/run.py dispatch metriq_gym/schemas/examples/quantum_volume.example.json --provider ibm --device ibm_strasbourg 
+python metriq_gym/run.py dispatch <BENCHMARK_JSON> --provider <PROVIDER> --device <DEVICE>
 ```
 
-Refer to the `schemas/` director for example schema files for other supported benchmarks.
+Refer to the `schemas/` directory for example schema files for other supported benchmarks.
 
 
 If running on quantum cloud hardware, the job will be added to a polling queue. The status of the queue can be checked with
@@ -88,6 +86,79 @@ and display information about each job, including its ID, backend, job type, pro
 
 ```sh
 python metriq_gym/run.py list-jobs
+```
+
+### Example: Benchmarking quantum volume on IBM hardware
+The following example is for IBM, but the general workflow is applicable to any of the supported providers and benchmarks.
+
+To run on IBM hardware, you will also require an IBM token. To obtain this, please visit the [IBM Quantum
+Platform](https://quantum.ibm.com/) and include the API token in the local `.env` file as previously described.
+
+The `schemas/examples/` directory houses example JSON configuration files that define the benchmark to run. In this
+case, we use the `quantum_volume_example.json` file as we want to run a quantum volume job. The following dispatches a
+job on the ibm-sherbrooke device for quantum volume.
+
+```sh
+python metriq_gym/run.py dispatch metriq_gym/schemas/examples/quantum_volume.example.json --provider ibm --device ibm_sherbrooke
+```
+
+We should see logging information in our terminal to indicate that the dispatch action is taking place:
+
+```sh
+INFO - Starting job dispatch...
+INFO - Dispatching Quantum Volume benchmark job on ibm_sherbrooke device...
+...
+INFO - Job dispatched with ID: 93a06a18-41d8-475a-a030-339fbf3accb9
+```
+
+We can confirm that the job has indeed been dispatched and retrieve the associated metriq-gym job ID (along with other pieces of metadata).
+
+```sh
++--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
+| Metriq-gym Job Id                    | Provider   | Device                                               | Type           | Dispatch time (UTC)        |
++======================================+============+======================================================+================+============================+
+| 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                       | Quantum Volume | 2025-03-05T10:21:18.333703 |
++--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
+```
+
+We can use the "poll" action to check the status of our job:
+
+```sh
+python metriq_gym/run.py poll --job_id 93a06a18-41d8-475a-a030-339fbf3accb9
+```
+
+Doing so gives us the results of our job (if it has completed):
+
+```sh
+INFO - Polling job...
+QuantumVolumeResult(num_qubits=4, confidence_pass=False, xeb=0.11840504152425113, hog_prob=0.5, hog_pass=False, eplg=(0.2747078576628884-0.27990076921028245j), p_value=0.5, trials=2)
+```
+
+In the event where the job has not completed, we would recieve the following message instead
+
+```sh
+INFO - Polling job...
+INFO - Job is not yet completed. Please try again later.
+```
+
+As a convenience, while we could supply the metriq-gym job ID, we can also poll the job by running `python
+metriq_gym/run.py poll` and then selecting the job to poll by index from our local metriq-gym jobs database.
+
+```sh
+Available jobs:
++----+--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
+|    | Metriq-gym Job Id                    | Provider   | Device                                               | Type           | Dispatch time (UTC)        |
++====+======================================+============+======================================================+================+============================+
+| 0 | 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                       | Quantum Volume | 2025-03-05T10:21:18.333703 |
++----+--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
+Select a job index: 
+```
+
+Entering the index (in this case, `0`), polls the same job.
+
+```sh
+Select a job index: 0
+INFO - Polling job...
 ```
 
 ## Contributing
