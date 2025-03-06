@@ -108,11 +108,9 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
     task = 0
     method = 0
     if job_type == JobType.QUANTUM_VOLUME:
-        job_data = QuantumVolumeData(job_data)
         task = 235 #Quantum Volume task ID
         method = 144 #Heavy output generation task ID
     elif job_type == JobType.BSEQ:
-        job_data = BSEQData(job_data)
         task = 236 #BSEQ task ID
         method = 426 #BSEQ method ID
     else:
