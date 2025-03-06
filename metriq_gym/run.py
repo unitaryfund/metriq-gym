@@ -97,26 +97,23 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
         results: BenchmarkResult = handler.poll_handler(job_data, result_data)
         print(results)
         if is_upload:
-            upload_job(args, job_type, job_data, results)
+            upload_job(args, job_type, job_data, results, platforms[metriq_job.device_name.lower()])
     else:
         logger.info("Job is not yet completed. Please try again later.")
 
 
-def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: list[ResultData]):
+def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: list[ResultData], platform: int):
     client = MetriqClient(args.token)
     task = 0
     method = 0
-    platform = 0
     if job_type == JobType.QUANTUM_VOLUME:
         job_data = QuantumVolumeData(job_data)
         task = 235 #Quantum Volume task ID
-        method = methods[job_type]
-        platform = platforms[job_type]
+        method = 144 #Heavy output generation task ID
     elif job_type == JobType.BSEQ:
         job_data = BSEQData(job_data)
         task = 236 #BSEQ task ID
-        method = methods[job_type]
-        platform = platforms[job_type]
+        method = 426 #BSEQ method ID
     else:
         raise Exception("You're trying to upload an unrecognized job type!")
     client.submission_add_task(args.submission_id, task)
@@ -128,10 +125,10 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
         elif job_type == JobType.BSEQ:
             result = BSEQResult(result)
         result_create_request = ResultCreateRequest(
-            task = tasks[job_type],
-            method = methods[job_type],
-            platform = platforms[job_type],
-            isHigherBetter = is_higher_better[job_type],
+            task = task,
+            method = method,
+            platform = platform,
+            isHigherBetter = True,
             metricName = "",
             metricValue = 0,
             evaluatedAt = datetime.date.today().strftime("%Y-%m-%d"),
