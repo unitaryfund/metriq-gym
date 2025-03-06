@@ -53,7 +53,7 @@ def parse_arguments() -> argparse.Namespace:
         "--provider",
         type=str,
         choices=ProviderType.value_list(),
-        default="ibmq",
+        default="ibm",
         help="String identifier for backend provider service",
     )
     dispatch_parser.add_argument(
@@ -68,6 +68,9 @@ def parse_arguments() -> argparse.Namespace:
     poll_parser = subparsers.add_parser("poll", help="Poll jobs")
     poll_parser.add_argument("--job_id", type=str, required=False, help="Job ID to poll (optional)")
     poll_parser.add_argument("-t", "--token", type=str, required=False, help="Metriq API token (needed to upload results)")
+
+    # Subparser for upload.
+    poll_parser = subparsers.add_parser("upload", help="Upload results to Metriq")
     poll_parser.add_argument("-s", "--submission_id", type=int, required=False, help="Metriq submission ID (needed to upload results)")
 
     # Subparser for list-jobs.
