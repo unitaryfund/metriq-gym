@@ -2,6 +2,7 @@ import argparse
 from dataclasses import asdict
 from datetime import datetime
 import logging
+import sys
 import uuid
 
 from dotenv import load_dotenv
