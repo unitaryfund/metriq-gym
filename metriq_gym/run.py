@@ -13,8 +13,6 @@ from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provid
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.cli import list_jobs, parse_arguments
-from metriq_gym.benchmarks.bseq import BSEQData
-from metriq_gym.benchmarks.quantum_volume import QuantumVolumeData
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
