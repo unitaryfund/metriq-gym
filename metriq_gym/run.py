@@ -105,17 +105,16 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
 
 
 def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int):
+    # Ignored attributes are defined in subclasses, not BenchmarkData and BenchmarkResult
     client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
     task = 0
     method = 0
     if job_type == JobType.QUANTUM_VOLUME:
         task = 235 #Quantum Volume task ID
         method = 144 #Heavy output generation task ID
-        job_data.__class__ = QuantumVolumeData
     elif job_type == JobType.BSEQ:
         task = 236 #BSEQ task ID
         method = 426 #BSEQ method ID
-        job_data.__class__ = BSEQData
     else:
         raise Exception("You're trying to upload an unrecognized job type!")
     client.submission_add_task(args.submission_id, task)
@@ -129,8 +128,8 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
         metricName = "",
         metricValue = str(0),
         evaluatedAt = date.today().strftime("%Y-%m-%d"),
-        qubitCount = str(job_data.num_qubits),
-        shots = str(job_data.shots),
+        qubitCount = str(job_data.num_qubits),                                         # type: ignore[attr-defined]
+        shots = str(job_data.shots),                                                   # type: ignore[attr-defined]
         # circuitDepth = str | None = None,
         # notes: str | None = None
         # sampleSize: str | None = None
@@ -138,17 +137,17 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
     )
     if job_type == JobType.QUANTUM_VOLUME:
         result_create_request.metricName = "Heavy-output generation rate"
-        result_create_request.metricValue = str(result_data.hog_prob)
+        result_create_request.metricValue = str(result_data.hog_prob)                  # type: ignore[attr-defined]
         client.result_add(result_create_request, args.submission_id)
         result_create_request.metricName = "Cross-entropy benchmark fidelity"
-        result_create_request.metricValue = str(result_data.xeb)
+        result_create_request.metricValue = str(result_data.xeb)                       # type: ignore[attr-defined]
         client.result_add(result_create_request, args.submission_id)
     elif job_type == JobType.BSEQ:
         result_create_request.metricName = "Largest connected component size"
-        result_create_request.metricValue = str(result_data.largest_connected_size)
+        result_create_request.metricValue = str(result_data.largest_connected_size)    # type: ignore[attr-defined]
         client.result_add(result_create_request, args.submission_id)
         result_create_request.metricName = "Largest connected component size per node"
-        result_create_request.metricValue = str(result_data.fraction_connected)
+        result_create_request.metricValue = str(result_data.fraction_connected)        # type: ignore[attr-defined]
         client.result_add(result_create_request, args.submission_id)
 
 
