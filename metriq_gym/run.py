@@ -88,7 +88,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
     logger.info("Polling job...")
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
-    job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
+    job_data: QuantumVolumeData | BSEQData = setup_job_data_class(job_type)(**metriq_job.data)
     handler = setup_benchmark(args, None, job_type)
     quantum_job = [
         load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
