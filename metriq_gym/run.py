@@ -102,7 +102,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
 
 
 def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int):
-    client = MetriqClient(args.token)
+    client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
     task = 0
     method = 0
     if job_type == JobType.QUANTUM_VOLUME:

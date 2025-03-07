@@ -72,7 +72,6 @@ def parse_arguments() -> argparse.Namespace:
     upload_parser = subparsers.add_parser("upload", help="Upload results to Metriq")
     upload_parser.add_argument("--job_id", type=str, required=True, help="Job ID to upload")
     upload_parser.add_argument("-s", "--submission_id", type=int, required=True, help="Metriq submission ID (needed to upload results)")
-    upload_parser.add_argument("-t", "--token", type=str, required=True, help="Metriq API token (needed to upload results)")
 
     # Subparser for list-jobs.
     subparsers.add_parser("list-jobs", help="List dispatched jobs")
