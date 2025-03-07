@@ -88,25 +88,25 @@ and display information about each job, including its ID, backend, job type, pro
 python metriq_gym/run.py list-jobs
 ```
 
-### Example: Benchmarking quantum volume on IBM hardware
+### Example: Benchmarkin Bell state effective qubits (BSEQ) on IBM hardware
 The following example is for IBM, but the general workflow is applicable to any of the supported providers and benchmarks.
 
 To run on IBM hardware, you will also require an IBM token. To obtain this, please visit the [IBM Quantum
 Platform](https://quantum.ibm.com/) and include the API token in the local `.env` file as previously described.
 
 The `schemas/examples/` directory houses example JSON configuration files that define the benchmark to run. In this
-case, we use the `quantum_volume_example.json` file as we want to run a quantum volume job. The following dispatches a
-job on the ibm-sherbrooke device for quantum volume.
+case, we use the `bseq_example.json` file as we want to run a BSEQ job. The following dispatches a
+job on the ibm-sherbrooke device for BSEQ.
 
 ```sh
-python metriq_gym/run.py dispatch metriq_gym/schemas/examples/quantum_volume.example.json --provider ibm --device ibm_sherbrooke
+python metriq_gym/run.py dispatch metriq_gym/schemas/examples/bseq.example.json --provider ibm --device ibm_sherbrooke
 ```
 
 We should see logging information in our terminal to indicate that the dispatch action is taking place:
 
 ```sh
 INFO - Starting job dispatch...
-INFO - Dispatching Quantum Volume benchmark job on ibm_sherbrooke device...
+INFO - Dispatching BSEQ benchmark job on ibm_sherbrooke device...
 ...
 INFO - Job dispatched with ID: 93a06a18-41d8-475a-a030-339fbf3accb9
 ```
@@ -117,7 +117,7 @@ We can confirm that the job has indeed been dispatched and retrieve the associat
 +--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
 | Metriq-gym Job Id                    | Provider   | Device                                               | Type           | Dispatch time (UTC)        |
 +======================================+============+======================================================+================+============================+
-| 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                       | Quantum Volume | 2025-03-05T10:21:18.333703 |
+| 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                       | BSEQ           | 2025-03-05T10:21:18.333703 |
 +--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
 ```
 
@@ -131,7 +131,7 @@ Doing so gives us the results of our job (if it has completed):
 
 ```sh
 INFO - Polling job...
-QuantumVolumeResult(num_qubits=4, confidence_pass=False, xeb=0.11840504152425113, hog_prob=0.5, hog_pass=False, eplg=(0.2747078576628884-0.27990076921028245j), p_value=0.5, trials=2)
+BSEQResult(largest_connected_size=100, fraction_connected=0.7874015748031497)
 ```
 
 In the event where the job has not completed, we would receive the following message instead
@@ -149,7 +149,7 @@ Available jobs:
 +----+--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
 |    | Metriq-gym Job Id                    | Provider   | Device                                               | Type           | Dispatch time (UTC)        |
 +====+======================================+============+======================================================+================+============================+
-| 0 | 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                       | Quantum Volume | 2025-03-05T10:21:18.333703 |
+| 0 | 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                        | BSEQ           | 2025-03-05T10:21:18.333703 |
 +----+--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
 Select a job index: 
 ```
