@@ -13,6 +13,8 @@ from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provid
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.benchmarks.bseq import BSEQData
+from metriq_gym.benchmarks.quantum_volume import QuantumVolumeData
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
@@ -102,7 +104,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
         logger.info("Job is not yet completed. Please try again later.")
 
 
-def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int):
+def upload_job(args: argparse.Namespace, job_type: JobType, job_data: QuantumVolumeData | BSEQData, result_data: BenchmarkResult, platform: int):
     client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
     task = 0
     method = 0
