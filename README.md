@@ -88,7 +88,7 @@ and display information about each job, including its ID, backend, job type, pro
 python metriq_gym/run.py list-jobs
 ```
 
-### Example: Benchmarkin Bell state effective qubits (BSEQ) on IBM hardware
+### Example: Benchmarking Bell state effective qubits (BSEQ) on IBM hardware
 The following example is for IBM, but the general workflow is applicable to any of the supported providers and benchmarks.
 
 To run on IBM hardware, you will also require an IBM token. To obtain this, please visit the [IBM Quantum
