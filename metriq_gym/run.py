@@ -88,7 +88,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
     logger.info("Polling job...")
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
-    job_data: QuantumVolumeData | BSEQData = setup_job_data_class(job_type)(**metriq_job.data)
+    job_data: type[BenchmarkData] = setup_job_data_class(job_type)(**metriq_job.data)
     handler = setup_benchmark(args, None, job_type)
     quantum_job = [
         load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
@@ -104,7 +104,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
         logger.info("Job is not yet completed. Please try again later.")
 
 
-def upload_job(args: argparse.Namespace, job_type: JobType, job_data: QuantumVolumeData | BSEQData, result_data: BenchmarkResult, platform: int):
+def upload_job(args: argparse.Namespace, job_type: JobType, job_data: type[BenchmarkData], result_data: BenchmarkResult, platform: int):
     client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
     task = 0
     method = 0
