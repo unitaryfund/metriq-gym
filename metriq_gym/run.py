@@ -13,6 +13,8 @@ from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provid
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.benchmarks.bseq import BSEQData
+from metriq_gym.benchmarks.quantum_volume import QuantumVolumeData
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
@@ -86,7 +88,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
     logger.info("Polling job...")
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
-    job_data: type[BenchmarkData] = setup_job_data_class(job_type)(**metriq_job.data)
+    job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
     handler = setup_benchmark(args, None, job_type)
     quantum_job = [
         load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
@@ -102,16 +104,18 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
         logger.info("Job is not yet completed. Please try again later.")
 
 
-def upload_job(args: argparse.Namespace, job_type: JobType, job_data: type[BenchmarkData], result_data: BenchmarkResult, platform: int):
+def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int):
     client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
     task = 0
     method = 0
     if job_type == JobType.QUANTUM_VOLUME:
         task = 235 #Quantum Volume task ID
         method = 144 #Heavy output generation task ID
+        job_data.__class__ = QuantumVolumeData
     elif job_type == JobType.BSEQ:
         task = 236 #BSEQ task ID
         method = 426 #BSEQ method ID
+        job_data.__class__ = BSEQData
     else:
         raise Exception("You're trying to upload an unrecognized job type!")
     client.submission_add_task(args.submission_id, task)
