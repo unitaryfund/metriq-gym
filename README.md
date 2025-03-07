@@ -134,7 +134,7 @@ INFO - Polling job...
 QuantumVolumeResult(num_qubits=4, confidence_pass=False, xeb=0.11840504152425113, hog_prob=0.5, hog_pass=False, eplg=(0.2747078576628884-0.27990076921028245j), p_value=0.5, trials=2)
 ```
 
-In the event where the job has not completed, we would recieve the following message instead
+In the event where the job has not completed, we would receive the following message instead
 
 ```sh
 INFO - Polling job...
