@@ -16,8 +16,6 @@ from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
 from metriq_gym.metriq_metadata import platforms
-from metriq_gym.benchmarks.quantum_volume import QuantumVolumeData, QuantumVolumeResult
-from metriq_gym.benchmarks.bseq import BSEQData, BSEQResult
 
 from metriq_client import MetriqClient
 from metriq_client.models import ResultCreateRequest
