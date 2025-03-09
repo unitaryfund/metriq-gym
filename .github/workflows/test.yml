@@ -14,8 +14,13 @@ permissions:
 
 jobs:
   build:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        python-version: ["3.12", "3.13"]
+      fail-fast: false
 
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
 
     steps:
     - name: Check out repository
@@ -23,15 +28,21 @@ jobs:
       with:
         submodules: recursive  # Ensures submodules are fetched
 
-    - name: Install OpenCL (Qrack dependency)
+    - name: Install OpenCL (Qrack dependency) on Ubuntu
+      if: matrix.os == 'ubuntu-latest'
       run: |
         sudo apt update
         sudo apt install -y ocl-icd-opencl-dev
 
-    - name: Set up Python 3.12
+    - name: Install OpenCL (Qrack dependency) on macOS
+      if: matrix.os == 'macos-latest'
+      run: |
+        brew install opencl-headers ocl-icd
+
+    - name: Set up Python ${{ matrix.python-version }}
       uses: actions/setup-python@v5
       with:
-        python-version: "3.12"
+        python-version: ${{ matrix.python-version }}
 
     - name: Install Poetry
       run: |
@@ -60,4 +71,3 @@ jobs:
     - name: Run tests with pytest
       run: |
         poetry run pytest
-  
