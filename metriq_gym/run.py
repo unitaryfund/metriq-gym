@@ -12,6 +12,7 @@ from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provid
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
@@ -20,17 +21,13 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
-class QBraidSetupError(Exception):
-    pass
-
-
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
     """
-    Setup QBraid quantum device for the benchmark.
+    Setup a QBraid device with id backend_name from specified provider.
 
     Args:
-        provider_name (str): Name of the provider.
-        backend_name (str): Name of the device.
+        provider_name: a metriq-gym supported provider name.
+        backend_name: the id of a device supported by the provider.
     Raises:
         QBraidSetupError: If no device matching the name is found in the provider.
     """

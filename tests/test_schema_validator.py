@@ -5,14 +5,14 @@ import pytest
 from jsonschema import ValidationError
 from metriq_gym.schema_validator import load_and_validate
 
-TEST_BENCHMARK_NAME = "Test Benchmark"
+FAKE_BENCHMARK_NAME = "Test Benchmark"
 
 MOCK_SCHEMA_CONTENT = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
-    "title": TEST_BENCHMARK_NAME,
+    "title": FAKE_BENCHMARK_NAME,
     "properties": {
-        "benchmark_name": {"type": "string", "const": TEST_BENCHMARK_NAME},
+        "benchmark_name": {"type": "string", "const": FAKE_BENCHMARK_NAME},
         "num_qubits": {"type": "integer", "minimum": 1},
         "shots": {"type": "integer", "minimum": 1},
         "trials": {"type": "integer", "minimum": 1},
@@ -22,7 +22,7 @@ MOCK_SCHEMA_CONTENT = {
 
 
 class FakeJobType(StrEnum):
-    TEST_BENCHMARK = TEST_BENCHMARK_NAME
+    TEST_BENCHMARK = FAKE_BENCHMARK_NAME
 
 
 @pytest.fixture(autouse=True)
@@ -47,7 +47,7 @@ def mock_schema(tmpdir):
 @pytest.fixture
 def valid_params():
     return {
-        "benchmark_name": TEST_BENCHMARK_NAME,
+        "benchmark_name": FAKE_BENCHMARK_NAME,
         "num_qubits": 5,
         "shots": 1024,
         "trials": 10,
@@ -57,7 +57,7 @@ def valid_params():
 @pytest.fixture
 def invalid_params():
     return {
-        "benchmark_name": TEST_BENCHMARK_NAME,
+        "benchmark_name": FAKE_BENCHMARK_NAME,
         "num_qubits": 0,  # Invalid value
         "shots": 1024,
         "trials": 10,

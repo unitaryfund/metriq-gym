@@ -1,6 +1,12 @@
 import pytest
 from unittest.mock import MagicMock
-from metriq_gym.run import setup_device, QBraidSetupError
+from metriq_gym.run import setup_device
+from metriq_gym.exceptions import QBraidSetupError
+
+
+class FakeDevice:
+    def __init__(self, id):
+        self.id = id
 
 
 @pytest.fixture
@@ -10,7 +16,7 @@ def mock_provider():
 
 @pytest.fixture
 def mock_device():
-    return MagicMock()
+    return FakeDevice(id="test_device")
 
 
 @pytest.fixture
@@ -32,7 +38,7 @@ def test_setup_device_success(mock_provider, mock_device, patch_load_provider):
 
 def test_setup_device_failure(mock_provider, patch_load_provider, caplog):
     mock_provider.get_device.side_effect = Exception()
-    mock_provider.get_devices.return_value = [MagicMock(id="device1"), MagicMock(id="device2")]
+    mock_provider.get_devices.return_value = [FakeDevice(id="device1"), FakeDevice(id="device2")]
 
     provider_name = "test_provider"
     backend_name = "non_existent_backend"

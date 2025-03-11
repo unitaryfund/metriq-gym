@@ -2,7 +2,7 @@ from unittest.mock import patch
 import pytest
 from datetime import datetime
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from tests.test_schema_validator import TEST_BENCHMARK_NAME, FakeJobType
+from tests.test_schema_validator import FAKE_BENCHMARK_NAME, FakeJobType
 
 
 @pytest.fixture(autouse=True)
@@ -24,7 +24,7 @@ def sample_job():
         id="test_job_id",
         provider_name="test_provider",
         device_name="test_device",
-        job_type=FakeJobType(TEST_BENCHMARK_NAME),
+        job_type=FakeJobType(FAKE_BENCHMARK_NAME),
         params={},
         data={},
         dispatch_time=datetime.now(),
