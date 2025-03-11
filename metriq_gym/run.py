@@ -12,6 +12,7 @@ from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provid
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
@@ -21,8 +22,29 @@ logger.setLevel(logging.INFO)
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
+    """
+    Setup a QBraid device with id backend_name from specified provider.
+
+    Args:
+        provider_name: a metriq-gym supported provider name.
+        backend_name: the id of a device supported by the provider.
+    Raises:
+        QBraidSetupError: If no device matching the name is found in the provider.
+    """
+    # TODO: https://github.com/unitaryfund/metriq-gym/issues/259
+    # Once https://github.com/qBraid/qBraid/pull/890 gets released, put a defensive approach here
+    # Whenever no provider is found, print qbraid.runtime.get_providers(), and raise a QBraidSetupError
     provider: QuantumProvider = load_provider(provider_name)
-    return provider.get_device(backend_name)
+
+    try:
+        device = provider.get_device(backend_name)
+    except Exception:
+        logger.error(
+            f"No device matching the name '{backend_name}' found in provider '{provider_name}'."
+        )
+        logger.info(f"Devices available: {[device.id for device in provider.get_devices()]}")
+        raise QBraidSetupError("Device not found")
+    return device
 
 
 def setup_benchmark(args, params, job_type: JobType) -> Benchmark:
@@ -35,9 +57,10 @@ def setup_job_data_class(job_type: JobType) -> type[BenchmarkData]:
 
 def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     logger.info("Starting job dispatch...")
-    provider_name = args.provider
-    device_name = args.device
-    device = setup_device(provider_name, device_name)
+    try:
+        device = setup_device(args.provider, args.device)
+    except QBraidSetupError:
+        return
 
     params = load_and_validate(args.input_file)
     logger.info(f"Dispatching {params.benchmark_name} benchmark job on {args.device} device...")
@@ -51,8 +74,8 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
             job_type=job_type,
             params=params.model_dump(),
             data=asdict(job_data),
-            provider_name=provider_name,
-            device_name=device_name,
+            provider_name=args.provider,
+            device_name=args.device,
             dispatch_time=datetime.now(),
         )
     )
@@ -107,7 +130,6 @@ def main() -> int:
     elif args.action == "list-jobs":
         jobs: list[MetriqGymJob] = job_manager.get_jobs()
         list_jobs(jobs)
-
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")
         return 1

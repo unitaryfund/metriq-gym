@@ -1,0 +1,2 @@
+class QBraidSetupError(Exception):
+    pass
