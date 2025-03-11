@@ -21,13 +21,13 @@ MOCK_SCHEMA_CONTENT = {
 }
 
 
-class TestJobType(StrEnum):
+class FakeJobType(StrEnum):
     TEST_BENCHMARK = TEST_BENCHMARK_NAME
 
 
 @pytest.fixture(autouse=True)
 def patch_job_type_enum():
-    with patch("metriq_gym.schema_validator.JobType", TestJobType):
+    with patch("metriq_gym.schema_validator.JobType", FakeJobType):
         yield
 
 
@@ -38,7 +38,7 @@ def mock_schema(tmpdir):
         json.dump(MOCK_SCHEMA_CONTENT, schema_file)
 
     SCHEMA_MAPPING = {
-        TestJobType.TEST_BENCHMARK: str(schema_file_path),
+        FakeJobType.TEST_BENCHMARK: str(schema_file_path),
     }
     with patch("metriq_gym.schema_validator.SCHEMA_MAPPING", SCHEMA_MAPPING):
         yield

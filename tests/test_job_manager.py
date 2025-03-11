@@ -2,12 +2,12 @@ from unittest.mock import patch
 import pytest
 from datetime import datetime
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from tests.test_schema_validator import TEST_BENCHMARK_NAME, TestJobType
+from tests.test_schema_validator import TEST_BENCHMARK_NAME, FakeJobType
 
 
 @pytest.fixture(autouse=True)
 def patch_job_type_enum():
-    with patch("metriq_gym.job_manager.JobType", TestJobType):
+    with patch("metriq_gym.job_manager.JobType", FakeJobType):
         yield
 
 
@@ -24,7 +24,7 @@ def sample_job():
         id="test_job_id",
         provider_name="test_provider",
         device_name="test_device",
-        job_type=TestJobType(TEST_BENCHMARK_NAME),
+        job_type=FakeJobType(TEST_BENCHMARK_NAME),
         params={},
         data={},
         dispatch_time=datetime.now(),
