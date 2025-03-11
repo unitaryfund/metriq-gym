@@ -14,7 +14,7 @@ readme = "README.md"
 jsonschema = "^4.23.0"
 matplotlib = "^3.10.0"
 metriq-client = { git = "https://github.com/unitaryfund/metriq-client.git", branch = "master" }
-pyqrack = "^1.35.10"
+pyqrack = "^1.36.0"
 python = "<3.14,>=3.12"
 python-dotenv = "^1.0.1"
 pytket = "^1.40.0"
