@@ -1,0 +1,30 @@
+{
+  "$id": "metriq-gym/qml_kernel.schema.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",  
+  "title": "QML Kernel",
+  "type": "object",
+  "properties": {
+    "benchmark_name": {
+      "type": "string",
+      "const": "QML Kernel"
+    },
+    "num_qubits": {
+      "type": "integer",
+      "minimum": 2,
+      "examples": [10]
+    },
+    "shots": {
+      "type": "integer",
+      "default": 1000,
+      "minimum": 1,
+      "examples": [1000]
+    },
+    "trials": {
+      "type": "integer",
+      "default": 1,
+      "minimum": 1,
+      "examples": [1]
+    }
+  },
+  "required": ["benchmark_name", "num_qubits"]
+}
