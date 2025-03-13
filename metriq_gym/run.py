@@ -120,12 +120,12 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
         results: BenchmarkResult = handler.poll_handler(job_data, result_data)
         print(results)
         if is_upload:
-            upload_job(args, job_type, job_data, results, platforms[metriq_job.device_name.lower()])
+            upload_job(args, job_type, job_data, results, platforms[metriq_job.device_name.lower()], metriq_job.dispatch_time)
     else:
         logger.info("Job is not yet completed. Please try again later.")
 
 
-def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int):
+def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int, dispatch_time: datetime):
     # Ignored attributes are defined in subclasses, not BenchmarkData and BenchmarkResult
     client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
     task = 0
@@ -148,7 +148,7 @@ def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkD
         isHigherBetter = str(True),
         metricName = "",
         metricValue = str(0),
-        evaluatedAt = date.today().strftime("%Y-%m-%d"),
+        evaluatedAt = dispatch_time.strftime("%Y-%m-%d"),
         qubitCount = str(job_data.num_qubits),                                         # type: ignore[attr-defined]
         shots = str(job_data.shots),                                                   # type: ignore[attr-defined]
         # circuitDepth = str | None = None,
