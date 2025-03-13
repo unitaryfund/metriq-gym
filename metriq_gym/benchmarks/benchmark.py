@@ -6,23 +6,17 @@ from dataclasses import dataclass
 from qbraid import GateModelResultData, QuantumDevice
 
 
-"""
-Store intermediate data from pre-processing and dispatching
-"""
-
-
 @dataclass
 class BenchmarkData:
+    """Stores intermediate data from pre-processing and dispatching"""
+
     provider_job_ids: list[str]
-
-
-"""
-Store the final results of the benchmark
-"""
 
 
 @dataclass
 class BenchmarkResult:
+    """Stores the final results of the benchmark"""
+
     pass
 
 
