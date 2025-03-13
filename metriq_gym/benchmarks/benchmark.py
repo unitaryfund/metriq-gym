@@ -8,11 +8,15 @@ from qbraid import GateModelResultData, QuantumDevice
 
 @dataclass
 class BenchmarkData:
+    """Stores intermediate data from pre-processing and dispatching"""
+
     provider_job_ids: list[str]
 
 
 @dataclass
 class BenchmarkResult:
+    """Stores the final results of the benchmark"""
+
     pass
 
 

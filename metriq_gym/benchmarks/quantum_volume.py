@@ -31,7 +31,6 @@ class QuantumVolumeResult(BenchmarkResult):
     xeb: float
     hog_prob: float
     hog_pass: bool
-    eplg: float
     p_value: float
     trials: int
 
@@ -68,7 +67,6 @@ class TrialStats:
         p_value: p-value for the heavy output count.
         confidence_level: Confidence level for benchmarking.
         confidence_pass: Boolean indicating if the p-value is below the confidence level.
-        eplg: Error Per Layered Gate (EPLG) fidelity.
     """
 
     qubits: int
@@ -79,7 +77,6 @@ class TrialStats:
     p_value: float
     confidence_level: float
     confidence_pass: bool
-    eplg: float
 
 
 @dataclass
@@ -93,7 +90,6 @@ class AggregateStats:
         p_value: Combined p-value for all trials.
         hog_pass: Boolean indicating whether all trials exceeded the heavy output probability threshold.
         confidence_pass: Boolean indicating if all trials passed the confidence level.
-        avg_eplg: Average Error Per Layered Gate across all trials.
         avg_xeb: Average Cross Entropy Benchmarking score across all trials.
     """
 
@@ -103,7 +99,6 @@ class AggregateStats:
     p_value: float
     hog_pass: bool
     confidence_pass: bool
-    avg_eplg: float
     avg_xeb: float
 
 
@@ -137,7 +132,7 @@ def calc_trial_stats(
         count = counts[b] if b in counts else 0
         ideal = ideal_probs[i]
 
-        # XEB / EPLG.
+        # XEB.
         denom = denom + (ideal - u_u) ** 2
         numer = numer + (ideal - u_u) * ((count / shots) - u_u)
 
@@ -158,7 +153,6 @@ def calc_trial_stats(
         p_value=p_val,
         confidence_level=confidence_level,
         confidence_pass=p_val < confidence_level,
-        eplg=(1 - (xeb ** (1 / n))) if xeb < 1 else 0,
     )
 
 
@@ -187,7 +181,6 @@ def calc_stats(data: QuantumVolumeData, counts: list[MeasCount]) -> AggregateSta
     # Aggregate the trial statistics.
     hog_prob = sum(stat.hog_prob for stat in trial_stats) / num_trials
     p_value = math.prod(stat.p_value for stat in trial_stats) ** (1 / num_trials)
-    avg_eplg = sum(stat.eplg for stat in trial_stats) / num_trials
     avg_xeb = sum(stat.xeb for stat in trial_stats) / num_trials
 
     return AggregateStats(
@@ -197,7 +190,6 @@ def calc_stats(data: QuantumVolumeData, counts: list[MeasCount]) -> AggregateSta
         p_value=p_value,
         hog_pass=all(stat.hog_pass for stat in trial_stats),
         confidence_pass=all(stat.confidence_pass for stat in trial_stats),
-        avg_eplg=avg_eplg,
         avg_xeb=avg_xeb,
     )
 
@@ -238,7 +230,6 @@ class QuantumVolume(Benchmark):
             xeb=stats.avg_xeb,
             hog_prob=stats.hog_prob,
             hog_pass=stats.hog_pass,
-            eplg=stats.avg_eplg,
             p_value=stats.p_value,
             trials=stats.trials,
         )

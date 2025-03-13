@@ -5,14 +5,14 @@ import pytest
 from jsonschema import ValidationError
 from metriq_gym.schema_validator import load_and_validate
 
-TEST_BENCHMARK_NAME = "Test Benchmark"
+FAKE_BENCHMARK_NAME = "Test Benchmark"
 
 MOCK_SCHEMA_CONTENT = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
-    "title": TEST_BENCHMARK_NAME,
+    "title": FAKE_BENCHMARK_NAME,
     "properties": {
-        "benchmark_name": {"type": "string", "const": TEST_BENCHMARK_NAME},
+        "benchmark_name": {"type": "string", "const": FAKE_BENCHMARK_NAME},
         "num_qubits": {"type": "integer", "minimum": 1},
         "shots": {"type": "integer", "minimum": 1},
         "trials": {"type": "integer", "minimum": 1},
@@ -21,13 +21,13 @@ MOCK_SCHEMA_CONTENT = {
 }
 
 
-class TestJobType(StrEnum):
-    TEST_BENCHMARK = TEST_BENCHMARK_NAME
+class FakeJobType(StrEnum):
+    TEST_BENCHMARK = FAKE_BENCHMARK_NAME
 
 
 @pytest.fixture(autouse=True)
 def patch_job_type_enum():
-    with patch("metriq_gym.schema_validator.JobType", TestJobType):
+    with patch("metriq_gym.schema_validator.JobType", FakeJobType):
         yield
 
 
@@ -38,7 +38,7 @@ def mock_schema(tmpdir):
         json.dump(MOCK_SCHEMA_CONTENT, schema_file)
 
     SCHEMA_MAPPING = {
-        TestJobType.TEST_BENCHMARK: str(schema_file_path),
+        FakeJobType.TEST_BENCHMARK: str(schema_file_path),
     }
     with patch("metriq_gym.schema_validator.SCHEMA_MAPPING", SCHEMA_MAPPING):
         yield
@@ -47,7 +47,7 @@ def mock_schema(tmpdir):
 @pytest.fixture
 def valid_params():
     return {
-        "benchmark_name": TEST_BENCHMARK_NAME,
+        "benchmark_name": FAKE_BENCHMARK_NAME,
         "num_qubits": 5,
         "shots": 1024,
         "trials": 10,
@@ -57,7 +57,7 @@ def valid_params():
 @pytest.fixture
 def invalid_params():
     return {
-        "benchmark_name": TEST_BENCHMARK_NAME,
+        "benchmark_name": FAKE_BENCHMARK_NAME,
         "num_qubits": 0,  # Invalid value
         "shots": 1024,
         "trials": 10,
