@@ -6,7 +6,7 @@ import logging
 import uuid
 
 from dotenv import load_dotenv
-from qbraid import JobStatus, ResultData
+from qbraid import GateModelResultData, JobStatus
 from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provider
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
@@ -14,7 +14,7 @@ from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from metriq_gym.schema_validator import load_and_validate
+from metriq_gym.schema_validator import load_and_validate, validate_model
 from metriq_gym.job_type import JobType
 
 logger = logging.getLogger(__name__)
@@ -105,14 +105,14 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
     job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
-    handler = setup_benchmark(args, None, job_type)
-    quantum_job = [
+    handler = setup_benchmark(args, validate_model(metriq_job.params), job_type)
+    quantum_jobs = [
         load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
         for job_id in job_data.provider_job_ids
     ]
-    if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
-        result_data: list[ResultData] = [task.result().data for task in quantum_job]
-        print(handler.poll_handler(job_data, result_data))
+    if all(task.status() == JobStatus.COMPLETED for task in quantum_jobs):
+        result_data: list[GateModelResultData] = [task.result().data for task in quantum_jobs]
+        print(handler.poll_handler(job_data, result_data, quantum_jobs))
     else:
         logger.info("Job is not yet completed. Please try again later.")
 

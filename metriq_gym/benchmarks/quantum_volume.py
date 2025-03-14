@@ -11,7 +11,7 @@ from qiskit import QuantumCircuit
 from metriq_gym.circuits import qiskit_random_circuit_sampling
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
-from metriq_gym.task_helpers import flatten_counts
+from metriq_gym.helpers.task_helpers import flatten_counts
 
 
 @dataclass
@@ -217,7 +217,10 @@ class QuantumVolume(Benchmark):
         )
 
     def poll_handler(
-        self, job_data: BenchmarkData, result_data: list[GateModelResultData]
+        self,
+        job_data: BenchmarkData,
+        result_data: list[GateModelResultData],
+        quantum_jobs: list[QuantumJob],
     ) -> BenchmarkResult:
         if not isinstance(job_data, QuantumVolumeData):
             raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
