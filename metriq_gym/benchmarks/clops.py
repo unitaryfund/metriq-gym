@@ -131,7 +131,7 @@ class Clops(Benchmark):
             width=self.params.width,
             layers=self.params.num_layers,
             num_circuits=self.params.num_circuits,
-            basis_gates=device.profile.basis_gates,
+            basis_gates=device.profile.basis_gates or [],
             topology_graph=topology_graph,
             total_qubits=device.num_qubits,
         )
