@@ -14,7 +14,7 @@ from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
 from metriq_gym.cli import list_jobs, parse_arguments
 from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from metriq_gym.schema_validator import load_and_validate, validate_model
+from metriq_gym.schema_validator import load_and_validate, validate_and_create_model
 from metriq_gym.job_type import JobType
 
 logger = logging.getLogger(__name__)
@@ -105,7 +105,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
     job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
-    handler = setup_benchmark(args, validate_model(metriq_job.params), job_type)
+    handler = setup_benchmark(args, validate_and_create_model(metriq_job.params), job_type)
     quantum_jobs = [
         load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
         for job_id in job_data.provider_job_ids

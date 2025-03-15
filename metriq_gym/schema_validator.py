@@ -45,7 +45,9 @@ def create_pydantic_model(schema: dict[str, Any]) -> Any:
     return model
 
 
-def validate_model(params: dict[str, Any], schema_dir: str = DEFAULT_SCHEMA_DIR) -> BaseModel:
+def validate_and_create_model(
+    params: dict[str, Any], schema_dir: str = DEFAULT_SCHEMA_DIR
+) -> BaseModel:
     if params.get(BENCHMARK_NAME_KEY) is None:
         raise ValueError(f"Missing {BENCHMARK_NAME_KEY} key in input file.")
     schema = load_schema(params[BENCHMARK_NAME_KEY], schema_dir)
@@ -62,4 +64,4 @@ def load_and_validate(file_path: str, schema_dir: str = DEFAULT_SCHEMA_DIR) -> B
     Raises a ValidationError if validation fails.
     """
     params = load_json_file(file_path)
-    return validate_model(params, schema_dir)
+    return validate_and_create_model(params, schema_dir)
