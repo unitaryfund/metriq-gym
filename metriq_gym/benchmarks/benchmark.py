@@ -1,5 +1,4 @@
 import argparse
-from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from dataclasses import dataclass
@@ -21,11 +20,7 @@ class BenchmarkResult:
     pass
 
 
-BD = TypeVar("BD", bound=BenchmarkData)
-BR = TypeVar("BR", bound=BenchmarkResult)
-
-
-class Benchmark(Generic[BD, BR]):
+class Benchmark[BD: BenchmarkData, BR: BenchmarkResult]:
     def __init__(
         self,
         args: argparse.Namespace,
