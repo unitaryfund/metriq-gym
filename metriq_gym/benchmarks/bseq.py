@@ -176,14 +176,11 @@ class BSEQ(Benchmark):
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: BSEQData,
         result_data: list[GateModelResultData],
         quantum_jobs: list[QuantumJob],
     ) -> BSEQResult:
         """Poll and calculate largest connected component."""
-        if not isinstance(job_data, BSEQData):
-            raise TypeError(f"Expected job_data to be of type {type(BSEQData)}")
-
         if not job_data.coloring:
             raise ValueError("Coloring data is required for BSEQ benchmark.")
 

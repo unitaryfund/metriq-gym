@@ -84,13 +84,10 @@ class QMLKernel(Benchmark):
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: QMLKernelData,
         result_data: list[GateModelResultData],
         quantum_jobs: list[QuantumJob],
     ) -> QMLKernelResult:
-        if not isinstance(job_data, QMLKernelData):
-            raise TypeError(f"Expected job_data to be of type {type(QMLKernelData)}")
-
         return QMLKernelResult(
             accuracy_score=calculate_accuracy_score(
                 self.params.num_qubits, flatten_counts(result_data)[0]
