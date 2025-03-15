@@ -218,13 +218,10 @@ class QuantumVolume(Benchmark):
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: QuantumVolumeData,
         result_data: list[GateModelResultData],
         quantum_jobs: list[QuantumJob],
-    ) -> BenchmarkResult:
-        if not isinstance(job_data, QuantumVolumeData):
-            raise TypeError(f"Expected job_data to be of type {type(QuantumVolumeData)}")
-
+    ) -> QuantumVolumeResult:
         stats: AggregateStats = calc_stats(job_data, flatten_counts(result_data))
 
         return QuantumVolumeResult(

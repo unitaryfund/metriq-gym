@@ -151,13 +151,10 @@ class Clops(Benchmark):
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: ClopsData,
         result_data: list[GateModelResultData],
         quantum_jobs: list[QuantumJob],
     ) -> ClopsResult:
-        if not isinstance(job_data, ClopsData):
-            raise TypeError(f"Expected job_data to be of type {type(ClopsData)}")
-
         clops_score = (self.params.num_circuits * self.params.num_layers * self.params.shots) / sum(
             execution_time(quantum_job) for quantum_job in quantum_jobs
         )
