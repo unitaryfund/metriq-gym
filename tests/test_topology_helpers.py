@@ -6,8 +6,7 @@ import rustworkx as rx
 from qbraid import QuantumDevice
 from qbraid.runtime import QiskitBackend
 
-from metriq_gym.topology_helpers import (
-    convert_rustworkx_to_networkx,
+from metriq_gym.helpers.topology_helpers import (
     device_graph_coloring,
     device_topology,
     largest_connected_size,
@@ -47,43 +46,6 @@ def test_largest_connected_size_empty_graph():
     """Test an empty graph."""
     graph = rx.PyGraph()
     assert largest_connected_size(graph) == 0
-
-
-# Tests for convert_rustworkx_to_networkx:
-def test_convert_basic_graph():
-    """Test conversion of a simple graph."""
-    graph = rx.PyGraph()
-    graph.add_nodes_from(range(3))
-    graph.add_edges_from([(0, 1, 1), (1, 2, 1)])
-
-    nx_graph = convert_rustworkx_to_networkx(graph)
-
-    assert isinstance(nx_graph, nx.Graph)
-    assert set(nx_graph.nodes) == {0, 1, 2}
-    assert set(nx_graph.edges()) == {(0, 1), (1, 2)}
-
-
-def test_convert_multigraph():
-    """Test conversion of a multigraph."""
-    graph = rx.PyGraph(multigraph=True)
-    graph.add_nodes_from(range(3))
-    graph.add_edges_from([(0, 1, 1), (0, 1, 2)])
-
-    nx_graph = convert_rustworkx_to_networkx(graph)
-
-    assert isinstance(nx_graph, nx.MultiGraph)
-    # Two edges between (0,1)
-    assert len(list(nx_graph.edges(0, 1))) == 2
-
-
-def test_convert_empty_graph():
-    """Test conversion of an empty graph."""
-    graph = rx.PyGraph()
-    nx_graph = convert_rustworkx_to_networkx(graph)
-
-    assert isinstance(nx_graph, nx.Graph)
-    assert len(nx_graph.nodes) == 0
-    assert len(nx_graph.edges) == 0
 
 
 # Tests for device_topology:

@@ -3,7 +3,7 @@ import argparse
 from pydantic import BaseModel
 from dataclasses import dataclass
 
-from qbraid import GateModelResultData, QuantumDevice
+from qbraid import GateModelResultData, QuantumDevice, QuantumJob
 
 
 @dataclass
@@ -36,5 +36,6 @@ class Benchmark:
         self,
         job_data: BenchmarkData,
         result_data: list[GateModelResultData],
+        quantum_jobs: list[QuantumJob],
     ) -> BenchmarkResult:
         raise NotImplementedError

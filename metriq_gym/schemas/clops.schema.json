@@ -8,31 +8,31 @@
         "type": "string",
         "const": "CLOPS"
       },
-      "num_qubits": {
+      "width": {
         "type": "integer",
+        "default": 1000,
         "minimum": 1,
-        "examples": [5]
+        "examples": [1000]
+      },
+      "num_layers": {
+        "type": "integer",
+        "default": 1000,
+        "minimum": 1,
+        "examples": [1000]
+      },
+      "num_circuits": {
+        "type": "integer",
+        "default": 100,
+        "minimum": 1,
+        "examples": [100]
       },
       "shots": {
         "type": "integer",
         "default": 1000,
         "minimum": 1,
         "examples": [1000]
-      },
-      "trials": {
-        "type": "integer",
-        "default": 100,
-        "minimum": 1,
-        "examples": [100]
-      },
-      "confidence_level": {
-        "type": "number",
-        "minimum": 0,
-        "maximum": 1,
-        "default": 0.95,
-        "examples": [0.95]
       }
     },
-    "required": ["benchmark_name", "num_qubits"]
+    "required": ["benchmark_name"]
   }
   

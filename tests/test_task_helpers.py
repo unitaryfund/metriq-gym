@@ -1,5 +1,5 @@
 import pytest
-from metriq_gym.task_helpers import flatten_counts
+from metriq_gym.helpers.task_helpers import flatten_counts
 from qbraid.runtime.result_data import MeasCount, GateModelResultData
 
 
