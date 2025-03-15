@@ -1,4 +1,5 @@
 import argparse
+from typing import Generic, TypeVar
 
 from pydantic import BaseModel
 from dataclasses import dataclass
@@ -20,7 +21,11 @@ class BenchmarkResult:
     pass
 
 
-class Benchmark:
+BD = TypeVar("BD", bound=BenchmarkData)
+BR = TypeVar("BR", bound=BenchmarkResult)
+
+
+class Benchmark(Generic[BD, BR]):
     def __init__(
         self,
         args: argparse.Namespace,
@@ -29,13 +34,13 @@ class Benchmark:
         self.args = args
         self.params: BaseModel = params
 
-    def dispatch_handler(self, device: QuantumDevice) -> BenchmarkData:
+    def dispatch_handler(self, device: QuantumDevice) -> BD:
         raise NotImplementedError
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: BD,
         result_data: list[GateModelResultData],
         quantum_jobs: list[QuantumJob],
-    ) -> BenchmarkResult:
+    ) -> BR:
         raise NotImplementedError
