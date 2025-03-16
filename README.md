@@ -88,14 +88,21 @@ and select the one that is of interest.
 python metriq_gym/run.py poll
 ```
 
-### Listing jobs
+### View jobs
 
 You can view all the jobs that have been dispatched by using the `list-jobs` action. This will read the `jobs_file`
-and display information about each job, including its ID, backend, job type, provider, qubits, and shots.
+and display basic information about each job, including its ID, backend, job type, provider, and device.
 
 ```sh
 python metriq_gym/run.py list-jobs
 ```
+In order to view the details of a specific job (e.g., the parameters the job was launched with), you can use the `view` action.
+
+```sh
+python metriq_gym/run.py view --job_id <METRIQ_GYM_JOB_ID>
+```
+Just like the `poll` action, the `view` action can be used without the `--job_id` flag to view all dispatched jobs,
+and select the one that is of interest.
 
 ### Example: Benchmarking Bell state effective qubits (BSEQ) on IBM hardware
 The following example is for IBM, but the general workflow is applicable to any of the supported providers and benchmarks.
