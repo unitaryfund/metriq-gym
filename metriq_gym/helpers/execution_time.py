@@ -15,7 +15,6 @@ def _(quantum_job: QiskitJob) -> float:
     execution_spans: ExecutionSpans = (
         quantum_job._job.result().metadata["execution"]["execution_spans"].sort()
     )
-    print(execution_spans)
     return (execution_spans.stop - execution_spans.start).total_seconds()
 
 
