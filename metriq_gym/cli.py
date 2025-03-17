@@ -1,12 +1,15 @@
 """Command-line parsing for running metriq benchmarks."""
 
 import argparse
-import sys
+import logging
 
 from tabulate import tabulate
 
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.provider import ProviderType
+
+logger = logging.getLogger(__name__)
+logger.setLevel(logging.INFO)
 
 LIST_JOBS_HEADERS = ["Metriq-gym Job Id", "Provider", "Device", "Type", "Dispatch time (UTC)"]
 
@@ -32,17 +35,23 @@ def list_jobs(jobs: list[MetriqGymJob], show_index: bool = False) -> None:
     )
 
 
-def prompt_for_job(job_manager: JobManager) -> MetriqGymJob:
+def prompt_for_job(args: argparse.Namespace, job_manager: JobManager) -> MetriqGymJob | None:
+    if args.job_id:
+        return job_manager.get_job(args.job_id)
     jobs = job_manager.get_jobs()
     if not jobs:
-        print("No jobs found.")
-        sys.exit(0)
-
+        logger.info("No jobs found.")
+        return None
     print("Available jobs:")
     list_jobs(jobs, show_index=True)
+    selected_index: int
+    user_input: str
     while True:
         try:
-            selected_index = int(input("Select a job index: "))
+            user_input = input("Select a job index (or 'q' for quit): ")
+            if user_input.lower() == "q":
+                return None
+            selected_index = int(user_input)
             if 0 <= selected_index < len(jobs):
                 break
             else:
@@ -87,9 +96,7 @@ def parse_arguments() -> argparse.Namespace:
     poll_parser = subparsers.add_parser("poll", help="Poll jobs")
     poll_parser.add_argument("--job_id", type=str, required=False, help="Job ID to poll (optional)")
 
-    poll_parser = subparsers.add_parser("view", help="Poll jobs")
-    poll_parser.add_argument("--job_id", type=str, required=False, help="Job ID to view (optional)")
-
-    subparsers.add_parser("list-jobs", help="List dispatched jobs")
+    view_parser = subparsers.add_parser("view", help="View jobs")
+    view_parser.add_argument("--job_id", type=str, required=False, help="Job ID to view (optional)")
 
     return parser.parse_args()
