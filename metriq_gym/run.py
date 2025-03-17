@@ -11,7 +11,7 @@ from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provid
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
-from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.cli import parse_arguments, prompt_for_job
 from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate, validate_and_create_model
@@ -83,26 +83,8 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
 
 
 def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
-    if not args.job_id:
-        jobs = job_manager.get_jobs()
-        if not jobs:
-            print("No jobs available for polling.")
-            return
-        print("Available jobs:")
-        list_jobs(jobs, show_index=True)
-        while True:
-            try:
-                selected_index = int(input("Select a job index: "))
-                if 0 <= selected_index < len(jobs):
-                    break
-                else:
-                    print(f"Invalid index. Please enter a number between 0 and {len(jobs) - 1}")
-            except ValueError:
-                print("Invalid input. Please enter a valid number.")
-        args.job_id = jobs[selected_index].id
-
     logger.info("Polling job...")
-    metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
+    metriq_job = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
     job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
     handler = setup_benchmark(args, validate_and_create_model(metriq_job.params), job_type)
@@ -117,6 +99,12 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
         logger.info("Job is not yet completed. Please try again later.")
 
 
+def view_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+    metriq_job = prompt_for_job(args, job_manager)
+    if metriq_job:
+        print(metriq_job)
+
+
 def main() -> int:
     """Main entry point for the CLI."""
     load_dotenv()
@@ -125,11 +113,10 @@ def main() -> int:
 
     if args.action == "dispatch":
         dispatch_job(args, job_manager)
+    elif args.action == "view":
+        view_job(args, job_manager)
     elif args.action == "poll":
         poll_job(args, job_manager)
-    elif args.action == "list-jobs":
-        jobs: list[MetriqGymJob] = job_manager.get_jobs()
-        list_jobs(jobs)
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")
         return 1
