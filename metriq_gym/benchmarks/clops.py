@@ -8,9 +8,9 @@ from qiskit import QuantumCircuit
 from qiskit_device_benchmarking.clops.clops_benchmark import append_1q_layer
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
-from metriq_gym.helpers.execution_time import execution_time
+from metriq_gym.platform.job import execution_time
 from metriq_gym.helpers.task_helpers import flatten_job_ids
-from metriq_gym.helpers.topology_helpers import device_topology
+from metriq_gym.platform.device import connectivity_graph
 
 
 @dataclass
@@ -130,7 +130,7 @@ class Clops(Benchmark):
     """
 
     def dispatch_handler(self, device: QuantumDevice) -> ClopsData:
-        topology_graph = device_topology(device)
+        topology_graph = connectivity_graph(device)
         num_qubits = device.num_qubits
         if num_qubits is None:
             raise ValueError(

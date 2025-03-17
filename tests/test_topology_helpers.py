@@ -1,6 +1,5 @@
 import pytest
 from unittest.mock import MagicMock
-import networkx as nx
 import rustworkx as rx
 
 from qbraid import QuantumDevice
@@ -8,10 +7,10 @@ from qbraid.runtime import QiskitBackend
 
 from metriq_gym.helpers.topology_helpers import (
     device_graph_coloring,
-    device_topology,
     largest_connected_size,
     GraphColoring,
 )
+from metriq_gym.platform.device import connectivity_graph
 
 
 # Tests for largest_connected_size:
@@ -49,27 +48,31 @@ def test_largest_connected_size_empty_graph():
 
 
 # Tests for device_topology:
-def test_device_topology_qiskit():
-    """Test device_topology for a QiskitBackend device."""
+def test_device_connectivity_graph_qiskit():
+    """Test connectivity_graph for a QiskitBackend device."""
     # Mock the QiskitBackend object
     mock_backend = MagicMock()
-    mock_backend.coupling_map.graph.to_undirected.return_value = nx.Graph([(0, 1), (1, 2)])
+    mock_graph = rx.PyGraph()
+    mock_graph.add_nodes_from(range(3))
+    mock_graph.add_edge(0, 1, None)
+    mock_graph.add_edge(1, 2, None)
+    mock_backend.coupling_map.graph.to_undirected.return_value = mock_graph
 
     mock_device = MagicMock(spec=QiskitBackend)
     mock_device._backend = mock_backend
 
-    topology = device_topology(mock_device)
+    graph = connectivity_graph(mock_device)
 
-    assert isinstance(topology, nx.Graph)
-    assert set(topology.nodes) == {0, 1, 2}
-    assert set(topology.edges) == {(0, 1), (1, 2)}
+    assert isinstance(graph, rx.PyGraph)
+    assert set(graph.nodes()) == {0, 1, 2}
+    assert set(graph.edge_list()) == {(0, 1), (1, 2)}
 
 
 def test_device_topology_invalid_device():
     """Test device_topology with an unsupported device type."""
     mock_device = MagicMock(spec=QuantumDevice)  # Mock an unknown QuantumDevice
-    with pytest.raises(ValueError, match="Device type not supported."):
-        device_topology(mock_device)
+    with pytest.raises(NotImplementedError, match="Connectivity graph not implemented for device"):
+        connectivity_graph(mock_device)
 
 
 # Tests for device_graph_coloring:
