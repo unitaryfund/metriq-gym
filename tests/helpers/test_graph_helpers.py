@@ -1,15 +1,8 @@
-import pytest
-from unittest.mock import MagicMock
-import networkx as nx
 import rustworkx as rx
 
-from qbraid import QuantumDevice
-from qbraid.runtime import QiskitBackend
 
-from metriq_gym.topology_helpers import (
-    convert_rustworkx_to_networkx,
+from metriq_gym.helpers.graph_helpers import (
     device_graph_coloring,
-    device_topology,
     largest_connected_size,
     GraphColoring,
 )
@@ -47,67 +40,6 @@ def test_largest_connected_size_empty_graph():
     """Test an empty graph."""
     graph = rx.PyGraph()
     assert largest_connected_size(graph) == 0
-
-
-# Tests for convert_rustworkx_to_networkx:
-def test_convert_basic_graph():
-    """Test conversion of a simple graph."""
-    graph = rx.PyGraph()
-    graph.add_nodes_from(range(3))
-    graph.add_edges_from([(0, 1, 1), (1, 2, 1)])
-
-    nx_graph = convert_rustworkx_to_networkx(graph)
-
-    assert isinstance(nx_graph, nx.Graph)
-    assert set(nx_graph.nodes) == {0, 1, 2}
-    assert set(nx_graph.edges()) == {(0, 1), (1, 2)}
-
-
-def test_convert_multigraph():
-    """Test conversion of a multigraph."""
-    graph = rx.PyGraph(multigraph=True)
-    graph.add_nodes_from(range(3))
-    graph.add_edges_from([(0, 1, 1), (0, 1, 2)])
-
-    nx_graph = convert_rustworkx_to_networkx(graph)
-
-    assert isinstance(nx_graph, nx.MultiGraph)
-    # Two edges between (0,1)
-    assert len(list(nx_graph.edges(0, 1))) == 2
-
-
-def test_convert_empty_graph():
-    """Test conversion of an empty graph."""
-    graph = rx.PyGraph()
-    nx_graph = convert_rustworkx_to_networkx(graph)
-
-    assert isinstance(nx_graph, nx.Graph)
-    assert len(nx_graph.nodes) == 0
-    assert len(nx_graph.edges) == 0
-
-
-# Tests for device_topology:
-def test_device_topology_qiskit():
-    """Test device_topology for a QiskitBackend device."""
-    # Mock the QiskitBackend object
-    mock_backend = MagicMock()
-    mock_backend.coupling_map.graph.to_undirected.return_value = nx.Graph([(0, 1), (1, 2)])
-
-    mock_device = MagicMock(spec=QiskitBackend)
-    mock_device._backend = mock_backend
-
-    topology = device_topology(mock_device)
-
-    assert isinstance(topology, nx.Graph)
-    assert set(topology.nodes) == {0, 1, 2}
-    assert set(topology.edges) == {(0, 1), (1, 2)}
-
-
-def test_device_topology_invalid_device():
-    """Test device_topology with an unsupported device type."""
-    mock_device = MagicMock(spec=QuantumDevice)  # Mock an unknown QuantumDevice
-    with pytest.raises(ValueError, match="Device type not supported."):
-        device_topology(mock_device)
 
 
 # Tests for device_graph_coloring:

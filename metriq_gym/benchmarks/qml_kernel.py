@@ -11,7 +11,7 @@ from qbraid import GateModelResultData, QuantumDevice, QuantumJob
 from qbraid.runtime.result_data import MeasCount
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
-from metriq_gym.task_helpers import flatten_counts, flatten_job_ids
+from metriq_gym.helpers.task_helpers import flatten_counts, flatten_job_ids
 
 from metriq_client import MetriqClient
 from metriq_client.models import ResultCreateRequest
@@ -19,7 +19,7 @@ from metriq_client.models import ResultCreateRequest
 
 @dataclass
 class QMLKernelData(BenchmarkData):
-    num_qubits: int
+    pass
 
 
 @dataclass
@@ -84,21 +84,18 @@ class QMLKernel(Benchmark):
         quantum_job: QuantumJob | list[QuantumJob] = device.run(qc, shots=self.params.shots)
         provider_job_ids = flatten_job_ids(quantum_job)
         return QMLKernelData(
-            num_qubits=self.params.num_qubits,
             provider_job_ids=provider_job_ids,
         )
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: QMLKernelData,
         result_data: list[GateModelResultData],
+        quantum_jobs: list[QuantumJob],
     ) -> QMLKernelResult:
-        if not isinstance(job_data, QMLKernelData):
-            raise TypeError(f"Expected job_data to be of type {type(QMLKernelData)}")
-
         return QMLKernelResult(
             accuracy_score=calculate_accuracy_score(
-                job_data.num_qubits, flatten_counts(result_data)[0]
+                self.params.num_qubits, flatten_counts(result_data)[0]
             )
         )
 

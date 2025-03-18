@@ -13,7 +13,7 @@ def test_prepare_qv_circuits(n, trials):
 
 def test_calc_stats_pass():
     job_data = QuantumVolumeData(
-        provider_job_ids="test_job_id",
+        provider_job_ids=["test_job_id"],
         num_qubits=2,
         shots=100,
         depth=2,
@@ -34,7 +34,7 @@ def test_calc_stats_pass():
 
 def test_calc_stats_not_pass():
     job_data = QuantumVolumeData(
-        provider_job_ids="test_job_id",
+        provider_job_ids=["test_job_id"],
         num_qubits=2,
         shots=100,
         depth=2,

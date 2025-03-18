@@ -1,8 +1,5 @@
 from dataclasses import dataclass, field
-from qbraid import QuantumDevice
-from qbraid.runtime import QiskitBackend, BraketDevice
 
-import networkx as nx
 import rustworkx as rx
 import numpy as np
 
@@ -52,25 +49,6 @@ def largest_connected_size(good_graph: rx.PyGraph) -> int:
     return len(largest_cc)
 
 
-def convert_rustworkx_to_networkx(graph: rx.PyGraph) -> nx.Graph:
-    """Convert a rustworkx PyGraph or PyDiGraph to a networkx graph.
-
-    Adapted from:
-    https://www.rustworkx.org/dev/networkx.html#converting-from-a-networkx-graph
-    """
-    edge_list = [(graph[x[0]], graph[x[1]], {"weight": x[2]}) for x in graph.weighted_edge_list()]
-    graph_type = (
-        nx.MultiGraph
-        if graph.multigraph
-        else nx.Graph
-        if isinstance(graph, rx.PyGraph)
-        else nx.MultiDiGraph
-        if graph.multigraph
-        else nx.DiGraph
-    )
-    return graph_type(edge_list)
-
-
 def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     """Performs graph coloring for a quantum device's topology.
 
@@ -85,7 +63,7 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     Returns:
         GraphColoring: An object containing the coloring information.
     """
-    num_nodes = convert_rustworkx_to_networkx(topology_graph).number_of_nodes()
+    num_nodes = topology_graph.num_nodes()
 
     # Graphs are bipartite, so use that feature to prevent extra colors from greedy search.
     # This graph is colored using a bipartite edge-coloring algorithm.
@@ -96,20 +74,3 @@ def device_graph_coloring(topology_graph: rx.PyGraph) -> GraphColoring:
     return GraphColoring(
         num_nodes=num_nodes, edge_color_map=edge_color_map, edge_index_map=edge_index_map
     )
-
-
-def device_topology(device: QuantumDevice) -> nx.Graph:
-    """Extracts the device topology graph from a QuantumDevice object.
-
-    Args:
-        device: The QuantumDevice object.
-
-    Returns:
-        The device topology graph.
-    """
-    if isinstance(device, QiskitBackend):
-        return device._backend.coupling_map.graph.to_undirected(multigraph=False)
-    elif isinstance(device, BraketDevice):
-        return rx.networkx_converter(nx.Graph(device._device.topology_graph.to_undirected()))
-
-    raise ValueError("Device type not supported.")

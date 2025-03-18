@@ -6,15 +6,21 @@ import sys
 import uuid
 
 from dotenv import load_dotenv
-from qbraid import JobStatus, ResultData
-from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provider
+from qbraid.runtime import (
+    GateModelResultData,
+    JobStatus,
+    QuantumDevice,
+    QuantumProvider,
+    load_job,
+    load_provider,
+)
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
-from metriq_gym.cli import list_jobs, parse_arguments
+from metriq_gym.cli import parse_arguments, prompt_for_job
 from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
-from metriq_gym.schema_validator import load_and_validate
+from metriq_gym.schema_validator import load_and_validate, validate_and_create_model
 from metriq_gym.job_type import JobType
 from metriq_gym.metriq_metadata import platforms
 
@@ -82,43 +88,32 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     )
     logger.info(f"Job dispatched with ID: {job_id}")
 
-
 def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=False) -> None:
-    if not args.job_id:
-        jobs = job_manager.get_jobs()
-        if not jobs:
-            print("No jobs available for polling.")
-            return
-        print("Available jobs:")
-        list_jobs(jobs, show_index=True)
-        while True:
-            try:
-                selected_index = int(input("Select a job index: "))
-                if 0 <= selected_index < len(jobs):
-                    break
-                else:
-                    print(f"Invalid index. Please enter a number between 0 and {len(jobs) - 1}")
-            except ValueError:
-                print("Invalid input. Please enter a valid number.")
-        args.job_id = jobs[selected_index].id
-
+    metriq_job = prompt_for_job(args, job_manager)
+    if not metriq_job:
+        return
     logger.info("Polling job...")
-    metriq_job: MetriqGymJob = job_manager.get_job(args.job_id)
     job_type: JobType = JobType(metriq_job.job_type)
     job_data: BenchmarkData = setup_job_data_class(job_type)(**metriq_job.data)
-    handler = setup_benchmark(args, None, job_type)
-    quantum_job = [
+    handler = setup_benchmark(args, validate_and_create_model(metriq_job.params), job_type)
+    quantum_jobs = [
         load_job(job_id, provider=metriq_job.provider_name, **asdict(job_data))
         for job_id in job_data.provider_job_ids
     ]
-    if all(task.status() == JobStatus.COMPLETED for task in quantum_job):
-        result_data: list[ResultData] = [task.result().data for task in quantum_job]
+    if all(task.status() == JobStatus.COMPLETED for task in quantum_jobs):
+        result_data: list[GateModelResultData] = [task.result().data for task in quantum_jobs]
         results: BenchmarkResult = handler.poll_handler(job_data, result_data)
         print(results)
         if is_upload:
             handler.upload_handler(job_data, results, metriq_job.dispatch_time, args.submission_id, platforms[metriq_job.device_name.lower()])
     else:
         logger.info("Job is not yet completed. Please try again later.")
+
+
+def view_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+    metriq_job = prompt_for_job(args, job_manager)
+    if metriq_job:
+        print(metriq_job)
 
 
 def main() -> int:
@@ -129,13 +124,12 @@ def main() -> int:
 
     if args.action == "dispatch":
         dispatch_job(args, job_manager)
+    elif args.action == "view":
+        view_job(args, job_manager)
     elif args.action == "poll":
         poll_job(args, job_manager, False)
     elif args.action == "upload":
         poll_job(args, job_manager, True)
-    elif args.action == "list-jobs":
-        jobs: list[MetriqGymJob] = job_manager.get_jobs()
-        list_jobs(jobs)
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")
         return 1

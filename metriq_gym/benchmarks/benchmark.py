@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from dataclasses import dataclass
 from datetime import datetime
 
-from qbraid import GateModelResultData, QuantumDevice
+from qbraid import GateModelResultData, QuantumDevice, QuantumJob
 
 
 @dataclass
@@ -21,7 +21,7 @@ class BenchmarkResult:
     pass
 
 
-class Benchmark:
+class Benchmark[BD: BenchmarkData, BR: BenchmarkResult]:
     def __init__(
         self,
         args: argparse.Namespace,
@@ -30,14 +30,15 @@ class Benchmark:
         self.args = args
         self.params: BaseModel = params
 
-    def dispatch_handler(self, device: QuantumDevice) -> BenchmarkData:
+    def dispatch_handler(self, device: QuantumDevice) -> BD:
         raise NotImplementedError
 
     def poll_handler(
         self,
-        job_data: BenchmarkData,
+        job_data: BD,
         result_data: list[GateModelResultData],
-    ) -> BenchmarkResult:
+        quantum_jobs: list[QuantumJob],
+    ) -> BR:
         raise NotImplementedError
 
     def upload_handler(

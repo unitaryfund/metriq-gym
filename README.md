@@ -94,13 +94,19 @@ Once your job is complete and you are happy with the results, you can upload it 
 python metriq_gym/run.py upload --job_id <METRIQ_GYM_JOB_ID> --submission_id <METRIQ_APP_SUBMISSION_ID>
 ```
 
-### Listing jobs
+### View jobs
 
-You can view all the jobs that have been dispatched by using the `list-jobs` action. This will read the `jobs_file`
-and display information about each job, including its ID, backend, job type, provider, qubits, and shots.
+You can view all the jobs that have been dispatched by using the `view` action. 
+This will display basic information about each job, including its ID, backend, job type, provider, and device.
 
 ```sh
-python metriq_gym/run.py list-jobs
+python metriq_gym/run.py view
+```
+In order to view the details of a specific job (e.g., the parameters the job was launched with), 
+you can use the `view` action with the `--job_id` flag or select the job by index from the list of all dispatched jobs.
+
+```sh
+python metriq_gym/run.py view --job_id <METRIQ_GYM_JOB_ID>
 ```
 
 ### Example: Benchmarking Bell state effective qubits (BSEQ) on IBM hardware
@@ -161,11 +167,11 @@ metriq_gym/run.py poll` and then selecting the job to poll by index from our loc
 
 ```sh
 Available jobs:
-+----+--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
-|    | Metriq-gym Job Id                    | Provider   | Device                                               | Type           | Dispatch time (UTC)        |
-+====+======================================+============+======================================================+================+============================+
-| 0 | 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                        | BSEQ           | 2025-03-05T10:21:18.333703 |
-+----+--------------------------------------+------------+------------------------------------------------------+----------------+----------------------------+
++----+--------------------------------------+------------+------------------------------------------------------+----------------+-----------------------------+
+|    | Metriq-gym Job Id                    | Provider   | Device                                               | Type           | Dispatch time (UTC)         |
++====+======================================+============+======================================================+================+=============================+
+| 0  | 93a06a18-41d8-475a-a030-339fbf3accb9 | ibm        | ibm_sherbrooke                                        | BSEQ           | 2025-03-05T10:21:18.333703 |
++----+--------------------------------------+------------+------------------------------------------------------+----------------+-----------------------------+
 Select a job index: 
 ```
 
