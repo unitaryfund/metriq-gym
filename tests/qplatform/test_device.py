@@ -1,4 +1,3 @@
-# Tests for device_topology:
 from unittest.mock import MagicMock
 import pytest
 from qbraid import QuantumDevice
@@ -9,9 +8,7 @@ from rustworkx import PyGraph
 from metriq_gym.qplatform.device import connectivity_graph
 
 
-def test_device_connectivity_graph_qiskit():
-    """Test connectivity_graph for a QiskitBackend device."""
-    # Mock the QiskitBackend object
+def test_device_connectivity_graph_qiskit_backend():
     mock_backend = MagicMock()
     mock_graph = PyGraph()
     mock_graph.add_nodes_from(range(3))
@@ -30,7 +27,6 @@ def test_device_connectivity_graph_qiskit():
 
 
 def test_device_connectivity_graph_invalid_device():
-    """Test with an unsupported device type."""
     mock_device = MagicMock(spec=QuantumDevice)  # Mock an unknown QuantumDevice
     with pytest.raises(NotImplementedError, match="Connectivity graph not implemented for device"):
         connectivity_graph(mock_device)
