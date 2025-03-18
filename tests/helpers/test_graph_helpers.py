@@ -1,14 +1,8 @@
-import pytest
-from unittest.mock import MagicMock
-import networkx as nx
 import rustworkx as rx
 
-from qbraid import QuantumDevice
-from qbraid.runtime import QiskitBackend
 
-from metriq_gym.helpers.topology_helpers import (
+from metriq_gym.helpers.graph_helpers import (
     device_graph_coloring,
-    device_topology,
     largest_connected_size,
     GraphColoring,
 )
@@ -46,30 +40,6 @@ def test_largest_connected_size_empty_graph():
     """Test an empty graph."""
     graph = rx.PyGraph()
     assert largest_connected_size(graph) == 0
-
-
-# Tests for device_topology:
-def test_device_topology_qiskit():
-    """Test device_topology for a QiskitBackend device."""
-    # Mock the QiskitBackend object
-    mock_backend = MagicMock()
-    mock_backend.coupling_map.graph.to_undirected.return_value = nx.Graph([(0, 1), (1, 2)])
-
-    mock_device = MagicMock(spec=QiskitBackend)
-    mock_device._backend = mock_backend
-
-    topology = device_topology(mock_device)
-
-    assert isinstance(topology, nx.Graph)
-    assert set(topology.nodes) == {0, 1, 2}
-    assert set(topology.edges) == {(0, 1), (1, 2)}
-
-
-def test_device_topology_invalid_device():
-    """Test device_topology with an unsupported device type."""
-    mock_device = MagicMock(spec=QuantumDevice)  # Mock an unknown QuantumDevice
-    with pytest.raises(ValueError, match="Device type not supported."):
-        device_topology(mock_device)
 
 
 # Tests for device_graph_coloring:

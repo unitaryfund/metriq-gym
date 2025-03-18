@@ -18,12 +18,12 @@ from qiskit.result import marginal_counts, sampled_expectation_value
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.helpers.task_helpers import flatten_counts
-from metriq_gym.helpers.topology_helpers import (
+from metriq_gym.helpers.graph_helpers import (
     GraphColoring,
     device_graph_coloring,
-    device_topology,
     largest_connected_size,
 )
+from metriq_gym.qplatform.device import connectivity_graph
 
 
 @dataclass
@@ -148,7 +148,7 @@ class BSEQ(Benchmark):
         """Runs the benchmark and returns job metadata."""
         shots = self.params.shots
 
-        topology_graph = device_topology(device)
+        topology_graph = connectivity_graph(device)
         coloring = device_graph_coloring(topology_graph)
         trans_exp_sets = generate_chsh_circuit_sets(coloring)
 
