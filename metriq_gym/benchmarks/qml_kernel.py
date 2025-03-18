@@ -118,7 +118,7 @@ class QMLKernel(Benchmark):
             evaluatedAt = dispatch_time.strftime("%Y-%m-%d"),
             qubitCount = str(job_data.num_qubits),                                         # type: ignore[attr-defined]
             shots = str(job_data.shots),                                                   # type: ignore[attr-defined]
-            circuitDepth = str(job_data.num_qubits),
+            circuitDepth = str(job_data.num_qubits),                                       # type: ignore[attr-defined]
             # sampleSize = str(job_data.trials),
             # notes: str | None = None
             # standardError: str | None = None

@@ -256,10 +256,10 @@ class QuantumVolume(Benchmark):
             metricName = "",
             metricValue = str(0),
             evaluatedAt = dispatch_time.strftime("%Y-%m-%d"),
-            qubitCount = str(job_data.num_qubits),                                         # type: ignore[attr-defined]
-            shots = str(job_data.shots),                                                   # type: ignore[attr-defined]
-            circuitDepth = str(job_data.num_qubits),
-            sampleSize = str(job_data.trials),
+            qubitCount = str(job_data.num_qubits),                                     # type: ignore[attr-defined]
+            shots = str(job_data.shots),                                               # type: ignore[attr-defined]
+            circuitDepth = str(job_data.num_qubits),                                   # type: ignore[attr-defined]
+            sampleSize = str(job_data.trials),                                         # type: ignore[attr-defined]
             # notes: str | None = None
             # standardError: str | None = None
         )
