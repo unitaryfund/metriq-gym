@@ -2,7 +2,10 @@ from dataclasses import asdict, dataclass
 from datetime import datetime
 import json
 import os
+import pprint
 from typing import Any
+
+from tabulate import tabulate
 from metriq_gym.job_type import JobType
 
 
@@ -35,6 +38,18 @@ class MetriqGymJob:
         job.job_type = JobType(job_dict["job_type"])
         job.dispatch_time = datetime.fromisoformat(job_dict["dispatch_time"])
         return job
+
+    def __str__(self) -> str:
+        rows = [
+            ["id", self.id],
+            ["job_type", self.job_type.value],
+            ["params", pprint.pformat(self.params)],
+            ["provider_name", self.provider_name],
+            ["device_name", self.device_name],
+            ["provider_job_ids", pprint.pformat(self.data["provider_job_ids"])],
+            ["dispatch_time", self.dispatch_time.isoformat()],
+        ]
+        return tabulate(rows, tablefmt="fancy_grid")
 
 
 # TODO: https://github.com/unitaryfund/metriq-gym/issues/51
