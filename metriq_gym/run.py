@@ -6,8 +6,14 @@ import logging
 import uuid
 
 from dotenv import load_dotenv
-from qbraid import GateModelResultData, JobStatus
-from qbraid.runtime import QuantumDevice, QuantumProvider, load_job, load_provider
+from qbraid.runtime import (
+    GateModelResultData,
+    JobStatus,
+    QuantumDevice,
+    QuantumProvider,
+    load_job,
+    load_provider,
+)
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData

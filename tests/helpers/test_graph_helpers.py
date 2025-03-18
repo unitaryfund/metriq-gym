@@ -1,16 +1,11 @@
-import pytest
-from unittest.mock import MagicMock
 import rustworkx as rx
 
-from qbraid import QuantumDevice
-from qbraid.runtime import QiskitBackend
 
-from metriq_gym.helpers.topology_helpers import (
+from metriq_gym.helpers.graph_helpers import (
     device_graph_coloring,
     largest_connected_size,
     GraphColoring,
 )
-from metriq_gym.platform.device import connectivity_graph
 
 
 # Tests for largest_connected_size:
@@ -45,34 +40,6 @@ def test_largest_connected_size_empty_graph():
     """Test an empty graph."""
     graph = rx.PyGraph()
     assert largest_connected_size(graph) == 0
-
-
-# Tests for device_topology:
-def test_device_connectivity_graph_qiskit():
-    """Test connectivity_graph for a QiskitBackend device."""
-    # Mock the QiskitBackend object
-    mock_backend = MagicMock()
-    mock_graph = rx.PyGraph()
-    mock_graph.add_nodes_from(range(3))
-    mock_graph.add_edge(0, 1, None)
-    mock_graph.add_edge(1, 2, None)
-    mock_backend.coupling_map.graph.to_undirected.return_value = mock_graph
-
-    mock_device = MagicMock(spec=QiskitBackend)
-    mock_device._backend = mock_backend
-
-    graph = connectivity_graph(mock_device)
-
-    assert isinstance(graph, rx.PyGraph)
-    assert set(graph.nodes()) == {0, 1, 2}
-    assert set(graph.edge_list()) == {(0, 1), (1, 2)}
-
-
-def test_device_topology_invalid_device():
-    """Test device_topology with an unsupported device type."""
-    mock_device = MagicMock(spec=QuantumDevice)  # Mock an unknown QuantumDevice
-    with pytest.raises(NotImplementedError, match="Connectivity graph not implemented for device"):
-        connectivity_graph(mock_device)
 
 
 # Tests for device_graph_coloring:

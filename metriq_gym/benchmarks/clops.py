@@ -8,9 +8,9 @@ from qiskit import QuantumCircuit
 from qiskit_device_benchmarking.clops.clops_benchmark import append_1q_layer
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
-from metriq_gym.platform.job import execution_time
+from metriq_gym.qplatform.job import execution_time
 from metriq_gym.helpers.task_helpers import flatten_job_ids
-from metriq_gym.platform.device import connectivity_graph
+from metriq_gym.qplatform.device import connectivity_graph
 
 
 @dataclass

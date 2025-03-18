@@ -18,12 +18,12 @@ from qiskit.result import marginal_counts, sampled_expectation_value
 
 from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.helpers.task_helpers import flatten_counts
-from metriq_gym.helpers.topology_helpers import (
+from metriq_gym.helpers.graph_helpers import (
     GraphColoring,
     device_graph_coloring,
     largest_connected_size,
 )
-from metriq_gym.platform.device import connectivity_graph
+from metriq_gym.qplatform.device import connectivity_graph
 
 
 @dataclass
