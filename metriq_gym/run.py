@@ -2,7 +2,6 @@ import argparse
 from dataclasses import asdict
 from datetime import datetime
 import logging
-import os
 import sys
 import uuid
 
@@ -18,9 +17,6 @@ from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate
 from metriq_gym.job_type import JobType
 from metriq_gym.metriq_metadata import platforms
-
-from metriq_client import MetriqClient
-from metriq_client.models import ResultCreateRequest
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -120,56 +116,9 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
         results: BenchmarkResult = handler.poll_handler(job_data, result_data)
         print(results)
         if is_upload:
-            upload_job(args, job_type, job_data, results, platforms[metriq_job.device_name.lower()], metriq_job.dispatch_time)
+            handler.upload_handler(job_data, results, metriq_job.dispatch_time, args.submission_id, platforms[metriq_job.device_name.lower()])
     else:
         logger.info("Job is not yet completed. Please try again later.")
-
-
-def upload_job(args: argparse.Namespace, job_type: JobType, job_data: BenchmarkData, result_data: BenchmarkResult, platform: int, dispatch_time: datetime):
-    # Ignored attributes are defined in subclasses, not BenchmarkData and BenchmarkResult
-    client = MetriqClient(os.environ.get("METRIQ_CLIENT_API_KEY"))
-    task = 0
-    method = 0
-    if job_type == JobType.QUANTUM_VOLUME:
-        task = 235 #Quantum Volume task ID
-        method = 144 #Heavy output generation task ID
-    elif job_type == JobType.BSEQ:
-        task = 236 #BSEQ task ID
-        method = 426 #BSEQ method ID
-    else:
-        raise Exception("You're trying to upload an unrecognized job type!")
-    client.submission_add_task(args.submission_id, task)
-    client.submission_add_method(args.submission_id, method)
-    client.submission_add_platform(args.submission_id, platform)
-    result_create_request = ResultCreateRequest(
-        task = str(task),
-        method = str(method),
-        platform = str(platform),
-        isHigherBetter = str(True),
-        metricName = "",
-        metricValue = str(0),
-        evaluatedAt = dispatch_time.strftime("%Y-%m-%d"),
-        qubitCount = str(job_data.num_qubits),                                         # type: ignore[attr-defined]
-        shots = str(job_data.shots),                                                   # type: ignore[attr-defined]
-        # circuitDepth = str | None = None,
-        # notes: str | None = None
-        # sampleSize: str | None = None
-        # standardError: str | None = None
-    )
-    if job_type == JobType.QUANTUM_VOLUME:
-        result_create_request.metricName = "Heavy-output generation rate"
-        result_create_request.metricValue = str(result_data.hog_prob)                  # type: ignore[attr-defined]
-        client.result_add(result_create_request, args.submission_id)
-        result_create_request.metricName = "Cross-entropy benchmark fidelity"
-        result_create_request.metricValue = str(result_data.xeb)                       # type: ignore[attr-defined]
-        client.result_add(result_create_request, args.submission_id)
-    elif job_type == JobType.BSEQ:
-        result_create_request.metricName = "Largest connected component size"
-        result_create_request.metricValue = str(result_data.largest_connected_size)    # type: ignore[attr-defined]
-        client.result_add(result_create_request, args.submission_id)
-        result_create_request.metricName = "Largest connected component size per node"
-        result_create_request.metricValue = str(result_data.fraction_connected)        # type: ignore[attr-defined]
-        client.result_add(result_create_request, args.submission_id)
 
 
 def main() -> int:
