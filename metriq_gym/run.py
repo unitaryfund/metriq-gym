@@ -102,7 +102,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=
     ]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_jobs):
         result_data: list[GateModelResultData] = [task.result().data for task in quantum_jobs]
-        results: BenchmarkResult = handler.poll_handler(job_data, result_data)
+        results: BenchmarkResult = handler.poll_handler(job_data, result_data, quantum_jobs)
         print(results)
         if is_upload:
             handler.upload_handler(job_data, results, metriq_job.dispatch_time, args.submission_id, platforms[metriq_job.device_name.lower()])
