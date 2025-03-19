@@ -48,5 +48,5 @@ class Benchmark[BD: BenchmarkData, BR: BenchmarkResult]:
         dispatch_time: datetime,
         submission_id: int,
         platform_id: int,
-    ) -> bool:
+    ) -> None:
         raise NotImplementedError
