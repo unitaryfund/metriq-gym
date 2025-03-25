@@ -1,8 +1,8 @@
 import argparse
 from dataclasses import asdict
 from datetime import datetime
-import sys
 import logging
+import sys
 import uuid
 
 from dotenv import load_dotenv
@@ -16,12 +16,13 @@ from qbraid.runtime import (
 )
 
 from metriq_gym.benchmarks import BENCHMARK_DATA_CLASSES, BENCHMARK_HANDLERS
-from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData
+from metriq_gym.benchmarks.benchmark import Benchmark, BenchmarkData, BenchmarkResult
 from metriq_gym.cli import parse_arguments, prompt_for_job
 from metriq_gym.exceptions import QBraidSetupError
 from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate, validate_and_create_model
 from metriq_gym.job_type import JobType
+from metriq_gym.metriq_metadata import platforms
 
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
@@ -87,8 +88,7 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     )
     logger.info(f"Job dispatched with ID: {job_id}")
 
-
-def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
+def poll_job(args: argparse.Namespace, job_manager: JobManager, is_upload: bool=False) -> None:
     metriq_job = prompt_for_job(args, job_manager)
     if not metriq_job:
         return
@@ -102,7 +102,10 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
     ]
     if all(task.status() == JobStatus.COMPLETED for task in quantum_jobs):
         result_data: list[GateModelResultData] = [task.result().data for task in quantum_jobs]
-        print(handler.poll_handler(job_data, result_data, quantum_jobs))
+        results: BenchmarkResult = handler.poll_handler(job_data, result_data, quantum_jobs)
+        print(results)
+        if is_upload:
+            handler.upload_handler(job_data, results, metriq_job.dispatch_time, args.submission_id, platforms[metriq_job.device_name.lower()])
     else:
         logger.info("Job is not yet completed. Please try again later.")
 
@@ -124,7 +127,9 @@ def main() -> int:
     elif args.action == "view":
         view_job(args, job_manager)
     elif args.action == "poll":
-        poll_job(args, job_manager)
+        poll_job(args, job_manager, False)
+    elif args.action == "upload":
+        poll_job(args, job_manager, True)
     else:
         logging.error("Invalid action specified. Run with --help for usage information.")
         return 1
