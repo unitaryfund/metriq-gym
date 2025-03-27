@@ -37,7 +37,7 @@ def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
     Raises:
         QBraidSetupError: If no device matching the name is found in the provider.
     """
-    # TODO: https://github.com/unitaryfund/metriq-gym/issues/259
+    # TODO: https://github.com/unitaryfoundation/metriq-gym/issues/259
     # Once https://github.com/qBraid/qBraid/pull/890 gets released, put a defensive approach here
     # Whenever no provider is found, print qbraid.runtime.get_providers(), and raise a QBraidSetupError
     provider: QuantumProvider = load_provider(provider_name)
