@@ -9,12 +9,10 @@ message: >-
 type: software
 authors:
   - name: Unitary Foundation
-    address: 315 MONTGOMERY ST
     city: San Francisco
     post-code: '94104'
-    region: Califronia
+    region: California
     country: US
-    location: 10TH FLOOR
     website: 'https://unitary.foundation/'
 repository-code: 'https://github.com/unitaryfund/metriq-gym'
 abstract: >-
