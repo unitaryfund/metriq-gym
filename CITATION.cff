@@ -8,7 +8,7 @@ message: >-
   metadata from this file.
 type: software
 authors:
-  - name: UnitaryFoundation
+  - name: Unitary Foundation
     address: 315 MONTGOMERY ST
     city: San Francisco
     post-code: '94104'
