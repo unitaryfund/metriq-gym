@@ -128,7 +128,7 @@ This file offers a reference for developers and users on how to structure the JS
 Registering the New Benchmark
 *****************************
 
-1. **Add to :code:`job_type.py`**
+1. **Add to job_type.py**
 
    Open the :file:`metriq_gym/job_type.py` file and register your new benchmark in the :code:`JobType` enumeration:
 
@@ -141,7 +141,7 @@ Registering the New Benchmark
            NEW_BENCHMARK = "New Benchmark"
            ...
 
-2. **Initialize in :file:`benchmarks/__init__.py`**
+2. **Initialize in benchmarks/__init__.py**
 
    Within :file:`benchmarks/__init__.py`, import your benchmark classes and add them to the appropriate mappings:
 
