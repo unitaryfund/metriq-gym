@@ -2326,7 +2326,7 @@ tea-console = {git = "https://github.com/unitaryfund/tea-console.git", branch = 
 
 [package.source]
 type = "git"
-url = "https://github.com/unitaryfund/metriq-client.git"
+url = "https://github.com/unitaryfoundation/metriq-client.git"
 reference = "master"
 resolved_reference = "8554d23e1d1f5e97c43b6751d00a8a5bcdb012bd"
 
@@ -3274,21 +3274,21 @@ test = ["pytest (>=7.2.0,<7.3.0)"]
 
 [[package]]
 name = "pyqrack"
-version = "1.37.0"
+version = "1.38.0"
 description = "pyqrack - Pure Python vm6502q/qrack Wrapper"
 optional = false
 python-versions = "*"
 groups = ["main"]
 markers = "platform_machine == \"arm64\" or platform_machine == \"x86_64\" or sys_platform != \"darwin\" or platform_machine != \"arm64\" and platform_machine != \"x86_64\""
 files = [
-    {file = "pyqrack-1.37.0-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:68ac5139d6515f00a259e973727bcbf5076cb107d47a051ca1e55f2696f0545c"},
-    {file = "pyqrack-1.37.0-py3-none-macosx_14_0_arm64.whl", hash = "sha256:9513d180fe30d9bb0c01dc47c8202f028db7cbc67ab025d93e438d8d2087b61a"},
-    {file = "pyqrack-1.37.0-py3-none-macosx_15_0_arm64.whl", hash = "sha256:5a973cd85a3be2180fb4e6c8082d7595f0447f56a01aabd2059260d1b08dadca"},
-    {file = "pyqrack-1.37.0-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:d34300af23fcf7c2be7623a44c0fa2a14c0925399c7c9ff24d42e91a0a3340d4"},
-    {file = "pyqrack-1.37.0-py3-none-manylinux_2_35_x86_64.whl", hash = "sha256:1827e621aa50b3b393c5b515ce97396b9ab7d842a7a29a02e26bef276430a5fa"},
-    {file = "pyqrack-1.37.0-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:6770602b77b60874ea8bd33e925b58d655eeed9f0d6e5d3729ed6e50e1c9add1"},
-    {file = "pyqrack-1.37.0-py3-none-win_amd64.whl", hash = "sha256:af1413f188c74163d9d06bdab61c6da8e47349c57181d3396987a53f485544f0"},
-    {file = "pyqrack-1.37.0.tar.gz", hash = "sha256:b8f1cf8880af0ca44cf0dab86e08e819caa34852a4eec5f3d492ac22a7c42aef"},
+    {file = "pyqrack-1.38.0-py3-none-macosx_13_0_x86_64.whl", hash = "sha256:903e45ff3564a5e8d74f8433f74ea92596ac2066ec4ecf0f12e3b901d1c4fa73"},
+    {file = "pyqrack-1.38.0-py3-none-macosx_14_0_arm64.whl", hash = "sha256:ae1266a7cf397fd7bb4ef98066e32443abcdd637f6e49f8f660714bcb7340cb2"},
+    {file = "pyqrack-1.38.0-py3-none-macosx_15_0_arm64.whl", hash = "sha256:9f56a6b0e16587dc3fe7637d9d2ceeafc13ea13f9f28f005a10948c83038b3ff"},
+    {file = "pyqrack-1.38.0-py3-none-manylinux_2_31_x86_64.whl", hash = "sha256:85f182654d96648333ab4fe52753def66e352fabcf85c4fd44db1a84dc825094"},
+    {file = "pyqrack-1.38.0-py3-none-manylinux_2_35_x86_64.whl", hash = "sha256:12fad8d048ed567a5f6f63c2ac3b0e83008b9e14f578e46a174d36bb640344d3"},
+    {file = "pyqrack-1.38.0-py3-none-manylinux_2_39_x86_64.whl", hash = "sha256:217b71c633b5fe9e55d7af967888c16437689e8c3ce06fc4c55a3885c6333ff8"},
+    {file = "pyqrack-1.38.0-py3-none-win_amd64.whl", hash = "sha256:405bc0eda5b32408e55928b4f6c7d73764969e54dc0baf37b64d5bddf85eee6f"},
+    {file = "pyqrack-1.38.0.tar.gz", hash = "sha256:ee73e7abfbbb5dbae506faf87ac1e5e2ada08e3cc2844fe5fdb2c28b276699c4"},
 ]
 
 [package.extras]
@@ -5305,4 +5305,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "<3.14,>=3.12"
-content-hash = "20d164088d7a47b793c1707e4cf562521fc108ffc1c4e35461597f5965f5c1a1"
+content-hash = "ef1fe4c8ef254ddd50bfbce4c79274c7bf50c11c62fe4e12a197712b12ad8e62"
