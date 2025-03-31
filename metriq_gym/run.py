@@ -4,9 +4,11 @@ from datetime import datetime
 import sys
 import logging
 import uuid
-
 from dotenv import load_dotenv
+
+from qbraid import QbraidError
 from qbraid.runtime import (
+    get_providers,
     GateModelResultData,
     JobStatus,
     QuantumDevice,
@@ -23,8 +25,8 @@ from metriq_gym.job_manager import JobManager, MetriqGymJob
 from metriq_gym.schema_validator import load_and_validate, validate_and_create_model
 from metriq_gym.job_type import JobType
 
-logger = logging.getLogger(__name__)
-logger.setLevel(logging.INFO)
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger("metriq_gym")
 
 
 def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
@@ -37,14 +39,16 @@ def setup_device(provider_name: str, backend_name: str) -> QuantumDevice:
     Raises:
         QBraidSetupError: If no device matching the name is found in the provider.
     """
-    # TODO: https://github.com/unitaryfund/metriq-gym/issues/259
-    # Once https://github.com/qBraid/qBraid/pull/890 gets released, put a defensive approach here
-    # Whenever no provider is found, print qbraid.runtime.get_providers(), and raise a QBraidSetupError
-    provider: QuantumProvider = load_provider(provider_name)
+    try:
+        provider: QuantumProvider = load_provider(provider_name)
+    except QbraidError:
+        logger.error(f"No provider matching the name '{provider_name}' found.")
+        logger.info(f"Providers available: {get_providers()}")
+        raise QBraidSetupError("Provider not found")
 
     try:
         device = provider.get_device(backend_name)
-    except Exception:
+    except QbraidError:
         logger.error(
             f"No device matching the name '{backend_name}' found in provider '{provider_name}'."
         )
@@ -85,7 +89,7 @@ def dispatch_job(args: argparse.Namespace, job_manager: JobManager) -> None:
             dispatch_time=datetime.now(),
         )
     )
-    logger.info(f"Job dispatched with ID: {job_id}")
+    print(f"Job dispatched with ID: {job_id}")
 
 
 def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
@@ -104,7 +108,7 @@ def poll_job(args: argparse.Namespace, job_manager: JobManager) -> None:
         result_data: list[GateModelResultData] = [task.result().data for task in quantum_jobs]
         print(handler.poll_handler(job_data, result_data, quantum_jobs))
     else:
-        logger.info("Job is not yet completed. Please try again later.")
+        print("Job is not yet completed. Please try again later.")
 
 
 def view_job(args: argparse.Namespace, job_manager: JobManager) -> None:
